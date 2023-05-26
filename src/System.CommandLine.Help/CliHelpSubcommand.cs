@@ -6,7 +6,7 @@ namespace System.CommandLine.Help
     public class CliHelpSubcommand : CliHelpSection
     {
         public CliHelpSubcommand(CliHelpConfiguration helpConfiguration, HelpContext helpContext)
-            : base(helpConfiguration, helpContext, LocalizationResources.HelpCommandsTitle(), true)
+            : base(helpConfiguration, helpContext, LocalizationResources.HelpCommandsTitle())
         {
         }
 
@@ -39,7 +39,6 @@ namespace System.CommandLine.Help
         {
             _ = command ?? throw new ArgumentNullException(nameof(command));
 
-            // KAD: I rewrote this because it was in slightly different styles that made it hard to tell what was consistently handled
             string firstColumnText = SymbolOutput.GetUsage(command);
             string secondColumnText = GetSecondColumnText(command);
 
@@ -70,11 +69,12 @@ namespace System.CommandLine.Help
                     return "";
                 }
 
-                var isSingleArgument = args.Count() == 1;
-                var defaultArgTexts = args
-                    .Select(arg => SymbolOutput.GetDefaultValueText(arg, false));
-
-                return $"[{string.Join(", ", defaultArgTexts)}]";
+                return args.Count() switch
+                {
+                    0 => "",
+                    1 => $"[{SymbolOutput.GetDefaultValueText(args.First(), false)}]",
+                    _ => $"[{string.Join(", ", args.Select(arg => SymbolOutput.GetDefaultValueText(arg, true)))}]"
+                };
             }
         }
     }

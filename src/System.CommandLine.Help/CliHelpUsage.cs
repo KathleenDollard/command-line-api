@@ -31,9 +31,7 @@ namespace System.CommandLine.Help
             {
                 bool displayOptionTitle = false;
 
-                var selfAndParents = command.Parents
-                    .Prepend(command)
-                    .OfType<CliCommand>()
+                var selfAndParents = command.SelfAndParentCommands()
                     .Reverse();
 
                 // KAD: We either accept a few extra allocations, or we expose HasOptions, etc.

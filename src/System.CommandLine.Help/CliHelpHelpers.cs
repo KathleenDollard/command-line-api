@@ -140,7 +140,7 @@ namespace System.CommandLine.Help
             }
         }
 
-        internal static void WriteLines(IEnumerable<string>? output, HelpContext context)
+        public static void WriteLines(IEnumerable<string>? output, HelpContext context)
         {
             if (output is null)
             { return; }
@@ -150,12 +150,28 @@ namespace System.CommandLine.Help
             }
         }
 
-        internal static string IndentText(string text, int indent)
+        public static string IndentText(string text, int indent)
         => $"{GetIndentString(indent)}{text}";
 
-        internal static void WriteBlankLine(HelpContext context)
+        public static void WriteBlankLine(HelpContext context)
         {
             context.Output.WriteLine();
+        }
+
+        public static IEnumerable<CliCommand> SelfAndParentCommands(this CliSymbol symbol)
+        {
+            var ret = new List<CliCommand>();
+            CliCommand? current = symbol switch
+            {
+                CliCommand command => command,
+                _ => symbol.Parents.FirstOrDefault() as CliCommand
+            }; ;
+            while (current is not null)
+            {
+                ret.Add(current);
+                current = current.Parents.FirstOrDefault() as CliCommand;
+            }
+            return ret;
         }
     }
 }

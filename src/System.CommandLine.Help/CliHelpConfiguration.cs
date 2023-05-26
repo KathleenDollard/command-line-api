@@ -4,11 +4,10 @@
     {
         private CliHelpLayout? currentLayout;
 
-        public CliHelpConfiguration(CliHelpFormatting? helpFormatting = null, 
-            CliHelpSymbolOutput? symbolOutput = null, int maxWidth = int.MaxValue)
+        public CliHelpConfiguration(CliHelpSymbolOutput? symbolOutput = null, int indent = 0)
         {
-            HelpFormatting = helpFormatting ?? new CliHelpFormatting();
             SymbolOutput = symbolOutput ?? new CliHelpSymbolOutput(this );
+            Indent = indent ==0 ? 2:indent;
         }
 
         //public Dictionary<string, CliHelpLayout> Layouts => new();
@@ -17,7 +16,7 @@
             get => currentLayout ?? new CliHelpLayout(this); 
             set => currentLayout = value;
         }
-        public CliHelpFormatting HelpFormatting { get; set; }
         public CliHelpSymbolOutput SymbolOutput { get; }
+        public int Indent { get; }
     }
 }

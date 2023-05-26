@@ -45,23 +45,6 @@ namespace System.CommandLine
         /// </summary>
         public string? HelpName { get; set; }
 
-        // KAD: Alternatively, the GetDefaultValue() could be public
-        /// <summary>
-        /// Gets the default value for display in help
-        /// </summary>
-        /// <returns></returns>
-        public object? GetHelpDefaultValue()
-        {
-            if (HasDefaultValue)
-            {
-                if (GetDefaultValue() is { } defaultValue)
-                {
-                    return defaultValue;
-                }
-            }
-            return null;
-        }
-
         internal TryConvertArgument? ConvertArguments
         {
             get => _convertArguments ??= ArgumentConverter.GetConverter(this);
@@ -80,7 +63,7 @@ namespace System.CommandLine
                     Type? valueType = ValueType;
                     if (valueType == typeof(bool) || valueType == typeof(bool?))
                     {
-                        _completionSources = new ()
+                        _completionSources = new()
                         {
                             static _ => new CompletionItem[]
                             {
@@ -115,7 +98,7 @@ namespace System.CommandLine
         /// Provides a list of argument validators. Validators can be used
         /// to provide custom errors based on user input.
         /// </summary>
-        public List<Action<ArgumentResult>> Validators => _validators ??= new ();
+        public List<Action<ArgumentResult>> Validators => _validators ??= new();
 
         internal bool HasValidators => (_validators?.Count ?? 0) > 0;
 
@@ -124,13 +107,12 @@ namespace System.CommandLine
         /// </summary>
         /// <returns>Returns the default value for the argument, if defined. Null otherwise.</returns>
         public object? GetDefaultValue()
-        {
-            return GetDefaultValue(new ArgumentResult(this, null!, null));
-        }
+        => HasDefaultValue // Without this check, the internal GetDefaultValue throws
+            ? GetDefaultValue(new ArgumentResult(this, null!, null))
+            : null;
 
         internal abstract object? GetDefaultValue(ArgumentResult argumentResult);
 
-        // KAD: Not clear why this is public
         /// <summary>
         /// Specifies if a default value is defined for the argument.
         /// </summary>

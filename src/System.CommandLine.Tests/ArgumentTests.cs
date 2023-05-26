@@ -34,6 +34,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
+        // KAD: Why do we want this to throw in a public API?
         public void When_there_is_no_default_value_then_GetDefaultValue_throws()
         {
             var argument = new CliArgument<string>("the-arg");

@@ -41,22 +41,40 @@ namespace System.CommandLine.Help
         public virtual string? GetArgumentName(CliOption option)
         => option.ArgumentHelpName;
 
-        public virtual string? GetDefaultValue(CliOption option)
-        => option.GetHelpDefaultValue()?.ToString();
-        public virtual string? GetDefaultValue(CliArgument argument)
-        => argument.GetHelpDefaultValue()?.ToString();
-        public virtual string? GetDefaultValue(CliSymbol symbol)
-        => symbol switch
+        public string GetDefaultValueText(CliOption option)
         {
-            CliArgument argument => GetDefaultValue(argument),
-            CliOption option => GetDefaultValue(option),
-            _ => null
-        };
+            var defaultValue = option.GetDefaultValue();
 
-        public virtual string? CombineArgumentDefaultValues(CliCommand command)
-        => string.Join("|",
-            command.Arguments
-                .Select(arg => GetDefaultValue(arg)));
+            return defaultValue switch
+            {
+                null => string.Empty,
+                string s => s,
+                IEnumerable enumerable => string.Join("|", enumerable.OfType<object>().ToArray()),
+                _ => defaultValue.ToString()
+            };
+        }
+        public string GetDefaultValueText(
+            CliArgument argument,
+            bool displayArgumentName)
+        {
+            var defaultValue = argument.GetDefaultValue();
+            var defaultValueText = defaultValue switch
+            {
+                null => string.Empty,
+                string s => s,
+                IEnumerable enumerable => string.Join("|", enumerable.OfType<object>().ToArray()),
+                _ => defaultValue.ToString()
+            };          
+
+            return string.IsNullOrWhiteSpace(defaultValueText)
+                ? ""
+                : $"{GetLabel(argument, displayArgumentName)}: {defaultValueText}";
+
+            static string GetLabel(CliArgument argument, bool displayArgumentName) =>
+                displayArgumentName
+                  ? argument.Name
+                  : LocalizationResources.HelpArgumentDefaultValueLabel();
+        }
 
         private string? GetAliasesFromCollection(IEnumerable<string> aliases)
             => string.Join(", ", aliases);
@@ -100,46 +118,6 @@ namespace System.CommandLine.Help
                 ? text
                 : $"{text} {argumentText}";
         }
-        public string GetDefaultValueText(
-        CliArgument argument,
-        bool displayArgumentName)
-        {
-            var defaultValue = GetDefaultValue(argument);
-
-            string? displayedDefaultValue = defaultValue is null
-                ? string.Empty
-                : defaultValue is IEnumerable enumerable and not string
-                   ? string.Join("|", enumerable.OfType<object>().ToArray())
-                   : defaultValue?.ToString() ?? "";
-
-            return string.IsNullOrWhiteSpace(displayedDefaultValue)
-                ? ""
-                : $"{GetLabel(argument, displayArgumentName)}: {displayedDefaultValue}";
-
-            static string GetLabel(CliArgument argument, bool displayArgumentName) =>
-                displayArgumentName
-                  ? LocalizationResources.HelpArgumentDefaultValueLabel()
-                  : argument.Name;
-        }
-
-        public string GetDefaultValueText(
-            CliOption option)
-        {
-            if (option.Hidden)
-            {
-                return string.Empty;
-            }
-            var defaultValue = option.GetHelpDefaultValue();
-
-            if (defaultValue is null) return "";
-
-            var defaultValueText = defaultValue is IEnumerable enumerable and not string
-                ? string.Join("|", enumerable.OfType<object>().ToArray())
-                : defaultValue.ToString() ?? "";
-
-            var argumentDefaultValue = GetDefaultValue(option);
-            return $"{defaultValueText}";
-        }
 
         private string GetAliasText(CliSymbol symbol, IEnumerable<string> aliases)
         {
@@ -162,14 +140,13 @@ namespace System.CommandLine.Help
                 return $"<{helpName}>";
             }
 
-            var isBool = valueType == typeof(bool);
 
-            if (!showUsageOnBool && isBool)
+            if (!showUsageOnBool && (valueType == typeof(bool) || valueType == typeof(bool?)))
             {
                 return string.Empty;
             }
 
-            if (!isBool) // never show true/false
+            if (!(valueType == typeof(bool) || valueType == typeof(bool?))) // never show true/false
             {
                 var completionItems = symbol.GetCompletions();
                 if (completionItems.Any())

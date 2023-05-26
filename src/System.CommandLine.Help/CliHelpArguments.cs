@@ -15,9 +15,7 @@ namespace System.CommandLine.Help
             if (current is null)
             { return null; }
 
-            var selfAndParents = current.Parents
-                .Prepend(current)
-                .OfType<CliCommand>()
+            var selfAndParents = current.SelfAndParentCommands()
                 .Reverse();
 
             var table = selfAndParents
@@ -46,7 +44,7 @@ namespace System.CommandLine.Help
             {
                 var symbolDescription = argument.Description ?? string.Empty;
 
-                var defaultValueDescription = SymbolOutput.GetDefaultValueText(argument, true);
+                var defaultValueDescription = SymbolOutput.GetDefaultValueText(argument, false);
                 if (string.IsNullOrEmpty(defaultValueDescription))
                 {
                     return $"{symbolDescription}".Trim();

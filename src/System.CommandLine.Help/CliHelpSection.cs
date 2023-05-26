@@ -20,18 +20,21 @@ namespace System.CommandLine.Help
         protected HelpContext HelpContext { get; }
         public bool EmitHeaderOnEmptyBody { get; }
 
-        public int Indent => HelpConfiguration.HelpFormatting.Indent;
+        public int Indent => HelpConfiguration.Indent;
         public int MaxWidth  => HelpContext.MaxWidth;
         public CliHelpSymbolOutput SymbolOutput => HelpConfiguration.SymbolOutput;
             
         public virtual IEnumerable<string>? GetOpening(CliSymbol current)
         => new string[]
             {
-                HelpConfiguration.HelpFormatting.Heading(Header)
+                Heading(Header)
             };
 
         public abstract IEnumerable<string>? GetBody(CliSymbol current);
         public abstract IEnumerable<string>? GetClosing(CliSymbol current);
+
+        public virtual string Heading(string? heading)
+            => heading ?? string.Empty;
 
     }
 }

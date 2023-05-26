@@ -46,20 +46,6 @@ namespace System.CommandLine
             set => Argument.HelpName = value;
         }
 
-
-        public object? GetHelpDefaultValue()
-        {
-            if (Argument.HasDefaultValue)
-            {
-                if (Argument.GetDefaultValue() is { } defaultValue)
-                {
-                    return defaultValue;
-                }
-            }
-            return null;
-        }
-
-
         /// <summary>
         /// Gets or sets the arity of the option.
         /// </summary>
@@ -85,6 +71,15 @@ namespace System.CommandLine
         public abstract Type ValueType { get; }
 
         internal bool HasValidators => _validators is not null && _validators.Count > 0;
+
+        /// <summary>
+        /// Gets the default value for the argument.
+        /// </summary>
+        /// <returns>Returns the default value for the argument, if defined. Null otherwise.</returns>
+        public object? GetDefaultValue() 
+        => Argument.HasDefaultValue
+            ? Argument.GetDefaultValue()
+            : null;
 
         /// <summary>
         /// Gets the list of completion sources for the option.

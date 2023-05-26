@@ -74,7 +74,7 @@ namespace System.CommandLine.Tests.Help
             };
 
             StringWriter writer = new();
-            GetHelpBuilder(LargeMaxWidth).Write(GetHelpContext( command, output: writer));
+            GetHelpBuilder().Write(GetHelpContext( command, LargeMaxWidth, writer));
             Approvals.Verify(writer.ToString());
         }
     }

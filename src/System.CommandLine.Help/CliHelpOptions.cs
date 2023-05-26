@@ -6,7 +6,7 @@ namespace System.CommandLine.Help
     public class CliHelpOptions : CliHelpSection
     {
         public CliHelpOptions(CliHelpConfiguration helpConfiguration, HelpContext helpContext)
-            : base(helpConfiguration, helpContext, LocalizationResources.HelpOptionsTitle(), true)
+            : base(helpConfiguration, helpContext, LocalizationResources.HelpOptionsTitle())
         {
         }
 
@@ -33,7 +33,6 @@ namespace System.CommandLine.Help
             CliCommand? current = command;
             while (current is not null)
             {
-                // KAD: I did not understand the previous code, so may have oversimplified. Parents are now always Commands? ***
                 var parent = current.Parents.FirstOrDefault() as CliCommand;
                 if (parent is not null)
                 {
