@@ -47,14 +47,14 @@ namespace System.CommandLine.Tests.Help
                 new CliOption<string>("--the-root-option-no-default-arg", "-tronda")
                 {
                     Description = "the-root-option-no-default-description",
-                    HelpName = "the-root-option-arg-no-default-arg",
+                    ArgumentHelpName = "the-root-option-arg-no-default-arg",
                     Required = true
                 },
                 new CliOption<string>("--the-root-option-default-arg", "-troda")
                 {
                     DefaultValueFactory = (_) => "the-root-option-arg-value",
                     Description = "the-root-option-default-arg-description",
-                    HelpName = "the-root-option-arg",
+                    ArgumentHelpName = "the-root-option-arg",
                 },
                 new CliOption<FileAccess>("--the-root-option-enum-arg", "-troea")
                 {
@@ -74,7 +74,7 @@ namespace System.CommandLine.Tests.Help
             };
 
             StringWriter writer = new();
-            GetHelpBuilder(LargeMaxWidth).Write(command, writer);
+            GetHelpBuilder(LargeMaxWidth).Write(GetHelpContext( command, output: writer));
             Approvals.Verify(writer.ToString());
         }
     }

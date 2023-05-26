@@ -40,11 +40,25 @@ namespace System.CommandLine
         /// The name of the option when displayed in help.
         /// </value>
         /// <remarks>Useful for localization, as it's not used for actual parsing.</remarks>
-        public string? HelpName
+        public string? ArgumentHelpName
         {
             get => Argument.HelpName;
             set => Argument.HelpName = value;
         }
+
+
+        public object? GetHelpDefaultValue()
+        {
+            if (Argument.HasDefaultValue)
+            {
+                if (Argument.GetDefaultValue() is { } defaultValue)
+                {
+                    return defaultValue;
+                }
+            }
+            return null;
+        }
+
 
         /// <summary>
         /// Gets or sets the arity of the option.
@@ -114,8 +128,9 @@ namespace System.CommandLine
         public virtual CliAction? Action { get; set; }
 
         /// <inheritdoc />
-        public override IEnumerable<CompletionItem> GetCompletions(CompletionContext context)
+        public override IEnumerable<CompletionItem> GetCompletions(CompletionContext? context = null)
         {
+            context = context ?? CompletionContext.Empty;
             if (Argument is null)
             {
                 return Array.Empty<CompletionItem>();

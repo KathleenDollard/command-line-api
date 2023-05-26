@@ -45,6 +45,23 @@ namespace System.CommandLine
         /// </summary>
         public string? HelpName { get; set; }
 
+        // KAD: Alternatively, the GetDefaultValue() could be public
+        /// <summary>
+        /// Gets the default value for display in help
+        /// </summary>
+        /// <returns></returns>
+        public object? GetHelpDefaultValue()
+        {
+            if (HasDefaultValue)
+            {
+                if (GetDefaultValue() is { } defaultValue)
+                {
+                    return defaultValue;
+                }
+            }
+            return null;
+        }
+
         internal TryConvertArgument? ConvertArguments
         {
             get => _convertArguments ??= ArgumentConverter.GetConverter(this);
@@ -113,14 +130,16 @@ namespace System.CommandLine
 
         internal abstract object? GetDefaultValue(ArgumentResult argumentResult);
 
+        // KAD: Not clear why this is public
         /// <summary>
         /// Specifies if a default value is defined for the argument.
         /// </summary>
         public abstract bool HasDefaultValue { get; }
 
         /// <inheritdoc />
-        public override IEnumerable<CompletionItem> GetCompletions(CompletionContext context)
+        public override IEnumerable<CompletionItem> GetCompletions(CompletionContext? context = null)
         {
+            context = context ?? CompletionContext.Empty;
             return CompletionSources
                    .SelectMany(source => source.Invoke(context))
                    .Distinct()

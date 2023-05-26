@@ -5,14 +5,14 @@ namespace System.CommandLine.Help
 {
     public sealed class HelpAction : CliAction
     {
-        private HelpBuilder? _builder;
+        private IHelpBuilder? _builder;
 
         /// <summary>
         /// Specifies an <see cref="Builder"/> to be used to format help output when help is requested.
         /// </summary>
-        public HelpBuilder Builder
+        public IHelpBuilder Builder
         {
-            get => _builder ??= new HelpBuilder(Console.IsOutputRedirected ? int.MaxValue : Console.WindowWidth);
+            get => _builder ??= new HelpBuilderOld();
             set => _builder = value ?? throw new ArgumentNullException(nameof(value));
         }
 
@@ -20,8 +20,8 @@ namespace System.CommandLine.Help
         {
             var output = parseResult.Configuration.Output;
 
-            var helpContext = new HelpContext(Builder,
-                                              parseResult.CommandResult.Command,
+            var helpContext = new HelpContext(parseResult.CommandResult.Command,
+                                              Console.IsOutputRedirected ? int.MaxValue : Console.WindowWidth,
                                               output,
                                               parseResult);
 

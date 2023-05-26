@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace System.CommandLine.Parsing
 {
-    internal static class StringExtensions
+    public static class StringExtensions
     {
         internal static bool ContainsCaseInsensitive(
             this string source,
@@ -24,7 +24,7 @@ namespace System.CommandLine.Parsing
                                 value,
                                 CompareOptions.OrdinalIgnoreCase);
 
-        internal static (string? Prefix, string Alias) SplitPrefix(this string rawAlias)
+        public static (string? Prefix, string Alias) SplitPrefix(this string rawAlias)
         {
             if (rawAlias[0] == '/')
             {

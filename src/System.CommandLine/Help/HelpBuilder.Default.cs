@@ -5,11 +5,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.CommandLine.Completions;
 using System.CommandLine.Parsing;
+using System.CommandLine.Help;
 using System.Linq;
 
 namespace System.CommandLine.Help;
 
-public partial class HelpBuilder
+public partial class HelpBuilderOld
 {
     /// <summary>
     /// Provides default formatting for help output.
@@ -120,131 +121,132 @@ public partial class HelpBuilder
             return firstColumnText;
         }
 
-        /// <summary>
-        /// Gets the default sections to be written for command line help.
-        /// </summary>
-        public static IEnumerable<Action<HelpContext>> GetLayout()
-        {
-            yield return SynopsisSection();
-            yield return CommandUsageSection();
-            yield return CommandArgumentsSection();
-            yield return OptionsSection();
-            yield return SubcommandsSection();
-            yield return AdditionalArgumentsSection();
-        }
+        ///// <summary>
+        ///// Gets the default sections to be written for command line help.
+        ///// </summary>
+        //public static IEnumerable<Action<HelpContext>> GetLayout()
+        //{
+        //    yield return SynopsisSection();
+        //    yield return CommandUsageSection();
+        //    yield return CommandArgumentsSection();
+        //    yield return OptionsSection();
+        //    yield return SubcommandsSection();
+        //    // KAD: What is the purpose of this section. It appears to just write a header, and it is not tested
+        //    yield return AdditionalArgumentsSection();
+        //}
 
-        /// <summary>
-        /// Writes a help section describing a command's synopsis.
-        /// </summary>
-        public static Action<HelpContext> SynopsisSection() =>
-            ctx =>
-            {
-                ctx.HelpBuilder.WriteHeading(LocalizationResources.HelpDescriptionTitle(), ctx.Command.Description, ctx.Output);
-            };
+        ///// <summary>
+        ///// Writes a help section describing a command's synopsis.
+        ///// </summary>
+        //public static Action<HelpContext> SynopsisSection() =>
+        //    ctx =>
+        //    {
+        //        ctx.HelpBuilder.WriteHeading(LocalizationResources.HelpDescriptionTitle(), ctx.Command.Description, ctx.Output);
+        //    };
 
-        /// <summary>
-        /// Writes a help section describing a command's usage.
-        /// </summary>
-        public static Action<HelpContext> CommandUsageSection() =>
-            ctx =>
-            {
-                ctx.HelpBuilder.WriteHeading(LocalizationResources.HelpUsageTitle(), ctx.HelpBuilder.GetUsage(ctx.Command), ctx.Output);
-            };
+        ///// <summary>
+        ///// Writes a help section describing a command's usage.
+        ///// </summary>
+        //public static Action<HelpContext> CommandUsageSection() =>
+        //    ctx =>
+        //    {
+        //        ctx.HelpBuilder.WriteHeading(LocalizationResources.HelpUsageTitle(), ctx.HelpBuilder.GetUsage(ctx.Command), ctx.Output);
+        //    };
 
-        ///  <summary>
-        /// Writes a help section describing a command's arguments.
-        ///  </summary>
-        public static Action<HelpContext> CommandArgumentsSection() =>
-            ctx =>
-            {
-                TwoColumnHelpRow[] commandArguments = ctx.HelpBuilder.GetCommandArgumentRows(ctx.Command, ctx).ToArray();
+        /////  <summary>
+        ///// Writes a help section describing a command's arguments.
+        /////  </summary>
+        //public static Action<HelpContext> CommandArgumentsSection() =>
+        //    ctx =>
+        //    {
+        //        TwoColumnHelpRow[] commandArguments = ctx.HelpBuilder.GetCommandArgumentRows(ctx.Command, ctx).ToArray();
 
-                if (commandArguments.Length <= 0)
-                {
-                    ctx.WasSectionSkipped = true;
-                    return;
-                }
+        //        if (commandArguments.Length <= 0)
+        //        {
+        //            ctx.WasSectionSkipped = true;
+        //            return;
+        //        }
 
-                ctx.HelpBuilder.WriteHeading(LocalizationResources.HelpArgumentsTitle(), null, ctx.Output);
-                ctx.HelpBuilder.WriteColumns(commandArguments, ctx);
-            };
+        //        ctx.HelpBuilder.WriteHeading(LocalizationResources.HelpArgumentsTitle(), null, ctx.Output);
+        //        ctx.HelpBuilder.WriteColumns(commandArguments, ctx);
+        //    };
 
-        ///  <summary>
-        /// Writes a help section describing a command's subcommands.
-        ///  </summary>
-        public static Action<HelpContext> SubcommandsSection() =>
-            ctx => ctx.HelpBuilder.WriteSubcommands(ctx);
+        /////  <summary>
+        ///// Writes a help section describing a command's subcommands.
+        /////  </summary>
+        //public static Action<HelpContext> SubcommandsSection() =>
+        //    ctx => ctx.HelpBuilder.WriteSubcommands(ctx);
 
-        ///  <summary>
-        /// Writes a help section describing a command's options.
-        ///  </summary>
-        public static Action<HelpContext> OptionsSection() =>
-            ctx =>
-            {
-                List<TwoColumnHelpRow> optionRows = new();
-                bool addedHelpOption = false;
+        /////  <summary>
+        ///// Writes a help section describing a command's options.
+        /////  </summary>
+        //public static Action<HelpContext> OptionsSection() =>
+        //    ctx =>
+        //    {
+        //        List<TwoColumnHelpRow> optionRows = new();
+        //        bool addedHelpOption = false;
 
-                if (ctx.Command.HasOptions)
-                {
-                    foreach (CliOption option in ctx.Command.Options)
-                    {
-                        if (!option.Hidden)
-                        {
-                            optionRows.Add(ctx.HelpBuilder.GetTwoColumnRow(option, ctx));
-                            if (option is HelpOption)
-                            {
-                                addedHelpOption = true;
-                            }
-                        }
-                    }
-                }
+        //        if (ctx.Command.HasOptions)
+        //        {
+        //            foreach (CliOption option in ctx.Command.Options)
+        //            {
+        //                if (!option.Hidden)
+        //                {
+        //                    optionRows.Add(ctx.HelpBuilder.GetTwoColumnRow(option, ctx));
+        //                    if (option is HelpOption)
+        //                    {
+        //                        addedHelpOption = true;
+        //                    }
+        //                }
+        //            }
+        //        }
 
-                CliCommand? current = ctx.Command;
-                while (current is not null)
-                {
-                    CliCommand? parentCommand = null;
-                    ParentNode? parent = current.FirstParent;
-                    while (parent is not null)
-                    {
-                        if ((parentCommand = parent.Symbol as CliCommand) is not null)
-                        {
-                            if (parentCommand.HasOptions)
-                            {
-                                foreach (var option in parentCommand.Options)
-                                {
-                                    // global help aliases may be duplicated, we just ignore them
-                                    if (option is { Recursive: true, Hidden: false })
-                                    {
-                                        if (option is not HelpOption || !addedHelpOption)
-                                        {
-                                            optionRows.Add(ctx.HelpBuilder.GetTwoColumnRow(option, ctx));
-                                        }
-                                    }
-                                }
-                            }
+        //        CliCommand? current = ctx.Command;
+        //        while (current is not null)
+        //        {
+        //            CliCommand? parentCommand = null;
+        //            ParentNode? parent = current.FirstParent;
+        //            while (parent is not null)
+        //            {
+        //                if ((parentCommand = parent.Symbol as CliCommand) is not null)
+        //                {
+        //                    if (parentCommand.HasOptions)
+        //                    {
+        //                        foreach (var option in parentCommand.Options)
+        //                        {
+        //                            // global help aliases may be duplicated, we just ignore them
+        //                            if (option is { Recursive: true, Hidden: false })
+        //                            {
+        //                                if (option is not HelpOption || !addedHelpOption)
+        //                                {
+        //                                    optionRows.Add(ctx.HelpBuilder.GetTwoColumnRow(option, ctx));
+        //                                }
+        //                            }
+        //                        }
+        //                    }
 
-                            break;
-                        }
-                        parent = parent.Next;
-                    }
-                    current = parentCommand;
-                }
+        //                    break;
+        //                }
+        //                parent = parent.Next;
+        //            }
+        //            current = parentCommand;
+        //        }
 
-                if (optionRows.Count <= 0)
-                {
-                    ctx.WasSectionSkipped = true;
-                    return;
-                }
+        //        if (optionRows.Count <= 0)
+        //        {
+        //            ctx.WasSectionSkipped = true;
+        //            return;
+        //        }
 
-                ctx.HelpBuilder.WriteHeading(LocalizationResources.HelpOptionsTitle(), null, ctx.Output);
-                ctx.HelpBuilder.WriteColumns(optionRows, ctx);
-                ctx.Output.WriteLine();
-            };
+        //        ctx.HelpBuilder.WriteHeading(LocalizationResources.HelpOptionsTitle(), null, ctx.Output);
+        //        ctx.HelpBuilder.WriteColumns(optionRows, ctx);
+        //        ctx.Output.WriteLine();
+        //    };
 
-        ///  <summary>
-        /// Writes a help section describing a command's additional arguments, typically shown only when <see cref="CliCommand.TreatUnmatchedTokensAsErrors"/> is set to <see langword="true"/>.
-        ///  </summary>
-        public static Action<HelpContext> AdditionalArgumentsSection() =>
-            ctx => ctx.HelpBuilder.WriteAdditionalArguments(ctx);
+        /////  <summary>
+        ///// Writes a help section describing a command's additional arguments, typically shown only when <see cref="CliCommand.TreatUnmatchedTokensAsErrors"/> is set to <see langword="true"/>.
+        /////  </summary>
+        //public static Action<HelpContext> AdditionalArgumentsSection() =>
+        //    ctx => ctx.HelpBuilder.WriteAdditionalArguments(ctx);
     }
 }
