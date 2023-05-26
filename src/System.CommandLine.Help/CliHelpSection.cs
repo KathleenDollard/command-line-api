@@ -5,33 +5,29 @@ namespace System.CommandLine.Help
     public abstract class CliHelpSection
     {
         protected CliHelpSection(CliHelpConfiguration helpConfiguration, 
-                                 HelpContext helpContext,
                                  string header,
                                  bool emitHeaderOnEmptyBody = false)
         {
             HelpConfiguration = helpConfiguration;
-            HelpContext = helpContext;
             Header = header;
             EmitHeaderOnEmptyBody = emitHeaderOnEmptyBody;
         }
 
         protected CliHelpConfiguration HelpConfiguration { get; }
         protected string Header { get; }
-        protected HelpContext HelpContext { get; }
         public bool EmitHeaderOnEmptyBody { get; }
 
         public int Indent => HelpConfiguration.Indent;
-        public int MaxWidth  => HelpContext.MaxWidth;
         public CliHelpSymbolOutput SymbolOutput => HelpConfiguration.SymbolOutput;
             
-        public virtual IEnumerable<string>? GetOpening(CliSymbol current)
+        public virtual IEnumerable<string>? GetOpening(HelpContext helpContext)
         => new string[]
             {
                 Heading(Header)
             };
 
-        public abstract IEnumerable<string>? GetBody(CliSymbol current);
-        public abstract IEnumerable<string>? GetClosing(CliSymbol current);
+        public abstract IEnumerable<string>? GetBody(HelpContext helpContext);
+        public virtual IEnumerable<string>? GetClosing(HelpContext helpContext) => null;
 
         public virtual string Heading(string? heading)
             => heading ?? string.Empty;

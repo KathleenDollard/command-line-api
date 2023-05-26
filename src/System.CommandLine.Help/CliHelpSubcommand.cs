@@ -6,13 +6,14 @@ namespace System.CommandLine.Help
     public class CliHelpSubcommand : CliHelpSection
     {
         public CliHelpSubcommand(CliHelpConfiguration helpConfiguration, HelpContext helpContext)
-            : base(helpConfiguration, helpContext, LocalizationResources.HelpCommandsTitle())
+            : base(helpConfiguration, LocalizationResources.HelpCommandsTitle())
         {
         }
 
 
-        public override IEnumerable<string>? GetBody(CliSymbol symbol)
-        { 
+        public override IEnumerable<string>? GetBody(HelpContext helpContext)
+        {
+            var symbol = helpContext.Command;
             if (symbol is not CliCommand command )
             {
                 return null;
@@ -28,12 +29,9 @@ namespace System.CommandLine.Help
 
             return table is null
               ? null
-              : CliHelpHelpers.WriteTwoColumns(table, HelpContext.MaxWidth, Indent);
+              : CliHelpHelpers.WriteTwoColumns(table, helpContext.MaxWidth, Indent);
 
         }
-
-        public override IEnumerable<string>? GetClosing(CliSymbol current)
-        => null;
 
         private TwoColumnHelpRow GetTwoColumnRow(CliCommand command)
         {

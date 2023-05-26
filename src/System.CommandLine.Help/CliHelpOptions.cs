@@ -6,12 +6,13 @@ namespace System.CommandLine.Help
     public class CliHelpOptions : CliHelpSection
     {
         public CliHelpOptions(CliHelpConfiguration helpConfiguration, HelpContext helpContext)
-            : base(helpConfiguration, helpContext, LocalizationResources.HelpOptionsTitle())
+            : base(helpConfiguration, LocalizationResources.HelpOptionsTitle())
         {
         }
 
-        public override IEnumerable<string>? GetBody(CliSymbol symbol)
+        public override IEnumerable<string>? GetBody(HelpContext helpContext)
         {
+            var symbol = helpContext.Command;
             if (symbol is not CliCommand command)
             {
                 return null;
@@ -54,12 +55,10 @@ namespace System.CommandLine.Help
 
             return optionRows is null
                 ? null
-                : CliHelpHelpers.WriteTwoColumns(optionRows, HelpContext.MaxWidth, Indent);
+                : CliHelpHelpers.WriteTwoColumns(optionRows, helpContext.MaxWidth, Indent);
 
         }
 
-        public override IEnumerable<string>? GetClosing(CliSymbol current)
-        => null;
 
         private TwoColumnHelpRow GetTwoColumnRow(CliOption option)
         {

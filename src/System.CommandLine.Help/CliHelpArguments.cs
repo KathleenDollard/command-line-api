@@ -6,12 +6,13 @@ namespace System.CommandLine.Help
     public class CliHelpArguments : CliHelpSection
     {
         public CliHelpArguments(CliHelpConfiguration helpConfiguration, HelpContext helpContext)
-            : base(helpConfiguration, helpContext, LocalizationResources.HelpArgumentsTitle())
+            : base(helpConfiguration, LocalizationResources.HelpArgumentsTitle())
         {
         }
 
-        public override IEnumerable<string>? GetBody(CliSymbol current)
+        public override IEnumerable<string>? GetBody(HelpContext helpContext)
         {
+            var current = helpContext.Command;
             if (current is null)
             { return null; }
 
@@ -25,11 +26,9 @@ namespace System.CommandLine.Help
 
             return table is null
                 ? null
-                : CliHelpHelpers.WriteTwoColumns(table, HelpContext.MaxWidth, Indent);
+                : CliHelpHelpers.WriteTwoColumns(table, helpContext.MaxWidth, Indent);
         }
 
-        public override IEnumerable<string>? GetClosing(CliSymbol current)
-        => null;
 
         private TwoColumnHelpRow? GetTwoColumnRow(CliArgument argument)
         {
@@ -109,7 +108,7 @@ namespace System.CommandLine.Help
         //          : argument.Name;
         //}
 
-        //public static string GetArgumentDefaultValue(CliSymbol symbol)
+        //public static string GetArgumentDefaultValue(HelpContext helpContext)
         //{
         //    var defaultValue = symbol switch
         //    {

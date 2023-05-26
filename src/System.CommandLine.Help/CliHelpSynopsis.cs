@@ -6,14 +6,12 @@ namespace System.CommandLine.Help
     public class CliHelpSynopsis : CliHelpSection
     {
         public CliHelpSynopsis(CliHelpConfiguration helpConfiguration, HelpContext helpContext)
-            : base(helpConfiguration, helpContext, LocalizationResources.HelpDescriptionTitle(), true)
+            : base(helpConfiguration, LocalizationResources.HelpDescriptionTitle(), true)
         {
         }
 
-        public override IEnumerable<string>? GetBody(CliSymbol current)
-        => CliHelpHelpers.WrapAndIndentText(HelpContext.Command.Description ?? string.Empty, maxWidth: HelpContext.MaxWidth, indent: Indent);
+        public override IEnumerable<string>? GetBody(HelpContext helpContext)
+        => CliHelpHelpers.WrapAndIndentText(helpContext.Command.Description ?? string.Empty, maxWidth: helpContext.MaxWidth, indent: Indent);
 
-        public override IEnumerable<string>? GetClosing(CliSymbol current)
-        => null;
     }
 }

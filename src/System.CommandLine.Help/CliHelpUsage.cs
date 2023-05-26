@@ -8,19 +8,17 @@ namespace System.CommandLine.Help
     public class CliHelpUsage : CliHelpSection
     {
         public CliHelpUsage(CliHelpConfiguration helpConfiguration, HelpContext helpContext) 
-            : base(helpConfiguration, helpContext, LocalizationResources.HelpUsageTitle())
+            : base(helpConfiguration, LocalizationResources.HelpUsageTitle())
         {
         }
 
-        public override IEnumerable<string>? GetBody(CliSymbol current)
-        => current switch
+        public override IEnumerable<string>? GetBody(HelpContext helpContext)
+        => helpContext.Command switch
         {
-            CliCommand command => CliHelpHelpers.WrapAndIndentText( GetUsage(command), HelpContext.MaxWidth, Indent),
+            CliCommand command => CliHelpHelpers.WrapAndIndentText( GetUsage(command), helpContext.MaxWidth, Indent),
             _=>null
         };
 
-        public override IEnumerable<string>? GetClosing(CliSymbol current)
-        => null;
 
         // Consider rewriting to make it easier to adjust parts without rewriting whole
         private string GetUsage(CliCommand command)

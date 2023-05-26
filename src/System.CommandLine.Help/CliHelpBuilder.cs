@@ -29,12 +29,12 @@ namespace System.CommandLine.Help
             foreach (var section in HelpConfiguration.CurrentLayout.GetSections(context))
             {
                 IEnumerable<string> output = new List<string>();
-                var body = section.GetBody(context.Command);
+                var body = section.GetBody(context);
                 if ((body == null || !body.Any()) && !section.EmitHeaderOnEmptyBody)
                 { continue; }
 
-                var opening = section.GetOpening(context.Command);
-                var closing = section.GetClosing(context.Command);
+                var opening = section.GetOpening(context);
+                var closing = section.GetClosing(context);
 
                 if (opening is not null)
                 {
