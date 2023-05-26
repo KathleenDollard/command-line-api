@@ -3,9 +3,9 @@ using System.Linq;
 
 namespace System.CommandLine.Help
 {
-    public class CliHelpSynopsis : CliHelpSection
+    public class CliHelpSubcommands : CliHelpSection
     {
-        public CliHelpSynopsis(CliHelpConfiguration helpConfiguration, HelpContext helpContext)
+        public CliHelpSubcommands(CliHelpConfiguration helpConfiguration)
             : base(helpConfiguration, LocalizationResources.HelpDescriptionTitle(), true)
         {
         }

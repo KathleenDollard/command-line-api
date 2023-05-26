@@ -5,7 +5,7 @@ namespace System.CommandLine.Help
 {
     public class CliHelpSubcommand : CliHelpSection
     {
-        public CliHelpSubcommand(CliHelpConfiguration helpConfiguration, HelpContext helpContext)
+        public CliHelpSubcommand(CliHelpConfiguration helpConfiguration)
             : base(helpConfiguration, LocalizationResources.HelpCommandsTitle())
         {
         }

@@ -26,7 +26,7 @@ namespace System.CommandLine.Help
             //    return;
             //}
 
-            foreach (var section in HelpConfiguration.CurrentLayout.GetSections(context))
+            foreach (var section in HelpConfiguration.GetSections())
             {
                 IEnumerable<string> output = new List<string>();
                 var body = section.GetBody(context);
