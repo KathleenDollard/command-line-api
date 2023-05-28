@@ -1,8 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.CommandLine.Help.Formatting;
 
 namespace System.CommandLine.Help
 {
-    public abstract class CliHelpSection
+    public abstract class CliHelpSection { }
+
+    public abstract class CliHelpSection<T> : CliHelpSection
     {
         protected CliHelpSection(CliHelpConfiguration helpConfiguration, 
                                  string header,
@@ -18,7 +21,6 @@ namespace System.CommandLine.Help
         public bool EmitHeaderOnEmptyBody { get; }
 
         public int Indent => HelpConfiguration.Indent;
-        public CliHelpSymbolOutput SymbolOutput => HelpConfiguration.SymbolOutput;
             
         public virtual IEnumerable<string>? GetOpening(HelpContext helpContext)
         => new string[]
@@ -26,7 +28,8 @@ namespace System.CommandLine.Help
                 Heading(Header)
             };
 
-        public abstract IEnumerable<string>? GetBody(HelpContext helpContext);
+        public virtual IEnumerable<string>? GetBody(HelpContext helpContext) => null;
+        public virtual Table<T>? GetBodyTable(HelpContext helpContext) => null;
         public virtual IEnumerable<string>? GetClosing(HelpContext helpContext) => null;
 
         public virtual string Heading(string? heading)

@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Default = System.CommandLine.Help.CliHelpConfiguration.Defaults;
 
 namespace System.CommandLine.Help
 {
-    public class CliHelpOptions : CliHelpSection
+    public class CliHelpOptions : CliHelpSection<CliOption>
     {
         public CliHelpOptions(CliHelpConfiguration helpConfiguration)
             : base(helpConfiguration, LocalizationResources.HelpOptionsTitle())
@@ -64,7 +65,7 @@ namespace System.CommandLine.Help
         {
             _ = option ?? throw new ArgumentNullException(nameof(option));
 
-            string firstColumnText = SymbolOutput.GetUsage(option);
+            string firstColumnText = option.GetUsage();
             string secondColumnText = GetSecondColumnText(option);
 
             return new TwoColumnHelpRow(firstColumnText, secondColumnText);
@@ -73,7 +74,7 @@ namespace System.CommandLine.Help
             {
                 var symbolDescription = option.Description;
 
-                var defaultValueDescription = SymbolOutput.GetDefaultValueText(option);
+                var defaultValueDescription = Default.DefaultValueText(option.GetDefaultValue());
 
                 if (string.IsNullOrEmpty(defaultValueDescription))
                 {

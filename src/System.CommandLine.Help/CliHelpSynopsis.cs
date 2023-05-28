@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace System.CommandLine.Help
 {
-    public class CliHelpSubcommands : CliHelpSection
+    public class CliHelpSubcommands : CliHelpSection<CliCommand>
     {
         public CliHelpSubcommands(CliHelpConfiguration helpConfiguration)
             : base(helpConfiguration, LocalizationResources.HelpDescriptionTitle(), true)

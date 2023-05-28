@@ -5,56 +5,39 @@ using System.CommandLine.Parsing;
 
 namespace System.CommandLine.Help
 {
-    public class CliHelpSymbolOutput
+    public static class CliSymbolInspector
     {
-        public CliHelpSymbolOutput(CliHelpConfiguration helpConfiguration)
-        {
-            HelpConfiguration = helpConfiguration;
-        }
-
-        public CliHelpConfiguration HelpConfiguration { get; }
-
-        public virtual string? GetName(CliArgument symbol)
-        => symbol.HelpName;
-        public virtual string? GetName(CliSymbol symbol)
+        public static string? GetName(this CliSymbol symbol)
         => symbol switch
         {
-            CliArgument argument => GetName(argument),
+            CliArgument argument => argument.HelpName,
             _ => symbol.Name
         };
 
-        public virtual string? GetAliases(CliOption option)
-        => GetAliasesFromCollection(option.Aliases);
-        public virtual string? GetAliases(CliCommand command)
-        => GetAliasesFromCollection(command.Aliases);
-        public virtual string? GetAliases(CliSymbol symbol)
+        public static  IEnumerable<string>? GetAliases(this CliSymbol symbol)
         => symbol switch
         {
-            CliCommand command => GetAliases(command),
-            CliOption option => GetAliases(option),
+            CliCommand command => command.Aliases,
+            CliOption option => option.Aliases,
             _ => null
         };
 
-        public virtual string? GetDescription(CliSymbol symbol)
+        public static  string? GetDescription(this CliSymbol symbol)
         => symbol.Description;
 
-        public virtual string? GetArgumentName(CliOption option)
+        public static  string? GetArgumentName(this CliOption option)
         => option.ArgumentHelpName;
 
-        public string GetDefaultValueText(CliOption option)
+        public static object? GetDefaultValue(this CliSymbol symbol)
+        => symbol switch
         {
-            var defaultValue = option.GetDefaultValue();
+            CliArgument argument => argument.GetDefaultValue(),
+            CliOption option => option.GetDefaultValue(),
+            _ => null
+        }; 
 
-            return defaultValue switch
-            {
-                null => string.Empty,
-                string s => s,
-                IEnumerable enumerable => string.Join("|", enumerable.OfType<object>().ToArray()),
-                _ => defaultValue.ToString()
-            };
-        }
-        public string GetDefaultValueText(
-            CliArgument argument,
+        public static string GetDefaultValueText(
+            this CliArgument argument,
             bool displayArgumentName)
         {
             var defaultValue = argument.GetDefaultValue();
@@ -76,14 +59,11 @@ namespace System.CommandLine.Help
                   : LocalizationResources.HelpArgumentDefaultValueLabel();
         }
 
-        private string? GetAliasesFromCollection(IEnumerable<string> aliases)
-            => string.Join(", ", aliases);
-
-        public string GetUsage(CliArgument argument)
+        public static string GetUsage(this CliArgument argument)
         {
             return GetUsage(null, argument.ValueType, argument, showUsageOnBool: true);
         }
-        public string GetUsage(CliOption option)
+        public static string GetUsage(this CliOption option)
         {
             var text = GetAliasText(option, option.Aliases);
 
@@ -101,7 +81,7 @@ namespace System.CommandLine.Help
 
             return text;
         }
-        public string GetUsage(CliCommand command)
+        public static string GetUsage(this CliCommand command)
         {
             var text = GetAliasText(command, command.Aliases);
             string argumentText = null;
@@ -119,7 +99,7 @@ namespace System.CommandLine.Help
                 : $"{text} {argumentText}";
         }
 
-        private string GetAliasText(CliSymbol symbol, IEnumerable<string> aliases)
+        private static string GetAliasText(this CliSymbol symbol, IEnumerable<string> aliases)
         {
             var allAliases = aliases is null || !aliases.Any()
                 ? new[] { symbol.Name }
@@ -133,7 +113,7 @@ namespace System.CommandLine.Help
             return string.Join(", ", allAliases);
         }
 
-        private string GetUsage(string? helpName, Type valueType, CliSymbol symbol, bool showUsageOnBool, bool skipNameDefault = false)
+        private static string GetUsage(string? helpName, Type valueType, CliSymbol symbol, bool showUsageOnBool, bool skipNameDefault = false)
         {
             if (!string.IsNullOrWhiteSpace(helpName))
             {

@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Default = System.CommandLine.Help.CliHelpConfiguration.Defaults;
 
 namespace System.CommandLine.Help
 {
-    public class CliHelpSubcommand : CliHelpSection
+    public class CliHelpSubcommand : CliHelpSection<CliCommand>
     {
         public CliHelpSubcommand(CliHelpConfiguration helpConfiguration)
             : base(helpConfiguration, LocalizationResources.HelpCommandsTitle())
@@ -37,7 +38,7 @@ namespace System.CommandLine.Help
         {
             _ = command ?? throw new ArgumentNullException(nameof(command));
 
-            string firstColumnText = SymbolOutput.GetUsage(command);
+            string firstColumnText = command.GetUsage();
             string secondColumnText = GetSecondColumnText(command);
 
             return new TwoColumnHelpRow(firstColumnText, secondColumnText);
@@ -70,8 +71,8 @@ namespace System.CommandLine.Help
                 return args.Count() switch
                 {
                     0 => "",
-                    1 => $"[{SymbolOutput.GetDefaultValueText(args.First(), false)}]",
-                    _ => $"[{string.Join(", ", args.Select(arg => SymbolOutput.GetDefaultValueText(arg, true)))}]"
+                    1 => $"[{Default.DefaultValueTextAndLabel(args.First(), false)}]",
+                    _ => $"[{string.Join(", ", args.Select(arg => Default.DefaultValueTextAndLabel(args.First(), false)))}]"
                 };
             }
         }

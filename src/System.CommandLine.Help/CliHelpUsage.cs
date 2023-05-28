@@ -5,7 +5,7 @@ using System.Transactions;
 
 namespace System.CommandLine.Help
 {
-    public class CliHelpUsage : CliHelpSection
+    public class CliHelpUsage : CliHelpSection<CliCommand>
     {
         public CliHelpUsage(CliHelpConfiguration helpConfiguration) 
             : base(helpConfiguration, LocalizationResources.HelpUsageTitle())
