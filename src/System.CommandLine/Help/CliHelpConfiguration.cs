@@ -1,39 +1,27 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.CommandLine.Help.Formatting;
 using System.Linq;
+using System.CommandLine.Help.Formatting;
 
 namespace System.CommandLine.Help
 {
     public class CliHelpConfiguration
     {
-        public CliHelpConfiguration(int indent = 0)
+        public CliHelpConfiguration(CliConfiguration cliConfiguration, CliFormatter formatter, int indent = 0 )
         {
             Indent = indent == 0 ? 2 : indent;
-            SynopsisSection = new CliHelpSubcommands(this);
-            UsageSection = new CliHelpUsage(this);
-            ArgumentsSection = new CliHelpArguments(this);
-            OptionsSection = new CliHelpOptions(this);
-            SubCommandsSection = new CliHelpSubcommands(this);
+            CliConfiguration = cliConfiguration;
+            Formatter = formatter;
+            Sections = new List<CliHelpSection>();
         }
 
 
         public int Indent { get; }
-
-        public CliHelpSection<CliCommand> SynopsisSection { get; set; }
-        public CliHelpSection<CliCommand> UsageSection { get; set; }
-        public CliHelpSection<CliArgument> ArgumentsSection { get; set; }
-        public CliHelpSection<CliOption> OptionsSection { get; set; }
-        public CliHelpSection<CliCommand> SubCommandsSection { get; set; }
-
-        public virtual IEnumerable<CliHelpSection> GetSections()
-            => new List<CliHelpSection>()
-            {
-                SynopsisSection,
-                UsageSection,
-                ArgumentsSection,
-                OptionsSection,
-                SubCommandsSection
-            };
+        public CliConfiguration CliConfiguration { get; }
+        public CliFormatter Formatter { get; }
+        public List<CliHelpSection> Sections { get; }
+  
 
         public static class Defaults
         {

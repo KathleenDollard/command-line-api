@@ -4,14 +4,21 @@ using System.Linq;
 
 namespace System.CommandLine.Help
 {
-    public class CliHelpArguments : CliHelpSection<CliArgument>
+    public class CliHelpArguments : CliHelpSection
     {
-        public CliHelpArguments(CliHelpConfiguration helpConfiguration)
+        public CliHelpArguments(CliDefaultHelpConfiguration helpConfiguration)
             : base(helpConfiguration, LocalizationResources.HelpArgumentsTitle())
         {
         }
 
-        public override Table<CliArgument> GetBodyTable(HelpContext helpContext)
+        public override IEnumerable<string>? GetBody(HelpContext helpContext)
+        {
+            var table = GetBodyTable(helpContext);
+            var formatter = helpContext.CliConfiguration.HelpConfiguration. Formatter;
+            return formatter.FormatTable(table, helpContext.MaxWidth);
+        }
+
+        private  Table<CliArgument> GetBodyTable(HelpContext helpContext)
         {
             var args = GetArguments(helpContext.Command);
             var table = new Table<CliArgument>(2, args);

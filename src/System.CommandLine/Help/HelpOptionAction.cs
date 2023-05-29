@@ -21,9 +21,10 @@ namespace System.CommandLine.Help
             var output = parseResult.Configuration.Output;
 
             var helpContext = new HelpContext(parseResult.CommandResult.Command,
+                                              parseResult.Configuration,
                                               Console.IsOutputRedirected ? int.MaxValue : Console.WindowWidth,
                                               output,
-                                              parseResult);
+                                              parseResult) ;
 
             Builder.Write(helpContext);
 

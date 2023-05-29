@@ -3,9 +3,11 @@ using System.CommandLine.Help.Formatting;
 
 namespace System.CommandLine.Help
 {
-    public abstract class CliHelpSection { }
+    //public abstract class CliHelpSection 
+    //{ 
+    //}
 
-    public abstract class CliHelpSection<T> : CliHelpSection
+    public abstract class CliHelpSection 
     {
         protected CliHelpSection(CliHelpConfiguration helpConfiguration, 
                                  string header,
@@ -29,7 +31,7 @@ namespace System.CommandLine.Help
             };
 
         public virtual IEnumerable<string>? GetBody(HelpContext helpContext) => null;
-        public virtual Table<T>? GetBodyTable(HelpContext helpContext) => null;
+        //public virtual Table<T>? GetBodyTable(HelpContext helpContext) => null;
         public virtual IEnumerable<string>? GetClosing(HelpContext helpContext) => null;
 
         public virtual string Heading(string? heading)

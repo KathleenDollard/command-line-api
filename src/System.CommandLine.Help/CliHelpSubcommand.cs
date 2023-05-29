@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Default = System.CommandLine.Help.CliHelpConfiguration.Defaults;
+using Default = System.CommandLine.Help.CliDefaultHelpConfiguration.Defaults;
 
 namespace System.CommandLine.Help
 {
-    public class CliHelpSubcommand : CliHelpSection<CliCommand>
+    public class CliHelpSubcommands : CliHelpSection
     {
-        public CliHelpSubcommand(CliHelpConfiguration helpConfiguration)
+        public CliHelpSubcommands(CliDefaultHelpConfiguration helpConfiguration)
             : base(helpConfiguration, LocalizationResources.HelpCommandsTitle())
         {
         }

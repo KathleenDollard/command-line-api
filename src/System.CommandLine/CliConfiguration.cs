@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.IO;
 using System.CommandLine.Completions;
+using System.CommandLine.Help;
 
 namespace System.CommandLine
 {
@@ -29,6 +30,7 @@ namespace System.CommandLine
             {
                 new SuggestDirective()
             };
+            HelpConfiguration = null;
         }
 
         /// <summary>
@@ -164,6 +166,8 @@ namespace System.CommandLine
         /// <returns>The exit code for the invocation.</returns>
         public Task<int> InvokeAsync(string[] args, CancellationToken cancellationToken = default)
             => RootCommand.Parse(args, this).InvokeAsync(cancellationToken);
+
+        public CliHelpConfiguration HelpConfiguration { get; set; } 
 
         /// <summary>
         /// Throws an exception if the parser configuration is ambiguous or otherwise not valid.

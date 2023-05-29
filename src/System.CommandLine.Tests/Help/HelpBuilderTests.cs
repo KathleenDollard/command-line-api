@@ -33,9 +33,19 @@ namespace System.CommandLine.Tests.Help
             _executableName = CliRootCommand.ExecutableName;
         }
 
-        private CliHelpBuilder GetHelpBuilder() => new(new CliHelpConfiguration());
-        private HelpContext GetHelpContext(CliCommand command = null, int maxWidth = 0, TextWriter output = null) 
-            => new HelpContext( command ?? new CliRootCommand(), maxWidth, output ?? _console);
+        private CliHelpBuilder GetHelpBuilder() => new();
+        private HelpContext GetHelpContext(CliCommand command = null, int maxWidth = 0, TextWriter output = null)
+        {
+            CliCommand rootCommand = command ?? new CliRootCommand();
+            return new HelpContext(rootCommand, GetCliConfiguration(rootCommand), maxWidth, output ?? _console);
+        }
+
+        private CliConfiguration GetCliConfiguration(CliCommand command)
+        {
+            var config = new CliConfiguration(command);
+            config.HelpConfiguration = new CliDefaultHelpConfiguration(config);
+            return config;
+        }
 
         #region Synopsis
 
@@ -1182,6 +1192,7 @@ namespace System.CommandLine.Tests.Help
         public void Help_option_is_shown_in_help()
         {
             var configuration = new CliConfiguration(new CliRootCommand());
+            configuration.HelpConfiguration = new CliDefaultHelpConfiguration(configuration);
 
             _helpBuilder.Write(GetHelpContext(configuration.RootCommand, LargeMaxWidth, _console));
 

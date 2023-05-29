@@ -5,14 +5,6 @@ namespace System.CommandLine.Help
 {
     public class CliHelpBuilder : IHelpBuilder
     {
-        /// <param name="maxWidth">The maximum width in characters after which help output is wrapped.</param>
-        public CliHelpBuilder(CliHelpConfiguration? configuration = null)
-        {
-            HelpConfiguration = configuration ?? new CliHelpConfiguration();
-        }
-
-        public CliHelpConfiguration HelpConfiguration { get; }
-
         /// <summary>
         /// Writes help output for the specified command.
         /// </summary>
@@ -26,7 +18,8 @@ namespace System.CommandLine.Help
             //    return;
             //}
 
-            foreach (var section in HelpConfiguration.GetSections())
+            var sections = context.CliConfiguration.HelpConfiguration.Sections;
+            foreach (var section in sections)
             {
                 IEnumerable<string> output = new List<string>();
                 var body = section.GetBody(context);

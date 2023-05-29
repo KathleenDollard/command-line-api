@@ -15,6 +15,7 @@ namespace System.CommandLine.Help
         /// <param name="parseResult">The result of the current parse operation.</param>
         public HelpContext(
             CliCommand command,
+            CliConfiguration cliConfiguration,
             int maxWidth,
             TextWriter output,
             ParseResult? parseResult = null)
@@ -25,6 +26,7 @@ namespace System.CommandLine.Help
                  : maxWidth;
             Output = output ?? throw new ArgumentNullException(nameof(output));
             ParseResult = parseResult ?? ParseResult.Empty();
+            CliConfiguration = cliConfiguration;
         }
 
         /// <summary>
@@ -44,5 +46,7 @@ namespace System.CommandLine.Help
         public TextWriter Output { get; }
 
         internal bool WasSectionSkipped { get; set; }
+
+        public CliConfiguration CliConfiguration { get; }
     }
 }

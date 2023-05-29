@@ -1,35 +1,17 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 
 namespace System.CommandLine.Help.Formatting
 {
     public class Table
-    { }
-
-    public class Table<T>
     {
-        public Table(int columnCount, IEnumerable<T> data)
-        {
-            ColumnCount = columnCount;
-            Headers = new Func<T, string>[columnCount];
-            Footers = new Func<T, string>[columnCount];
-            Body = new Func<T, string>[columnCount];
-            Data = data;
-        }
 
-        public int ColumnCount { get; }
-        public Func<T, string>[] Headers { get; }
-        public Func<T, string>[] Footers { get; }
-        public Func<T, string>[] Body { get; }
-        public string? HeaderSeparator { get; }
-        public string? FooterSeparator { get; }
-        public IEnumerable<T> Data { get; }
 
         /// <summary>
         /// Returns list of string rows. This is expected to be called by formatters that will supply the margin characters.
         /// </summary>
-        /// <param name="maxWidth">The maximium display width.</param>
+        /// <param name="dataArray">The data to display</param>
+        /// <param name="maxWidth">The maximum display width.</param>
         /// <param name="interColumnMargin">The text to enter between the margins. If this contains hidden characters, also include the interColumnMarginWidth.</param>
         /// <param name="leftMargin">The text to enter to the left of the table. If this contains hidden characters, also include the leftAndRightMarginWidth.</param>
         /// <param name="rightMargin">The text to enter to the right of the table. If this contains hidden characters, also include the leftAndRightMarginWidth.</param>
@@ -42,29 +24,30 @@ namespace System.CommandLine.Help.Formatting
         /// left, and right margins, but no chrome is output. This allows formatters to add 
         /// their own chrome, potentially with color.
         /// </returns>
-        public IEnumerable<string> GetPaddedTableOutput(int maxWidth,
-                                                           string interColumnMargin,
-                                                           string leftMargin,
-                                                           string rightMargin,
-                                                           int? interColumnMarginWidth = null,
-                                                           int? leftAndRightMarginWidth = null,
-                                                           int[]? headerWidths = null)
+        public static IEnumerable<string> GetPaddedArrayOutput(string[,] dataArray,
+                                                               int maxWidth,
+                                                               string interColumnMargin,
+                                                               string leftMargin,
+                                                               string rightMargin,
+                                                               int? interColumnMarginWidth = null,
+                                                               int? leftAndRightMarginWidth = null,
+                                                               int[]? headerWidths = null)
         {
-            if (!Data.Any())
+            var allCellText = dataArray;
+            if (allCellText.Length == 0)
             {
                 return Enumerable.Empty<string>();
             }
-            int columnCount = ColumnCount;
+            int columnCount = allCellText.GetLength(1);
             headerWidths ??= new int[columnCount];
 
             var combinedMarginWidth = GetCombinedMarginWidths(columnCount, interColumnMargin, leftMargin, rightMargin, interColumnMarginWidth, leftAndRightMarginWidth);
-            var usableWidth = maxWidth - ((columnCount - 1) * combinedMarginWidth);
+            var usableWidth = maxWidth - combinedMarginWidth;
 
-            var allCellText = GetCellText(this);
             int[] currentColumnWidths = GetColumnMaxWidths(allCellText, headerWidths);
 
             var wrappedTableText = WrapColumns(allCellText, currentColumnWidths, usableWidth);
-            return PadTableOutput(wrappedTableText, currentColumnWidths,interColumnMargin, leftMargin, rightMargin);
+            return PadTableOutput(wrappedTableText, currentColumnWidths, interColumnMargin, leftMargin, rightMargin);
 
             static int GetCombinedMarginWidths(int columnCount,
                                                string interColumnMargin,
@@ -103,7 +86,7 @@ namespace System.CommandLine.Help.Formatting
                     for (int col = 0; col < columnCount; col++)
                     {
                         IEnumerable<string> lines = wrappedCellText[row, col];
-                        ret[col] = lines.Count() < lineNumber
+                        ret[col] = lineNumber < lines.Count() 
                             ? lines.Skip(lineNumber).First().PadRight(currentColumnWidths[col])
                             : new string(' ', currentColumnWidths[col]);
                     }
@@ -151,23 +134,6 @@ namespace System.CommandLine.Help.Formatting
                 return wrappedCellText;
             }
 
-            static string[,] GetCellText<T>(Table<T> table)
-            {
-                int rowCount = table.Data.Count();
-                var ret = new string[rowCount, table.ColumnCount];
-                var row = 0;
-                foreach (var item in table.Data)
-                {
-                    for (int col = 0; col < table.ColumnCount; col++)
-                    {
-                        ret[row, col] = table.Body[col](item);
-                    }
-                    row++;
-                }
-                return ret;
-            }
-
-
             static int[] GetColumnMaxWidths(string[,] cells, int[] headerWidths)
             {
                 var columnCount = cells.GetLength(1);
@@ -193,6 +159,10 @@ namespace System.CommandLine.Help.Formatting
                             .Skip(currentColumnWidths.Length - remainingColumns)
                             .Select(x => (x < tentative, x));
                 var remainingWideCount = remainingNarrowColumns.Count(t => !t.Item1);
+                if (remainingWideCount == 0)
+                {  // everything already fits
+                    return int.MaxValue;
+                }
                 var remainingNarrowExtra = remainingNarrowColumns.Where(t => t.Item1).Sum(t => tentative - t.Item2);
                 remainingWidth += remainingNarrowExtra;
                 return Convert.ToInt32(remainingWidth / Convert.ToSingle(remainingWideCount)); // force floating point
@@ -200,7 +170,7 @@ namespace System.CommandLine.Help.Formatting
 
             static void UpdateTextToCurrent(string[,] allCellText, IEnumerable<string>[,] wrappedCellText, int currentColumn)
             {
-                for (int row = 0; row < allCellText.Length; row++)
+                for (int row = 0; row < allCellText.GetLength(0); row++)
                 {
                     wrappedCellText[row, currentColumn] = new string[] { allCellText[row, currentColumn] };
                 }
@@ -209,17 +179,79 @@ namespace System.CommandLine.Help.Formatting
             static int UpdateTextToNewWidth(string[,] allCellText, IEnumerable<string>[,] wrappedCellText, int currentColumn, int fairWidth)
             {
                 var maxColumnWidth = 0;
-                for (int i = 0; i < allCellText.Length; i++)
+                for (int row = 0; row < allCellText.GetLength(0); row++)
                 {
-                    var text = CliHelpHelpers.WrapText(allCellText[i, currentColumn], fairWidth).ToArray();
-                    wrappedCellText[i, currentColumn] = text;
-                    var cellMaxWidth = text.Sum(x => x.Length);
+                    var text = FormattingUtilities.WrapText(allCellText[row, currentColumn], fairWidth).ToArray();
+                    wrappedCellText[row, currentColumn] = text;
+                    var cellMaxWidth = text.Max(x => x.Length);
                     if (cellMaxWidth > maxColumnWidth)
                     { maxColumnWidth = cellMaxWidth; }
                 }
                 return maxColumnWidth;
             }
         }
+    }
+
+    public class Table<T> : Table
+    {
+        public Table(int columnCount, IEnumerable<T> data)
+        {
+            ColumnCount = columnCount;
+            Headers = new Func<T, string>[columnCount];
+            Footers = new Func<T, string>[columnCount];
+            Body = new Func<T, string>[columnCount];
+            Data = data;
+        }
+
+        public int ColumnCount { get; }
+        public Func<T, string>[] Headers { get; }
+        public Func<T, string>[] Footers { get; }
+        public Func<T, string>[] Body { get; }
+        public IEnumerable<T> Data { get; }
+
+        public string[,] GetTableCells()
+        {
+            int rowCount = Data.Count();
+            var ret = new string[rowCount, ColumnCount];
+            var row = 0;
+            foreach (var item in Data)
+            {
+                for (int col = 0; col < ColumnCount; col++)
+                {
+                    ret[row, col] = Body[col](item);
+                }
+                row++;
+            }
+            return ret;
+        }
+
+        /// <summary>
+        /// Returns list of string rows. This is expected to be called by formatters that will supply the margin characters.
+        /// </summary>
+        /// <param name="dataArray">The data to display</param>
+        /// <param name="maxWidth">The maximum display width.</param>
+        /// <param name="interColumnMargin">The text to enter between the margins. If this contains hidden characters, also include the interColumnMarginWidth.</param>
+        /// <param name="leftMargin">The text to enter to the left of the table. If this contains hidden characters, also include the leftAndRightMarginWidth.</param>
+        /// <param name="rightMargin">The text to enter to the right of the table. If this contains hidden characters, also include the leftAndRightMarginWidth.</param>
+        /// <param name="interColumnMarginWidth">If hidden characters appearing the interColumnMargin, use this to override the default width.</param>
+        /// <param name="leftAndRightMarginWidth">If hidden characters appearing the leftMargin or rightMargin, use this to override the default width.</param>
+        /// <param name="headerWidths">If included, the minimum column width will be the header width.</param>
+        /// <returns>Returns a 2 dimensional array with an padded IEnumerable&lt;string> for each
+        /// cell in the table. Columns are padded to the maximum width needed by the data, 
+        /// which might be less than the maximumWidth. Calculations use the expected intercolumn, 
+        /// left, and right margins, but no chrome is output. This allows formatters to add 
+        /// their own chrome, potentially with color.
+        /// </returns>
+        public IEnumerable<string> GetPaddedOutput(int maxWidth,
+                                                   string interColumnMargin,
+                                                   string leftMargin,
+                                                   string rightMargin,
+                                                   int? interColumnMarginWidth = null,
+                                                   int? leftAndRightMarginWidth = null,
+                                                   int[]? headerWidths = null)
+        => GetPaddedArrayOutput(GetTableCells(), maxWidth, interColumnMargin, leftMargin, rightMargin,
+            interColumnMarginWidth, leftAndRightMarginWidth, headerWidths);
+
 
     }
 }
