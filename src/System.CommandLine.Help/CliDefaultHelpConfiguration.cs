@@ -10,7 +10,7 @@ namespace System.CommandLine.Help
         public CliDefaultHelpConfiguration(CliConfiguration cliConfiguration, CliFormatter? formatter = null, int indent = 0 )
             :base(cliConfiguration, formatter ?? new CliConsoleFormatter(), indent)
         {
-            SynopsisSection = new CliHelpSubcommands(this);
+            SynopsisSection = new CliHelpSynopsis(this);
             UsageSection = new CliHelpUsage(this);
             ArgumentsSection = new CliHelpArguments(this);
             OptionsSection = new CliHelpOptions(this);

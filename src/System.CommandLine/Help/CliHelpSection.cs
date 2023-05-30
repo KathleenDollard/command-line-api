@@ -31,7 +31,7 @@ namespace System.CommandLine.Help
             };
 
         public virtual IEnumerable<string>? GetBody(HelpContext helpContext) => null;
-        //public virtual Table<T>? GetBodyTable(HelpContext helpContext) => null;
+ 
         public virtual IEnumerable<string>? GetClosing(HelpContext helpContext) => null;
 
         public virtual string Heading(string? heading)

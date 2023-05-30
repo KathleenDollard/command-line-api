@@ -17,7 +17,7 @@ namespace System.CommandLine.Help.Formatting
         public override IEnumerable<string> FormatTable<T>(Table<T> table, int maxWidth) 
         {
             var indent = new string(' ', 2);
-            return table.GetPaddedOutput(maxWidth, indent, indent, indent);
+            return table.GetOutput(maxWidth, leftMargin: indent, rightMargin: "", interColumnMargin: indent);
         }
     }
 }

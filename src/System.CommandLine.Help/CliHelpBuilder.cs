@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace System.CommandLine.Help
@@ -21,7 +22,7 @@ namespace System.CommandLine.Help
             var sections = context.CliConfiguration.HelpConfiguration.Sections;
             foreach (var section in sections)
             {
-                IEnumerable<string> output = new List<string>();
+                IEnumerable<string> lines = new List<string>();
                 var body = section.GetBody(context);
                 if ((body == null || !body.Any()) && !section.EmitHeaderOnEmptyBody)
                 { continue; }
@@ -33,31 +34,41 @@ namespace System.CommandLine.Help
                 {
                     if (section.EmitHeaderOnEmptyBody || (body is not null && body.Any()))
                     {
-                        output = output.Concat(opening);
+                        lines = lines.Concat(opening);
                     }
                 }
                 if (body is not null && body.Any())
                 {
-                    output = output.Concat(body);
+                    lines = lines.Concat(body);
                 }
 
                 if (closing is not null)
                 {
                     if (section.EmitHeaderOnEmptyBody || (body is not null && body.Any()))
                     {
-                        output = output.Concat(closing);
+                        lines = lines.Concat(closing);
                     }
                 }
 
-                if (output.Any())
-                {
-                    CliHelpHelpers.WriteLines(output, context);
-                    CliHelpHelpers.WriteBlankLine(context);
-                }
+                WriteOutput(lines, context);
             }
 
             context.Output.WriteLine();
             context.Output.WriteLine();
         }
+
+        private static void WriteOutput(IEnumerable<string> lines, HelpContext context)
+        {
+
+            if (lines.Any())
+            {
+                foreach (var line in lines)
+                {
+                    context.Output.WriteLine(line);
+                }
+                context.Output.WriteLine();
+            }
+        }
+
     }
 }

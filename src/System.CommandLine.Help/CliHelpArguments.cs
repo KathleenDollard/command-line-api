@@ -30,8 +30,7 @@ namespace System.CommandLine.Help
             => command is null
                 ? null
                 : command.SelfAndParentCommands()
-                    .SelectMany(cmd => cmd.Arguments.Where(a => !a.Hidden))
-                    .Reverse();
+                    .SelectMany(cmd => cmd.Arguments.Where(a => !a.Hidden));
         }
             //    if (command is null)
             //    { return null; }

@@ -14,6 +14,9 @@ namespace System.CommandLine.Tests.Help
         [UseReporter(typeof(DiffReporter))]
         public void Help_layout_has_not_changed()
         {
+            // KAD: This test is currently failing on whitespace because the previous text trimmed whitespace
+            //   * We do not want to do that during body creation to support right margin end characters (boxing)
+            //   * We could trim on output to match the previous text, but why?
             var command = new CliCommand("the-root-command", "Test description")
             {
                 new CliArgument<string>("the-root-arg-no-description-no-default"),
