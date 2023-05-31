@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.CommandLine.Help.Formatting;
 using System.Linq;
 using Default = System.CommandLine.Help.CliDefaultHelpConfiguration.Defaults;
 
@@ -6,8 +7,10 @@ namespace System.CommandLine.Help
 {
     public class CliHelpSubcommands : CliHelpSection
     {
-        public CliHelpSubcommands(CliDefaultHelpConfiguration helpConfiguration)
-            : base(helpConfiguration, LocalizationResources.HelpCommandsTitle())
+        public CliHelpSubcommands(CliDefaultHelpConfiguration helpConfiguration,
+                               CliSymbolInspector symbolInspector,
+                               CliFormatter formatter)
+            : base(helpConfiguration, symbolInspector, formatter, LocalizationResources.HelpCommandsTitle())
         {
         }
 
@@ -30,7 +33,7 @@ namespace System.CommandLine.Help
 
             return table is null
               ? null
-              : CliHelpHelpers.WriteTwoColumns(table, helpContext.MaxWidth, Indent);
+              : CliHelpHelpers.WriteTwoColumns(table, helpContext.MaxWidth, Formatter.IndentWidth);
 
         }
 
@@ -38,7 +41,7 @@ namespace System.CommandLine.Help
         {
             _ = command ?? throw new ArgumentNullException(nameof(command));
 
-            string firstColumnText = command.GetUsage();
+            string firstColumnText = SymbolInspector.GetUsage(command);
             string secondColumnText = GetSecondColumnText(command);
 
             return new TwoColumnHelpRow(firstColumnText, secondColumnText);

@@ -595,8 +595,13 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
+        [Trait("EndWhitespace", "FinalWhite")]
         public void Arguments_section_keeps_added_newlines_when_width_is_very_small()
         {
+            // This test fails because it does not pad at the end of the row. 
+            // How do we want to handle formatters adding end of row characters (boxes)
+            //   * Always pad, so the test needs to change
+            //   * Pad, add EOL characters, then trim
             var command = new CliCommand("outer", "Help text for the outer command")
             {
                 new CliArgument<string>("outer-command-arg")
@@ -621,6 +626,7 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
+        [Trait("EndWhitespace", "FinalWhite")]
         public void Arguments_section_properly_wraps_description()
         {
             var longCmdText =
@@ -649,8 +655,10 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
+        [Trait("EndWhitespace", "FinalWhite")]
         public void Arguments_section_properly_wraps()
-        {
+        { 
+            // see note in 
             var name = "argument-name-for-a-command-that-is-long-enough-to-wrap-to-a-new-line";
             var description = "Argument description for a command with line breaks that is long enough to wrap to a new line.";
 
@@ -728,6 +736,7 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact] // https://github.com/dotnet/command-line-api/issues/1157
+        [Trait("EndWhitespace", "FinalWhite")]
         public void Command_arguments_show_argument_name_in_first_column()
         {
             var command = new CliRootCommand
@@ -840,6 +849,7 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
+        [Trait("EndWhitespace", "FinalWhite")]
         public void Command_arguments_default_value_provided()
         {
             var argument = new CliArgument<string>("the-arg")

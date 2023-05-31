@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Xml.Schema;
 
 namespace System.CommandLine.Help.Formatting
 {
@@ -202,13 +201,13 @@ namespace System.CommandLine.Help.Formatting
 
     public class Table<T> : Table
     {
-        public Table(int columnCount, IEnumerable<T> data)
+        public Table(int columnCount, IEnumerable<T>? data)
         {
             ColumnCount = columnCount;
             Headers = new Func<T, string>[columnCount];
             Footers = new Func<T, string>[columnCount];
             Body = new Func<T, string>[columnCount];
-            Data = data;
+            Data = data ?? Enumerable.Empty<T>();
         }
 
         public int ColumnCount { get; }
@@ -251,15 +250,13 @@ namespace System.CommandLine.Help.Formatting
         /// their own chrome, potentially with color.
         /// </returns>
         public IEnumerable<string> GetOutput(int maxWidth,
-                                                   string interColumnMargin,
-                                                   string leftMargin,
-                                                   string rightMargin,
-                                                   int? interColumnMarginWidth = null,
-                                                   int? leftAndRightMarginWidth = null,
-                                                   int[]? headerWidths = null)
+                                             string interColumnMargin,
+                                             string leftMargin,
+                                             string rightMargin,
+                                             int? interColumnMarginWidth = null,
+                                             int? leftAndRightMarginWidth = null,
+                                             int[]? headerWidths = null)
         => GetPaddedArrayOutput(GetTableCells(), maxWidth, interColumnMargin, leftMargin, rightMargin,
             interColumnMarginWidth, leftAndRightMarginWidth, headerWidths);
-
-
     }
 }

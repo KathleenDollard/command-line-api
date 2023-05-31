@@ -6,20 +6,27 @@ namespace System.CommandLine.Help
 {
     public class CliHelpArguments : CliHelpSection
     {
-        public CliHelpArguments(CliDefaultHelpConfiguration helpConfiguration)
-            : base(helpConfiguration, LocalizationResources.HelpArgumentsTitle())
+        public CliHelpArguments(CliDefaultHelpConfiguration helpConfiguration,
+                              CliSymbolInspector symbolInspector,
+                              CliFormatter formatter)
+           : base(helpConfiguration, symbolInspector, formatter, LocalizationResources.HelpArgumentsTitle())
         {
         }
 
         public override IEnumerable<string>? GetBody(HelpContext helpContext)
         {
             var table = GetBodyTable(helpContext);
-            var formatter = helpContext.CliConfiguration.HelpConfiguration. Formatter;
-            return formatter.FormatTable(table, helpContext.MaxWidth);
+            return Formatter.FormatTable(table, helpContext.MaxWidth);
         }
 
-        private  Table<CliArgument> GetBodyTable(HelpContext helpContext)
+        private  Table<CliArgument>? GetBodyTable(HelpContext helpContext)
         {
+            var command = helpContext.Command;
+            if (command is null)
+            {
+                return null;
+            }
+
             var args = GetArguments(helpContext.Command);
             var table = new Table<CliArgument>(2, args);
             table.Body[0] = GetFirstColumn;
@@ -27,35 +34,20 @@ namespace System.CommandLine.Help
             return table;
 
             static IEnumerable<CliArgument>? GetArguments(CliCommand command)
-            => command is null
-                ? null
-                : command.SelfAndParentCommands()
-                    .SelectMany(cmd => cmd.Arguments.Where(a => !a.Hidden));
+                => command?.SelfAndParentCommands()
+                    .Reverse()
+                    .SelectMany(cmd => cmd.Arguments.Where(a => !a.Hidden))
+                    .Distinct();
         }
-            //    if (command is null)
-            //    { return null; }
-
-            //    var selfAndParents = 
-
-            //    var table = selfAndParents
-            //            .SelectMany(cmd => cmd.Arguments.Where(a => !a.Hidden))
-            //            .Select(a => GetTwoColumnRow(a))
-            //            .Distinct();
-
-            //    return table is null
-            //        ? null
-            //        : CliHelpHelpers.WriteTwoColumns(table, helpContext.MaxWidth, Indent);
-            //}
-        //}
-
+   
         private string GetFirstColumn(CliArgument argument)
-            => argument.GetUsage();
+            => SymbolInspector.GetUsage(argument);
 
         private string GetSecondColumn(CliArgument argument)
         {
             var symbolDescription = argument.Description ?? string.Empty;
 
-            var defaultValueDescription = argument.GetDefaultValueText(false);
+            var defaultValueDescription = SymbolInspector.GetDefaultValueText(argument,false);
             if (string.IsNullOrEmpty(defaultValueDescription))
             {
                 return $"{symbolDescription}".Trim();

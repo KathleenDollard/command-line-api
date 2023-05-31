@@ -1,21 +1,23 @@
 ﻿using System.Collections.Generic;
+using System.CommandLine.Help.Formatting;
 using System.Linq;
 using System.Text;
-using System.Transactions;
 
 namespace System.CommandLine.Help
 {
     public class CliHelpUsage : CliHelpSection
     {
-        public CliHelpUsage(CliDefaultHelpConfiguration helpConfiguration) 
-            : base(helpConfiguration, LocalizationResources.HelpUsageTitle())
+        public CliHelpUsage(CliDefaultHelpConfiguration helpConfiguration,
+                               CliSymbolInspector symbolInspector,
+                               CliFormatter formatter)
+            : base(helpConfiguration, symbolInspector, formatter, LocalizationResources.HelpUsageTitle())
         {
         }
 
         public override IEnumerable<string>? GetBody(HelpContext helpContext)
         => helpContext.Command switch
         {
-            CliCommand command => CliHelpHelpers.WrapAndIndentText( GetUsage(command), helpContext.MaxWidth, Indent),
+            CliCommand command => CliHelpHelpers.WrapAndIndentText( GetUsage(command), helpContext.MaxWidth, Formatter.IndentWidth),
             _=>null
         };
 

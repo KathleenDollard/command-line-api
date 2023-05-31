@@ -2,26 +2,25 @@
 using System.Collections.Generic;
 using System.CommandLine.Help.Formatting;
 using System.Linq;
-using System.CommandLine.Help.Formatting;
 
 namespace System.CommandLine.Help
 {
-    public class CliHelpConfiguration
+    public abstract class CliHelpConfiguration
     {
-        public CliHelpConfiguration(CliConfiguration cliConfiguration, CliFormatter formatter, int indent = 0 )
+        public CliHelpConfiguration(CliConfiguration cliConfiguration)
         {
-            Indent = indent == 0 ? 2 : indent;
             CliConfiguration = cliConfiguration;
-            Formatter = formatter;
-            Sections = new List<CliHelpSection>();
         }
 
 
-        public int Indent { get; }
         public CliConfiguration CliConfiguration { get; }
-        public CliFormatter Formatter { get; }
-        public List<CliHelpSection> Sections { get; }
+
+
+        public abstract IEnumerable<CliHelpSection> GetSections(HelpContext helpContext);
+
+        public Func<HelpContext, CliSymbolInspector> SymbolInspectorFactory { get; set; }
   
+        public Func<HelpContext, CliFormatter> GetFormatter { get; set; }
 
         public static class Defaults
         {

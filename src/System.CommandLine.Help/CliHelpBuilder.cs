@@ -9,9 +9,9 @@ namespace System.CommandLine.Help
         /// <summary>
         /// Writes help output for the specified command.
         /// </summary>
-        public virtual void Write(HelpContext context)
+        public virtual void Write(HelpContext helpContext)
         {
-            _ = context ?? throw new ArgumentNullException(nameof(context));
+            _ = helpContext ?? throw new ArgumentNullException(nameof(helpContext));
 
             // KAD: Consider this: If the user explicitly typed a hidden command, should they be able to get help for deprecated or preview features?
             //if (context.Command.Hidden)
@@ -19,16 +19,16 @@ namespace System.CommandLine.Help
             //    return;
             //}
 
-            var sections = context.CliConfiguration.HelpConfiguration.Sections;
+            var sections = helpContext.CliConfiguration.HelpConfiguration.GetSections(helpContext);
             foreach (var section in sections)
             {
                 IEnumerable<string> lines = new List<string>();
-                var body = section.GetBody(context);
+                var body = section.GetBody(helpContext);
                 if ((body == null || !body.Any()) && !section.EmitHeaderOnEmptyBody)
                 { continue; }
 
-                var opening = section.GetOpening(context);
-                var closing = section.GetClosing(context);
+                var opening = section.GetOpening(helpContext);
+                var closing = section.GetClosing(helpContext);
 
                 if (opening is not null)
                 {
@@ -50,11 +50,11 @@ namespace System.CommandLine.Help
                     }
                 }
 
-                WriteOutput(lines, context);
+                WriteOutput(lines, helpContext);
             }
 
-            context.Output.WriteLine();
-            context.Output.WriteLine();
+            helpContext.Output.WriteLine();
+            helpContext.Output.WriteLine();
         }
 
         private static void WriteOutput(IEnumerable<string> lines, HelpContext context)

@@ -48,5 +48,7 @@ namespace System.CommandLine.Help
         internal bool WasSectionSkipped { get; set; }
 
         public CliConfiguration CliConfiguration { get; }
+
+        public string FormatterName { get; set; }
     }
 }

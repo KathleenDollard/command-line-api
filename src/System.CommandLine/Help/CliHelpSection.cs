@@ -9,20 +9,26 @@ namespace System.CommandLine.Help
 
     public abstract class CliHelpSection 
     {
+
         protected CliHelpSection(CliHelpConfiguration helpConfiguration, 
+                                 CliSymbolInspector symbolInspector,
+                                 CliFormatter formatter,
                                  string header,
                                  bool emitHeaderOnEmptyBody = false)
         {
             HelpConfiguration = helpConfiguration;
+            SymbolInspector = symbolInspector;
+            Formatter = formatter;
             Header = header;
             EmitHeaderOnEmptyBody = emitHeaderOnEmptyBody;
         }
 
         protected CliHelpConfiguration HelpConfiguration { get; }
+        public CliSymbolInspector SymbolInspector { get; }
+        public CliFormatter Formatter { get; }
         protected string Header { get; }
         public bool EmitHeaderOnEmptyBody { get; }
 
-        public int Indent => HelpConfiguration.Indent;
             
         public virtual IEnumerable<string>? GetOpening(HelpContext helpContext)
         => new string[]

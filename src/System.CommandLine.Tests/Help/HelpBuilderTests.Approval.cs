@@ -12,6 +12,7 @@ namespace System.CommandLine.Tests.Help
     {
         [Fact]
         [UseReporter(typeof(DiffReporter))]
+        [Trait("EndWhitespace", "FinalWhite")]
         public void Help_layout_has_not_changed()
         {
             // KAD: This test is currently failing on whitespace because the previous text trimmed whitespace

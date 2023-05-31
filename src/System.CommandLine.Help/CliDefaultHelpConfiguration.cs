@@ -7,37 +7,31 @@ namespace System.CommandLine.Help
 {
     public class CliDefaultHelpConfiguration : CliHelpConfiguration
     {
-        public CliDefaultHelpConfiguration(CliConfiguration cliConfiguration, CliFormatter? formatter = null, int indent = 0 )
-            :base(cliConfiguration, formatter ?? new CliConsoleFormatter(), indent)
+        public CliDefaultHelpConfiguration(CliConfiguration cliConfiguration, CliFormatter? formatter = null, int indent = 0)
+            : base(cliConfiguration)
+        { }
+
+
+        public override IEnumerable<CliHelpSection> GetSections(HelpContext helpContext)
         {
-            SynopsisSection = new CliHelpSynopsis(this);
-            UsageSection = new CliHelpUsage(this);
-            ArgumentsSection = new CliHelpArguments(this);
-            OptionsSection = new CliHelpOptions(this);
-            SubCommandsSection = new CliHelpSubcommands(this);
-            Sections.Add(SynopsisSection);
-            Sections.Add(UsageSection);
-            Sections.Add(ArgumentsSection);
-            Sections.Add(OptionsSection);
-            Sections.Add(SubCommandsSection);
-        }
 
-
-        public CliHelpSection SynopsisSection { get; set; }
-        public CliHelpSection UsageSection { get; set; }
-        public CliHelpSection ArgumentsSection { get; set; }
-        public CliHelpSection OptionsSection { get; set; }
-        public CliHelpSection SubCommandsSection { get; set; }
-
-        public virtual IEnumerable<CliHelpSection> GetSections()
-            => new List<CliHelpSection>()
+            var symbolInspector = SymbolInspectorFactory is null
+                    ? new CliSymbolInspector(helpContext)
+                    : SymbolInspectorFactory(helpContext);
+            var formatter = helpContext.FormatterName switch
             {
-                SynopsisSection,
-                UsageSection,
-                ArgumentsSection,
-                OptionsSection,
-                SubCommandsSection
+                _ => new CliConsoleFormatter()
+            }; ;
+
+            return new List<CliHelpSection>()
+            {
+                new CliHelpSynopsis(this, symbolInspector, formatter),
+                new CliHelpUsage(this,symbolInspector, formatter),
+                new CliHelpArguments(this,symbolInspector, formatter),
+                new CliHelpOptions(this,symbolInspector, formatter),
+                new CliHelpSubcommands(this,symbolInspector, formatter),
             };
+        }
 
         public static class Defaults
         {
@@ -48,8 +42,8 @@ namespace System.CommandLine.Help
             public static string DefaultValueTextAndLabel(
                 CliArgument argument,
                 bool displayArgumentName)
-            => DefaultValueText(argument.GetDefaultValue()) switch 
-            { 
+            => DefaultValueText(argument.GetDefaultValue()) switch
+            {
                 null => string.Empty,
                 string s when (string.IsNullOrWhiteSpace(s)) => string.Empty,
                 string s => $"{DefaultValueLabel(argument.Name, displayArgumentName)}: {s}",

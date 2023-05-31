@@ -71,7 +71,6 @@ namespace System.CommandLine.Help
         }
 
 
-
         private static string GetIndentString(int indent)
         => new string(' ', indent);
 
