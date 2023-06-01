@@ -22,7 +22,7 @@ namespace System.CommandLine.Help
         {
             Command = command ?? throw new ArgumentNullException(nameof(command));
             MaxWidth = maxWidth <= 0
-                 ? int.MaxValue
+                 ? short.MaxValue
                  : maxWidth;
             Output = output ?? throw new ArgumentNullException(nameof(output));
             ParseResult = parseResult ?? ParseResult.Empty();

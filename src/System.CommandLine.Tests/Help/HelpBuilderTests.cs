@@ -1084,6 +1084,7 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
+        [Trait("EndWhitespace", "FinalWhite")]
         public void Options_section_properly_wraps_description()
         {
             var longOptionText =
@@ -1109,6 +1110,7 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
+        [Trait("EndWhitespace", "FinalWhite")]
         public void Options_section_properly_wraps_description_when_long_default_value_is_specified()
         {
             var longOptionText =
@@ -1137,6 +1139,7 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
+        [Trait("EndWhitespace", "FinalWhite")]
         public void Options_section_properly_wraps()
         {
             var alias = "--option-alias-for-a-command-that-is-long-enough-to-wrap-to-a-new-line";
@@ -1394,6 +1397,7 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
+        [Trait("EndWhitespace", "FinalWhite")]
         public void Subcommands_properly_wraps_description()
         {
             var longSubcommandDescription =
@@ -1424,6 +1428,7 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
+        [Trait("EndWhitespace", "FinalWhite")]
         public void Subcommands_section_properly_wraps()
         {
             var name = "subcommand-name-that-is-long-enough-to-wrap-to-a-new-line";

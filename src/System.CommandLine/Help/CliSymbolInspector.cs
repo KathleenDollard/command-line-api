@@ -2,24 +2,39 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.CommandLine.Parsing;
+using System.Diagnostics.CodeAnalysis;
 
 namespace System.CommandLine.Help
 {
     public class CliSymbolInspector
     {
-        public HelpContext HelpContext { get; }
+        protected HelpContext HelpContext { get; }
 
         public CliSymbolInspector(HelpContext helpContext)
             => HelpContext = helpContext;
 
         public string? GetName(CliSymbol symbol)
-        => symbol switch
         {
-            CliArgument argument => argument.HelpName,
-            _ => symbol.Name
-        };
+            return symbol switch
+            {
+                CliArgument argument => GetArgumentNameOrHelpName(argument),
+                _ => symbol.Name
+            };
+            static string GetArgumentNameOrHelpName(CliArgument argument)
+                => string.IsNullOrWhiteSpace(argument.HelpName)
+                    ? argument.Name
+                    : argument.HelpName ?? string.Empty;
+        }
 
-        public IEnumerable<string>? GetAliases(CliSymbol symbol)
+        /// <summary>
+        /// Get the aliases for a command or option
+        /// </summary>
+        /// <param name="symbol">The symbol to get the aliases for</param>
+        /// <remarks>
+        /// The expected customization here is to hide individual aliases that are logically deprecated
+        /// </remarks>
+        /// <returns>The aliases for commands and options, and an empty string for arguments</returns>
+        public virtual IEnumerable<string>? GetAliases(CliSymbol symbol)
         => symbol switch
         {
             CliCommand command => command.Aliases,
@@ -27,7 +42,39 @@ namespace System.CommandLine.Help
             _ => null
         };
 
-        public string? GetDescription(CliSymbol symbol)
+        /// <summary>
+        /// Given a list of aliases, provide a consistent display
+        /// </summary>
+        /// <param name="symbol">The symbol the aliases are for.</param>
+        /// <param name="aliases">The aliases.</param>
+        /// <remarks>
+        /// The expected customization here is to layout the aliases differently, such as a different delimiter.
+        /// </remarks>
+        /// <returns>A string with the aliases sorted, distinct and comma delimited</returns>
+        public virtual string GetAliasText(CliSymbol symbol, IEnumerable<string> aliases)
+        {
+            var allAliases = aliases is null || !aliases.Any()
+                ? new[] { symbol.Name }
+                : new[] { symbol.Name }.Concat(aliases)
+                    .Select(r => r.SplitPrefix())
+                    .OrderBy(r => r.Prefix, StringComparer.OrdinalIgnoreCase)
+                    .ThenBy(r => r.Alias, StringComparer.OrdinalIgnoreCase)
+                    .GroupBy(t => t.Alias)
+                    .Select(t => t.First())
+                    .Select(t => $"{t.Prefix}{t.Alias}");
+            return string.Join(", ", allAliases);
+        }
+
+        /// <summary>
+        /// The description for the symbol
+        /// </summary>
+        /// <param name="symbol">The symbol the description is for for.</param>
+        /// <remarks>
+        /// The expected customization here is to offer a different description for options when they appear 
+        /// on different commands. The current command is in the help context property
+        /// </remarks>
+        /// <returns>The symbol description</returns>
+        public virtual string? GetDescription(CliSymbol symbol)
         => symbol.Description;
 
         public string? GetArgumentName(CliOption option)
@@ -69,15 +116,20 @@ namespace System.CommandLine.Help
                  : LocalizationResources.HelpArgumentDefaultValueLabel();
         }
 
-        public string GetUsage(CliArgument argument)
+        public string GetUsage(CliSymbol symbol)
+        => symbol switch
         {
-            return GetUsage(null, argument.ValueType, argument, showUsageOnBool: true);
-        }
-        public string GetUsage(CliOption option)
+            CliArgument argument => GetArgUsage(null, argument.ValueType, argument, showUsageOnBool: true),
+            CliOption option => GetUsage(option),
+            CliCommand command => GetUsage(command),
+            _=> string.Empty
+        };
+
+        protected string GetUsage(CliOption option)
         {
             var text = GetAliasText(option, option.Aliases);
 
-            var argumentLabel = GetUsage(option.ArgumentHelpName, option.ValueType, option, showUsageOnBool: false, skipNameDefault: true);
+            var argumentLabel = GetArgUsage(option.ArgumentHelpName, option.ValueType, option, showUsageOnBool: false, skipNameDefault: true);
 
             if (!string.IsNullOrEmpty(argumentLabel))
             {
@@ -91,7 +143,7 @@ namespace System.CommandLine.Help
 
             return text;
         }
-        public string GetUsage(CliCommand command)
+        protected string GetUsage(CliCommand command)
         {
             var text = GetAliasText(command, command.Aliases);
             string argumentText = string.Empty;
@@ -100,7 +152,7 @@ namespace System.CommandLine.Help
             {
                 var argumentLabels = command.Arguments
                     .Where(arg => !arg.Hidden)
-                    .Select(arg => GetUsage("", arg.ValueType, arg, false));
+                    .Select(arg => GetArgUsage("", arg.ValueType, arg, false));
                 argumentText = string.Join(", ", argumentLabels);
             }
 
@@ -109,27 +161,13 @@ namespace System.CommandLine.Help
                 : $"{text} {argumentText}";
         }
 
-        private string GetAliasText(CliSymbol symbol, IEnumerable<string> aliases)
-        {
-            var allAliases = aliases is null || !aliases.Any()
-                ? new[] { symbol.Name }
-                : new[] { symbol.Name }.Concat(aliases)
-                    .Select(r => r.SplitPrefix())
-                    .OrderBy(r => r.Prefix, StringComparer.OrdinalIgnoreCase)
-                    .ThenBy(r => r.Alias, StringComparer.OrdinalIgnoreCase)
-                    .GroupBy(t => t.Alias)
-                    .Select(t => t.First())
-                    .Select(t => $"{t.Prefix}{t.Alias}");
-            return string.Join(", ", allAliases);
-        }
 
-        private string GetUsage(string? helpName, Type valueType, CliSymbol symbol, bool showUsageOnBool, bool skipNameDefault = false)
+        protected string GetArgUsage(string? helpName, Type valueType, CliSymbol symbol, bool showUsageOnBool, bool skipNameDefault = false)
         {
             if (!string.IsNullOrWhiteSpace(helpName))
             {
                 return $"<{helpName}>";
             }
-
 
             if (!showUsageOnBool && (valueType == typeof(bool) || valueType == typeof(bool?)))
             {

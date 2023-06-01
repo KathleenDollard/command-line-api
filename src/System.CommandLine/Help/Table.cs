@@ -153,14 +153,16 @@ namespace System.CommandLine.Help.Formatting
         private static int GetFairWidth(int[] currentColumnWidths, int remainingWidth, int remainingColumns)
         {
             // This would need to iterate a bit on with large number of columns to avoid skewing space to the right
-            var tentative = Convert.ToInt32(remainingWidth / Convert.ToSingle(remainingColumns)); // force floating point
+            var tentative = remainingColumns == 0 
+                  ? remainingWidth
+                  : Convert.ToInt32(remainingWidth / Convert.ToSingle(remainingColumns)); // force floating point
             var remainingNarrowColumns = currentColumnWidths
                         .Skip(currentColumnWidths.Length - remainingColumns)
                         .Select(x => (x < tentative, x));
             var remainingWideCount = remainingNarrowColumns.Count(t => !t.Item1);
             if (remainingWideCount == 0)
             {  // everything already fits
-                return int.MaxValue;
+                return short.MaxValue; // Int overflows on the next tentative calculation
             }
             var remainingNarrowExtra = remainingNarrowColumns.Where(t => t.Item1).Sum(t => tentative - t.Item2);
             remainingWidth += remainingNarrowExtra;

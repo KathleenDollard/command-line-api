@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.CommandLine.Help.Formatting;
 using System.Linq;
-using Default = System.CommandLine.Help.CliDefaultHelpConfiguration.Defaults;
 
 namespace System.CommandLine.Help
 {
@@ -29,7 +28,7 @@ namespace System.CommandLine.Help
             }
 
             var options = GetOptions(command);
-            var table = new Table<CliOption>(2, options);
+            var table = new Table<CliOption>(Formatter.IndentWidth, options);
             table.Body[0] = GetFirstColumn;
             table.Body[1] = GetSecondColumn;
             return table;
@@ -89,43 +88,13 @@ namespace System.CommandLine.Help
 
         private string GetSecondColumn(CliOption option)
         {
-            var symbolDescription = option.Description ?? string.Empty;
+            var symbolDescription = SymbolInspector.GetDescription(option) ?? string.Empty;
 
             var defaultValueDescription = SymbolInspector.GetDefaultValueText(option);
-            if (string.IsNullOrEmpty(defaultValueDescription))
-            {
-                return $"{symbolDescription}".Trim();
-            }
-            else
-            {
-                return $"{symbolDescription} [{defaultValueDescription}]".Trim();
-            }
+
+            return string.IsNullOrEmpty(defaultValueDescription)
+                ? $"{symbolDescription}".Trim()
+                : $"{symbolDescription} [{defaultValueDescription}]".Trim();
         }
-
-        //private TwoColumnHelpRow GetTwoColumnRow(CliOption option)
-        //{
-        //    _ = option ?? throw new ArgumentNullException(nameof(option));
-
-        //    string firstColumnText = SymbolInspector.GetUsage(option);
-        //    string secondColumnText = GetSecondColumnText(option);
-
-        //    return new TwoColumnHelpRow(firstColumnText, secondColumnText);
-
-        //    string GetSecondColumnText(CliOption option)
-        //    {
-        //        var symbolDescription = option.Description;
-
-        //        var defaultValueDescription = Default.DefaultValueText(option.GetDefaultValue());
-
-        //        if (string.IsNullOrEmpty(defaultValueDescription))
-        //        {
-        //            return $"{symbolDescription}".Trim();
-        //        }
-        //        else
-        //        {
-        //            return $"{symbolDescription} [{LocalizationResources.HelpArgumentDefaultValueLabel()}: {defaultValueDescription}]".Trim();
-        //        }
-        //    }
-        //}
     }
 }

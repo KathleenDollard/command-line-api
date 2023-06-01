@@ -17,67 +17,48 @@ namespace System.CommandLine.Help
 
         public override IEnumerable<string>? GetBody(HelpContext helpContext)
         {
-            var symbol = helpContext.Command;
-            if (symbol is not CliCommand command )
-            {
-                return null;
-            }
-
-
-            var table = command.Subcommands.Where(x => !x.Hidden).Select(x => GetTwoColumnRow(x));
-
-            if (!command.Subcommands.Any())
-            {
-                return null;
-            }
-
-            return table is null
-              ? null
-              : CliHelpHelpers.WriteTwoColumns(table, helpContext.MaxWidth, Formatter.IndentWidth);
-
+            var table = GetBodyTable(helpContext);
+            return Formatter.FormatTable(table, helpContext.MaxWidth);
         }
 
-        private TwoColumnHelpRow GetTwoColumnRow(CliCommand command)
+        private Table<CliCommand>? GetBodyTable(HelpContext helpContext)
         {
-            _ = command ?? throw new ArgumentNullException(nameof(command));
-
-            string firstColumnText = SymbolInspector.GetUsage(command);
-            string secondColumnText = GetSecondColumnText(command);
-
-            return new TwoColumnHelpRow(firstColumnText, secondColumnText);
-
-            string GetSecondColumnText(CliCommand command)
+            var command = helpContext.Command;
+            if (command is null)
             {
-                var symbolDescription = command.Description ?? string.Empty;
-
-                var defaultValueDescription = GetCommandDefaultValue(command);
-
-                return $"{symbolDescription} {defaultValueDescription}".Trim();
+                return null;
             }
 
-            string GetCommandDefaultValue(CliCommand command)
+            var subCommands = command.Subcommands;
+
+            var table = new Table<CliCommand>(Formatter.IndentWidth, subCommands);
+            table.Body[0] = GetFirstColumn;
+            table.Body[1] = GetSecondColumn;
+            return table;
+        }
+
+        private string GetFirstColumn(CliCommand command)
+            => SymbolInspector.GetUsage(command);
+
+        private string GetSecondColumn(CliCommand command)
+        {
+            var symbolDescription = SymbolInspector.GetDescription(command) ?? string.Empty;
+
+            var defaultValueDescription = GetCommandDefaultArgValues(command);
+            return $"{symbolDescription} {defaultValueDescription}".Trim();
+        }
+
+        private string GetCommandDefaultArgValues(CliCommand command)
+        {
+            var args = command.Arguments
+                .Where(arg => !arg.Hidden && arg.HasDefaultValue);
+
+            return args.Count() switch
             {
-
-                if (command.Hidden)
-                {
-                    return string.Empty;
-                }
-
-                var args = command.Arguments
-                    .Where(arg => !arg.Hidden && arg.HasDefaultValue);
-
-                if (!args.Any())
-                {
-                    return "";
-                }
-
-                return args.Count() switch
-                {
-                    0 => "",
-                    1 => $"[{Default.DefaultValueTextAndLabel(args.First(), false)}]",
-                    _ => $"[{string.Join(", ", args.Select(arg => Default.DefaultValueTextAndLabel(args.First(), false)))}]"
-                };
-            }
+                0 => "",
+                1 => $"[{Default.DefaultValueTextAndLabel(args.First(), false)}]",
+                _ => $"[{string.Join(", ", args.Select(arg => SymbolInspector.GetDefaultValueText(arg, true)))}]"
+            };
         }
     }
 }

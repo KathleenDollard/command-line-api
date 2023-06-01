@@ -27,8 +27,8 @@ namespace System.CommandLine.Help
                 return null;
             }
 
-            var args = GetArguments(helpContext.Command);
-            var table = new Table<CliArgument>(2, args);
+            var args = GetArguments(command);
+            var table = new Table<CliArgument>(Formatter.IndentWidth, args);
             table.Body[0] = GetFirstColumn;
             table.Body[1] = GetSecondColumn;
             return table;
@@ -45,17 +45,12 @@ namespace System.CommandLine.Help
 
         private string GetSecondColumn(CliArgument argument)
         {
-            var symbolDescription = argument.Description ?? string.Empty;
+            var symbolDescription = SymbolInspector.GetDescription(argument) ?? string.Empty;
 
             var defaultValueDescription = SymbolInspector.GetDefaultValueText(argument,false);
-            if (string.IsNullOrEmpty(defaultValueDescription))
-            {
-                return $"{symbolDescription}".Trim();
-            }
-            else
-            {
-                return $"{symbolDescription} [{defaultValueDescription}]".Trim();
-            }
+            return string.IsNullOrEmpty(defaultValueDescription)
+                ? $"{symbolDescription}".Trim()
+                : $"{symbolDescription} [{defaultValueDescription}]".Trim();
         }
 
 
