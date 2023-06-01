@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.CommandLine.CliOutput;
 using System.CommandLine.Help.Formatting;
 using System.Linq;
 using System.Text;
@@ -45,7 +46,6 @@ namespace System.CommandLine.Tests.Help
 
             Assert.Equal(expected, actual);
         }
-
 
         [Fact]
         public void WrappingOccursAtWordBoundary()

@@ -172,5 +172,10 @@ namespace System.CommandLine.Help
             }
             return ret;
         }
+
+        internal static IEnumerable<string>? WrapAndIndentText(object value, int maxWidth, int indent)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

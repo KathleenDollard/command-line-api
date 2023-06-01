@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.CommandLine.Help.Formatting;
+using System.CommandLine.CliOutput;
 using System.Linq;
 
 namespace System.CommandLine.Help
@@ -13,16 +13,16 @@ namespace System.CommandLine.Help
         {
         }
 
-        public override IEnumerable<string>? GetBody(HelpContext helpContext)
-        {
-            var table = GetBodyTable(helpContext);
-            return Formatter.FormatTable(table, helpContext.MaxWidth);
-        }
+        public override IEnumerable<string>? GetBody(CliOutputContext outputContext) 
+        => outputContext switch
+            {
+                HelpContext helpContext => Formatter.FormatTable(GetBodyTable(helpContext), outputContext.MaxWidth),
+                _ => null
+            };
 
         private Table<CliOption>? GetBodyTable(HelpContext helpContext)
         {
-            var command = helpContext.Command;
-            if (command is null)
+            if (helpContext?.Command is not CliCommand command)
             {
                 return null;
             }

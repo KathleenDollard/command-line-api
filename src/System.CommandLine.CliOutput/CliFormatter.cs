@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace System.CommandLine.Help.Formatting
+namespace System.CommandLine.CliOutput
 {
     public abstract class CliFormatter
     {

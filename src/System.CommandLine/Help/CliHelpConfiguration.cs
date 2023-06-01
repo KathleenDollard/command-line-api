@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.CommandLine.Help.Formatting;
+using System.CommandLine.CliOutput;
 using System.Linq;
 
 namespace System.CommandLine.Help

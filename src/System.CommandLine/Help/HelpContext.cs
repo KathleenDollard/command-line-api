@@ -1,6 +1,9 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections;
+using System.Collections.Generic;
+using System.CommandLine.CliOutput;
 using System.IO;
 
 namespace System.CommandLine.Help
@@ -8,9 +11,11 @@ namespace System.CommandLine.Help
     /// <summary>
     /// Supports formatting command line help.
     /// </summary>
-    public class HelpContext
+    public class HelpContext : CliOutputContext
     {
         /// <param name="command">The command for which help is being formatted.</param>
+        /// <param name="cliConfiguration">The configuration for the current CLI tree</param>
+        /// <param name="maxWidth">The maximum width of the displayed output</param>
         /// <param name="output">A text writer to write output to.</param>
         /// <param name="parseResult">The result of the current parse operation.</param>
         public HelpContext(
@@ -19,15 +24,15 @@ namespace System.CommandLine.Help
             int maxWidth,
             TextWriter output,
             ParseResult? parseResult = null)
+            : base( maxWidth,  output)
         {
             Command = command ?? throw new ArgumentNullException(nameof(command));
-            MaxWidth = maxWidth <= 0
-                 ? short.MaxValue
-                 : maxWidth;
-            Output = output ?? throw new ArgumentNullException(nameof(output));
             ParseResult = parseResult ?? ParseResult.Empty();
             CliConfiguration = cliConfiguration;
         }
+
+        public override IEnumerable<CliSection> GetSections() 
+            => CliConfiguration.HelpConfiguration.GetSections(this);
 
         /// <summary>
         /// The result of the current parse operation.
@@ -38,12 +43,6 @@ namespace System.CommandLine.Help
         /// The command for which help is being formatted.
         /// </summary>
         public CliCommand Command { get; }
-        public int MaxWidth { get; }
-
-        /// <summary>
-        /// A text writer to write output to.
-        /// </summary>
-        public TextWriter Output { get; }
 
         internal bool WasSectionSkipped { get; set; }
 

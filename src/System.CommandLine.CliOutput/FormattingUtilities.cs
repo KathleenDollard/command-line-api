@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace System.CommandLine.Help
+namespace System.CommandLine.CliOutput
 {
     public class FormattingUtilities
     {

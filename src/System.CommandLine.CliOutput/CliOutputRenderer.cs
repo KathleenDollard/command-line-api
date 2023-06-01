@@ -1,18 +1,16 @@
 ﻿using System.Collections.Generic;
-using System.CommandLine.CliOutput;
-using System.IO;
 using System.Linq;
 
-namespace System.CommandLine.Help
+namespace System.CommandLine.CliOutput
 {
-    public class CliHelpBuilder : CliOutputRenderer, IHelpBuilder
+    public class CliOutputRenderer
     {
         /// <summary>
         /// Writes help output for the specified command.
         /// </summary>
-        public virtual void Write(HelpContext helpContext)
+        public virtual void Write(CliOutputContext outputContext)
         {
-            _ = helpContext ?? throw new ArgumentNullException(nameof(helpContext));
+            _ = outputContext ?? throw new ArgumentNullException(nameof(outputContext));
 
             // KAD: Consider this: If the user explicitly typed a hidden command, should they be able to get help for deprecated or preview features?
             //if (context.Command.Hidden)
@@ -20,16 +18,16 @@ namespace System.CommandLine.Help
             //    return;
             //}
 
-            var sections = helpContext.CliConfiguration.HelpConfiguration.GetSections(helpContext);
+            var sections = outputContext.GetSections();
             foreach (var section in sections)
             {
                 IEnumerable<string> lines = new List<string>();
-                var body = section.GetBody(helpContext);
+                var body = section.GetBody(outputContext);
                 if ((body == null || !body.Any()) && !section.EmitHeaderOnEmptyBody)
                 { continue; }
 
-                var opening = section.GetOpening(helpContext);
-                var closing = section.GetClosing(helpContext);
+                var opening = section.GetOpening(outputContext);
+                var closing = section.GetClosing(outputContext);
 
                 if (opening is not null)
                 {
@@ -51,23 +49,23 @@ namespace System.CommandLine.Help
                     }
                 }
 
-                WriteOutput(lines, helpContext);
+                WriteOutput(lines, outputContext);
             }
 
-            helpContext.Output.WriteLine();
-            helpContext.Output.WriteLine();
+            outputContext.Output.WriteLine();
+            outputContext.Output.WriteLine();
         }
 
-        private static void WriteOutput(IEnumerable<string> lines, HelpContext context)
+        private static void WriteOutput(IEnumerable<string> lines, CliOutputContext outputContext)
         {
 
             if (lines.Any())
             {
                 foreach (var line in lines)
                 {
-                    context.Output.WriteLine(line);
+                    outputContext.Output.WriteLine(line);
                 }
-                context.Output.WriteLine();
+                outputContext.Output.WriteLine();
             }
         }
 

@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.CommandLine.Help.Formatting;
+using System.CommandLine.CliOutput;
 using System.Linq;
 using Default = System.CommandLine.Help.CliDefaultHelpConfiguration.Defaults;
 
@@ -15,16 +15,16 @@ namespace System.CommandLine.Help
         }
 
 
-        public override IEnumerable<string>? GetBody(HelpContext helpContext)
+        public override IEnumerable<string>? GetBody(CliOutputContext outputContext)
         {
+            if (outputContext is not HelpContext helpContext) { return null; }
             var table = GetBodyTable(helpContext);
             return Formatter.FormatTable(table, helpContext.MaxWidth);
         }
 
         private Table<CliCommand>? GetBodyTable(HelpContext helpContext)
         {
-            var command = helpContext.Command;
-            if (command is null)
+            if (helpContext?.Command is not CliCommand command)
             {
                 return null;
             }

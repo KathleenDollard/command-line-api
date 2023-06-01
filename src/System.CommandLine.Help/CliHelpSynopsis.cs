@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.CommandLine.Help.Formatting;
-using System.Linq;
+using System.CommandLine.CliOutput;
 
 namespace System.CommandLine.Help
 {
@@ -13,8 +12,11 @@ namespace System.CommandLine.Help
         {
         }
 
-        public override IEnumerable<string>? GetBody(HelpContext helpContext)
-        => CliHelpHelpers.WrapAndIndentText(helpContext.Command.Description ?? string.Empty, maxWidth: helpContext.MaxWidth, indent: Formatter.IndentWidth);
-
+        public override IEnumerable<string>? GetBody(CliOutputContext outputContext)
+        {
+            return outputContext is not HelpContext helpContext
+                ? null
+                : CliHelpHelpers.WrapAndIndentText(helpContext.Command.Description ?? string.Empty, maxWidth: outputContext.MaxWidth, indent: Formatter.IndentWidth);
+        }
     }
 }

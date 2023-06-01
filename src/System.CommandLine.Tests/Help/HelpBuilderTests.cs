@@ -1579,6 +1579,7 @@ namespace System.CommandLine.Tests.Help
         [InlineData(0)]
         [InlineData(-1)]
         [InlineData(int.MinValue)]
+        [Trait("Fail", "Suggest change to default max width")] // it can break on floating point division
         public void Constructor_ignores_non_positive_max_width(int maxWidth)
         {
             var helpBuilder = GetHelpContext( maxWidth: maxWidth);

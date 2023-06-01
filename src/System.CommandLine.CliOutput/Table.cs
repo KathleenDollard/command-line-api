@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace System.CommandLine.Help.Formatting
+namespace System.CommandLine.CliOutput
 {
     public class Table
     {
