@@ -155,18 +155,18 @@ namespace System.CommandLine.CliOutput
             // This would need to iterate a bit on with large number of columns to avoid skewing space to the right
             var tentative = remainingColumns == 0 
                   ? remainingWidth
-                  : Convert.ToInt32(remainingWidth / Convert.ToSingle(remainingColumns)); // force floating point
+                  : remainingWidth / remainingColumns; 
             var remainingNarrowColumns = currentColumnWidths
                         .Skip(currentColumnWidths.Length - remainingColumns)
                         .Select(x => (x < tentative, x));
             var remainingWideCount = remainingNarrowColumns.Count(t => !t.Item1);
             if (remainingWideCount == 0)
             {  // everything already fits
-                return short.MaxValue; // Int overflows on the next tentative calculation
+                return int.MaxValue;
             }
             var remainingNarrowExtra = remainingNarrowColumns.Where(t => t.Item1).Sum(t => tentative - t.Item2);
             remainingWidth += remainingNarrowExtra;
-            return Convert.ToInt32(remainingWidth / Convert.ToSingle(remainingWideCount)); // force floating point
+            return remainingWidth / remainingWideCount; 
         }
 
         private static int UpdateTextToCurrent(string[,] allCellText, IEnumerable<string>[,] wrappedCellText, int currentColumn)

@@ -9,7 +9,7 @@ public abstract class CliOutputContext
     public CliOutputContext(int maxWidth, TextWriter output)
     {
         MaxWidth = maxWidth <= 0
-             ? short.MaxValue
+             ? int.MaxValue
              : maxWidth;
         Output = output ?? throw new ArgumentNullException(nameof(output));
     }
