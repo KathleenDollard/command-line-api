@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace System.CommandLine.Help
 {
+    /// <summary>
+    /// Temporary to aid transition to new Builder
+    /// </summary>
     public interface IHelpBuilder
     {
         void Write(HelpContext helpContext);

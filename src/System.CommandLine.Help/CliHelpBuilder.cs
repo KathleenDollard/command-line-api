@@ -1,24 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.CommandLine.CliOutput;
-using System.IO;
 using System.Linq;
 
 namespace System.CommandLine.Help
 {
     public class CliHelpBuilder : CliOutputRenderer, IHelpBuilder
     {
-        /// <summary>
-        /// Writes help output for the specified command.
-        /// </summary>
+        // This temporarily satisfies IHelpBuilder
         public virtual void Write(HelpContext helpContext)
         {
             _ = helpContext ?? throw new ArgumentNullException(nameof(helpContext));
-
-            // KAD: Consider this: If the user explicitly typed a hidden command, should they be able to get help for deprecated or preview features?
-            //if (context.Command.Hidden)
-            //{
-            //    return;
-            //}
 
             var sections = helpContext.CliConfiguration.HelpConfiguration.GetSections(helpContext);
             foreach (var section in sections)
