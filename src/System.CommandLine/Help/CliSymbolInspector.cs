@@ -93,10 +93,12 @@ namespace System.CommandLine.Help
                    GetAliases(option),
                    GetDescription(option),
                    parentCommandName,
+                   option.ArgumentHelpName,
                    GetCompletionsText(option),
                    option.ValueType,
                    option.Argument.HasDefaultValue,
                    option.GetDefaultValue(),
+                   option.Required,
                    option.Hidden);
 
         public IEnumerable<InspectorOptionData> GetOptionData(CliCommand command)
@@ -146,12 +148,9 @@ namespace System.CommandLine.Help
 
         public IEnumerable<InspectorCommandData> GetSubcommandData(CliCommand command)
         {
-            return GetCommands(SelfAndParentCommands(command))
+            var subCommands = command.Subcommands
                     .Select(cmd => GetCommandData(cmd, GetName(command)));
-
-            static IEnumerable<CliCommand> GetCommands(IEnumerable<CliCommand> selfAndParents)
-                => selfAndParents
-                    .Reverse();
+            return subCommands;
         }
 
         public IEnumerable<CliCommand> SelfAndParentCommands(CliSymbol symbol)
@@ -332,23 +331,29 @@ namespace System.CommandLine.Help
                                    IEnumerable<string>? aliases,
                                    string? description,
                                    string? parentCommandName,
+                                   string? argumentHelpName,
                                    IEnumerable<string> completions,
                                    Type valueType,
                                    bool hasDefaultValue,
                                    object? defaultValue,
+                                   bool required,
                                    bool hidden )
     : base(name, description, parentCommandName, completions, hidden)
         {
             Aliases = aliases ?? Enumerable.Empty<string>();
+            ArgumentHelpName = argumentHelpName;
             ValueType = valueType;
             HasDefaultValue = hasDefaultValue;
             DefaultValue = defaultValue;
+            Required = required;
         }
 
         public IEnumerable<string> Aliases { get; }
+        public string? ArgumentHelpName { get; }
         public Type ValueType { get; }
         public bool HasDefaultValue { get; }
         public object? DefaultValue { get; }
+        public bool Required { get; }
     }
 
     public class InspectorArgumentData : InspectorSymbolData

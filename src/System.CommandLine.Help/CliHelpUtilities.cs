@@ -1,5 +1,6 @@
 ﻿using System.Collections;
-using System.CommandLine.CliOutput;
+using System.Collections.Generic;
+using System.CommandLine.Parsing;
 using System.Linq;
 
 namespace System.CommandLine.Help
@@ -27,92 +28,147 @@ namespace System.CommandLine.Help
         // KAD: TODO: Once tests pass, find commonalities in these GetUsage and GetDefaultValue methods
         public static string GetUsage(InspectorOptionData data, bool showUsageOnBool = false, bool skipNameDefault = false)
         {
-            if (!string.IsNullOrWhiteSpace(data.Name))
+            var text = GetAliasText(data.Name ?? string.Empty, data.Aliases);
+            var argumentLabel = GetArgUsage(data.ArgumentHelpName, data.Name, data.ValueType, data.Completions, showUsageOnBool: false, skipNameDefault: true );
+            if (!string.IsNullOrEmpty(argumentLabel))
             {
-                return $"<{data.Name}>";
+                text += $" {argumentLabel}";
+            }
+            if (data.Required)
+            {
+                text += $" {LocalizationResources.HelpOptionsRequiredLabel()}";
             }
 
-            var valueType = data.ValueType;
-            // never show true/false
-            if (valueType == typeof(bool) || valueType == typeof(bool?))
-            {
-                return showUsageOnBool
-                    ? defaultReturn(data.ParentCommandName, showUsageOnBool)
-                    : string.Empty;
-            }
-
-            var completions = data.Completions;
-            if (completions.Any())
-            {
-                string joined = string.Join("|", completions);
-
-                if (!string.IsNullOrEmpty(joined))
-                {
-                    return $"<{joined}>";
-                }
-            }
-            return defaultReturn(data.ParentCommandName, skipNameDefault);
+            return text;
 
             static string defaultReturn(string parentCommandName, bool skipNameDefault)
                 => skipNameDefault ? "" : $"<{parentCommandName}>";
+
         }
 
 
         public static string GetUsage(InspectorArgumentData data, bool showUsageOnBool = false, bool skipNameDefault = false)
         {
-            if (!string.IsNullOrWhiteSpace(data.Name))
-            {
-                return $"<{data.Name}>";
-            }
+            return GetArgUsage(null, data.Name, data.ValueType, data.Completions, showUsageOnBool: true);
+            //if (!string.IsNullOrWhiteSpace(data.Name))
+            //{
+            //    return $"<{data.Name}>";
+            //}
 
-            var valueType = data.ValueType;
-            // never show true/false
-            if (valueType == typeof(bool) || valueType == typeof(bool?))
-            {
-                return showUsageOnBool
-                    ? defaultReturn(data.ParentCommandName, showUsageOnBool)
-                    : string.Empty;
-            }
+            //var valueType = data.ValueType;
+            //// never show true/false
+            //if (valueType == typeof(bool) || valueType == typeof(bool?))
+            //{
+            //    return showUsageOnBool
+            //        ? defaultReturn(data.ParentCommandName, showUsageOnBool)
+            //        : string.Empty;
+            //}
 
-            var completions = data.Completions;
-            if (completions.Any())
-            {
-                string joined = string.Join("|", completions);
+            //var completions = data.Completions;
+            //if (completions.Any())
+            //{
+            //    string joined = string.Join("|", completions);
 
-                if (!string.IsNullOrEmpty(joined))
-                {
-                    return $"<{joined}>";
-                }
-            }
-            return defaultReturn(data.ParentCommandName, skipNameDefault);
+            //    if (!string.IsNullOrEmpty(joined))
+            //    {
+            //        return $"<{joined}>";
+            //    }
+            //}
+            //return defaultReturn(data.ParentCommandName, skipNameDefault);
 
-            static string defaultReturn(string parentCommandName, bool skipNameDefault)
-                => skipNameDefault ? "" : $"<{parentCommandName}>";
+            //static string defaultReturn(string parentCommandName, bool skipNameDefault)
+            //    => skipNameDefault ? "" : $"<{parentCommandName}>";
         }
 
         public static string GetUsage(InspectorCommandData data, bool showUsageOnBool = false, bool skipNameDefault = false)
         {
-            if (!string.IsNullOrWhiteSpace(data.Name))
+
+            var text = GetAliasText(data.Name ?? string.Empty, data.Aliases);
+            string argumentText = string.Empty;
+
+            if (data.Arguments.Any())
             {
-                return $"<{data.Name}>";
+                var argumentLabels = data.Arguments
+                    .Where(arg => !arg.Hidden)
+                    .Select(arg => GetArgUsage(arg.Name, data.Name, arg.ValueType,data.Completions, false));
+                argumentText = string.Join(", ", argumentLabels);
             }
 
-            var completions = data.Completions;
-            if (completions.Any())
-            {
-                string joined = string.Join("|", completions);
+            return string.IsNullOrEmpty(argumentText)
+                ? text
+                : $"{text} {argumentText}";
 
-                if (!string.IsNullOrEmpty(joined))
-                {
-                    return $"<{joined}>";
-                }
-            }
-            return defaultReturn(data.ParentCommandName, skipNameDefault);
+            //if (!string.IsNullOrWhiteSpace(data.Name))
+            //{
+            //    return $"<{data.Name}>";
+            //}
 
-            static string defaultReturn(string parentCommandName, bool skipNameDefault)
-                => skipNameDefault ? "" : $"<{parentCommandName}>";
+            //var completions = data.Completions;
+            //if (completions.Any())
+            //{
+            //    string joined = string.Join("|", completions);
+
+            //    if (!string.IsNullOrEmpty(joined))
+            //    {
+            //        return $"<{joined}>";
+            //    }
+            //}
+            //return defaultReturn(data.ParentCommandName, skipNameDefault);
+
+            //static string defaultReturn(string parentCommandName, bool skipNameDefault)
+            //    => skipNameDefault ? "" : $"<{parentCommandName}>";
         }
 
+        /// <summary>
+        /// Given a list of aliases, provide a consistent display
+        /// </summary>
+        /// <param name="name">The name of the symbol</param>
+        /// <param name="aliases">The aliases.</param>
+        /// <remarks>
+        /// The expected customization here is to layout the aliases differently, such as a different delimiter.
+        /// </remarks>
+        /// <returns>A string with the aliases sorted, distinct and comma delimited</returns>
+        public static string GetAliasText(string name, IEnumerable<string> aliases)
+        {
+            var allAliases = aliases is null || !aliases.Any()
+                ? new[] { name }
+                : new[] { name }.Concat(aliases)
+                    .Select(r => r.SplitPrefix())
+                    .OrderBy(r => r.Prefix, StringComparer.OrdinalIgnoreCase)
+                    .ThenBy(r => r.Alias, StringComparer.OrdinalIgnoreCase)
+                    .GroupBy(t => t.Alias)
+                    .Select(t => t.First())
+                    .Select(t => $"{t.Prefix}{t.Alias}");
+            return string.Join(", ", allAliases);
+        }
+
+        private static string GetArgUsage(string? helpName, string? symbolName, Type valueType, IEnumerable<string> completions, bool showUsageOnBool, bool skipNameDefault = false)
+        {
+            if (!string.IsNullOrWhiteSpace(helpName))
+            {
+                return $"<{helpName}>";
+            }
+
+            if (!showUsageOnBool && (valueType == typeof(bool) || valueType == typeof(bool?)))
+            {
+                return string.Empty;
+            }
+
+            if (!(valueType == typeof(bool) || valueType == typeof(bool?))) // never show true/false
+            {
+                if (completions.Any())
+                {
+                    string joined = string.Join("|", completions);
+
+                    if (!string.IsNullOrEmpty(joined))
+                    {
+                        return $"<{joined}>";
+                    }
+                }
+            }
+
+            return skipNameDefault ? "" : $"<{symbolName}>";
+        }
 
         public static string GetDefaultValueText(InspectorOptionData data, bool displaySymbolName = false)
         {

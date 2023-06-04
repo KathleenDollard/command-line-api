@@ -596,6 +596,7 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
+        [Trait("NewLine", "Known Issue")]
         public void Arguments_section_keeps_added_newlines_when_width_is_very_small()
         {
             // This test fails because it does not pad at the end of the row. 
@@ -626,6 +627,7 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
+        [Trait("Whitespace", "Unknown match failure")]
         public void Arguments_section_properly_wraps_description()
         {
             var longCmdText =
@@ -654,6 +656,7 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
+        [Trait("Whitespace", "Off by one")]
         public void Arguments_section_properly_wraps()
         { 
             // see note in 
@@ -1056,6 +1059,7 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
+        [Trait("NewLine", "Known Issue")]
         public void Options_section_keeps_added_newlines()
         {
             var command =
@@ -1082,6 +1086,7 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
+        [Trait("Whitespace", "Off by one")]
         public void Options_section_properly_wraps_description()
         {
             var longOptionText =
@@ -1107,6 +1112,7 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
+        [Trait("Whitespace", "Off by one")]
         public void Options_section_properly_wraps_description_when_long_default_value_is_specified()
         {
             var longOptionText =
@@ -1135,6 +1141,7 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
+        [Trait("Whitespace", "Off by one")]
         public void Options_section_properly_wraps()
         {
             var alias = "--option-alias-for-a-command-that-is-long-enough-to-wrap-to-a-new-line";
@@ -1422,6 +1429,7 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
+        [Trait("Whitespace", "Off by one")]
         public void Subcommands_section_properly_wraps()
         {
             var name = "subcommand-name-that-is-long-enough-to-wrap-to-a-new-line";
@@ -1508,6 +1516,7 @@ namespace System.CommandLine.Tests.Help
 
 
         [Fact]
+        [Trait("SubCommand","Args")]
         public void Help_describes_default_value_for_subcommand_with_arguments_and_only_defaultable_is_shown()
         {
             var argument = new CliArgument<string>("the-arg");
@@ -1539,6 +1548,7 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
+        [Trait("SubCommand", "Args")]
         public void Help_describes_default_values_for_subcommand_with_multiple_defaultable_arguments()
         {
             var argument = new CliArgument<string>("the-arg")

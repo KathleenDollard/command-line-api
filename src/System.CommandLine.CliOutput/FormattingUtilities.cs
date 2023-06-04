@@ -43,7 +43,7 @@ namespace System.CommandLine.CliOutput
                                     length = j + 1;
                                 }
                             }
-                            if (length == -1)
+                            if (length < 0)
                             {
                                 length = maxWidth;
                             }

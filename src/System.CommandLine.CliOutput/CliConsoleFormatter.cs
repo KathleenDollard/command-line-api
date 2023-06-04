@@ -208,6 +208,8 @@ namespace System.CommandLine.CliOutput
             }
             var remainingNarrowExtra = remainingNarrowColumns.Where(t => t.Item1).Sum(t => tentative - t.Item2);
             remainingWidth += remainingNarrowExtra;
+            //var narrowWidth = remainingNarrowColumns.Where(t => t.Item1).Sum(t => t.Item2);
+            //remainingWidth = remainingWidth = narrowWidth;
             return remainingWidth / remainingWideCount;
         }
 
