@@ -12,11 +12,11 @@ namespace System.CommandLine.Help
         {
         }
 
-        public override IEnumerable<string>? GetBody(CliOutputContext outputContext)
-        {
-            return outputContext is not HelpContext helpContext
+        public override IEnumerable<CliOutputUnit>? GetBody(CliOutputContext outputContext) 
+        => outputContext is not HelpContext helpContext || helpContext.Command.Description is null
                 ? null
-                : CliHelpHelpers.WrapAndIndentText(helpContext.Command.Description ?? string.Empty, maxWidth: outputContext.MaxWidth, indent: Formatter.IndentWidth);
-        }
+                : new CliOutputUnit[] { new CliText(helpContext.Command.Description, 1) };
+
+
     }
 }

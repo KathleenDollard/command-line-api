@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.CommandLine.CliOutput;
-using System.CommandLine.Help.Formatting;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace System.CommandLine.Tests.Help
@@ -17,15 +12,17 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void ShortStringsDoNotWrap()
         {
-            var initial = new string[,]
-            {
-                { "1", "2", "3", "4" }
-            };
+            var table = new CliTable<string[]>(4,
+                new List<string[]>
+                    {
+                        new  string[]{ "1", "2", "3", "4" }
+                    });
             var expected = new List<string>
             {
                 "1  2  3  4"
             };
-            var actual = Table.GetPaddedArrayOutput(initial, leftMargin: "", rightMargin: "", maxWidth: 100, interColumnMargin: indent);
+            CliFormatter consoleFormatter = new CliConsoleFormatter(leftTableMargin: "", rightTableMargin: "", interColumnTableMargin: indent);
+            var actual = consoleFormatter.FormatTable(table, maxWidth: 100);
 
             Assert.Equal(expected, actual);
         }
@@ -33,16 +30,18 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void WrappingRemovesWhitespace()
         {
-            var initial = new string[,]
+            var table = new CliTable<string[]>(4,
+               new List<string[]>
             {
-                {"1", "This is a sufficiently long string that it should wrap" }
-            };
+                   new string[] { "1", "This is a sufficiently long string that it should wrap" }
+            });
             var expected = new List<string>
             {
                 "1  This is a sufficiently long ",
                 "   string that it should wrap  "
             };
-            var actual = Table.GetPaddedArrayOutput(initial, leftMargin: "", rightMargin: "", maxWidth: 31, interColumnMargin: indent);
+            CliFormatter consoleFormatter = new CliConsoleFormatter(leftTableMargin: "", rightTableMargin: "", interColumnTableMargin: indent);
+            var actual = consoleFormatter.FormatTable(table, maxWidth: 31);
 
             Assert.Equal(expected, actual);
         }
@@ -50,17 +49,19 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void WrappingOccursAtWordBoundary()
         {
-            var initial = new string[,]
+            var table = new CliTable<string[]>(4,
+               new List<string[]>
             {
-               {"1", "This is a sufficiently long string that it should wrap" }
-            };
+               new string[]{"1", "This is a sufficiently long string that it should wrap" }
+            });
             var expected = new List<string>
                 {
                 "1  This is a sufficiently ",
                 "   long string that it    ",
                 "   should wrap            "
             };
-            var actual = Table.GetPaddedArrayOutput(initial, leftMargin: "", rightMargin: "", maxWidth: 28, interColumnMargin: indent);
+            CliFormatter consoleFormatter = new CliConsoleFormatter(leftTableMargin: "", rightTableMargin: "", interColumnTableMargin: indent);
+            var actual = consoleFormatter.FormatTable(table, maxWidth: 28);
 
             Assert.Equal(expected, actual);
         }
@@ -68,17 +69,20 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void SpaceReleasedByWrappingIsReused()
         {
-            var initial = new string[,]
-           {
-                 {"1", "This is a sufficiently long string that it should wrap", "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16" }
-            };
+            var table = new CliTable<string[]>(4,
+              new List<string[]>
+
+          {
+                new string[] {"1", "This is a sufficiently long string that it should wrap", "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16" }
+            });
             var expected = new List<string>
             {
                 "1  This is a sufficiently   1 2 3 4 5 6 7 8 9 10 11 12 ",
                 "   long string that it      13 14 15 16                ",
                 "   should wrap                                         "
             };
-            var actual = Table.GetPaddedArrayOutput(initial, leftMargin: "", rightMargin: "", maxWidth: 55, interColumnMargin: indent);
+            CliFormatter consoleFormatter = new CliConsoleFormatter(leftTableMargin: "", rightTableMargin: "", interColumnTableMargin: indent);
+            var actual = consoleFormatter.FormatTable(table, maxWidth: 55);
 
             Assert.Equal(expected, actual);
         }
@@ -87,17 +91,20 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void ColumnsNotExpandedPastTheirSize()
         {
-            var initial = new string[,]
-             {
-                {"1", "This is sufficiently long", "1 2 3 4 5 6 7 8 9 10 11" }
-            };
+            var table = new CliTable<string[]>(4,
+             new List<string[]>
+
+           {
+               new string[] {"1", "This is sufficiently long", "1 2 3 4 5 6 7 8 9 10 11" }
+            });
 
             var expected = new List<string>
             {
                 "1  This is            1 2 3 4 5 6 7 8 9 10 ",
                 "   sufficiently long  11                   ",
             };
-            var actual = Table.GetPaddedArrayOutput(initial, leftMargin: "", rightMargin: "", maxWidth: 43, interColumnMargin: indent);
+            CliFormatter consoleFormatter = new CliConsoleFormatter(leftTableMargin: "", rightTableMargin: "", interColumnTableMargin: indent);
+            var actual = consoleFormatter.FormatTable(table, maxWidth: 43);
 
             Assert.Equal(expected, actual);
         }

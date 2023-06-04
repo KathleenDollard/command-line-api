@@ -1,4 +1,75 @@
-﻿Inspector retrieves data from Symbols
+﻿Configuration is for permanent things and factories for current run things
+Context is for current run
+
+Cli versions are generic, Help versions are specific
+
+## Current
+
+### CliOutputConfiguration
+
+### CliHelpConfiguration
+
+GetSymbolInspector
+*GetSections 
+*GetFormatter
+*Defaults
+
+### CliOutputContext
+
+GetSections (abstract) - may depend on something in specific context
+MaxWidth
+Writer
+Formatter - set by derived classes in the constructor
+
+### HelpContext
+
+GetSections (override) - may depend on parseResult
+ParseResult
+Command
+CliConfiguration
+Formatter is set based on a factory in HelpConfiguration if not passed. Is this common?
+
+## Alternate
+
+### CliOutputConfiguration
+
+GetSections(OutputContext)
+GetFormatter(OutputContext)
+
+### CliHelpConfiguration
+
+GetSymbolInspector(IHelpContext)
+*Defaults
+
+### CliOutputContext
+
+CliOutputConfiguration (for sections and formatter)
+MaxWidth
+Writer
+Formatter - set by derived classes in the constructor
+
+### HelpContext
+
+ParseResult
+CliConfiguration
+Formatter is set based on a factory in HelpConfiguration if not passed. Is this common?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Inspector retrieves data from Symbols
 
 * This could be located in the Parsing assembly because it may be useful in 
 * May be a static class

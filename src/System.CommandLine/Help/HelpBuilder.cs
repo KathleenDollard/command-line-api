@@ -54,11 +54,11 @@ namespace System.CommandLine.Help
 
                 if (!context.WasSectionSkipped)
                 {
-                    context.Output.WriteLine();
+                    context.Writer.WriteLine();
                 }
             }
 
-            context.Output.WriteLine();
+            context.Writer.WriteLine();
         }
 
         /// <summary>
@@ -159,7 +159,7 @@ namespace System.CommandLine.Help
                 return;
             }
 
-            WriteHeading(LocalizationResources.HelpCommandsTitle(), null, context.Output);
+            WriteHeading(LocalizationResources.HelpCommandsTitle(), null, context.Writer);
             WriteColumns(subcommands, context);
         }
 
@@ -172,7 +172,7 @@ namespace System.CommandLine.Help
             }
 
             WriteHeading(LocalizationResources.HelpAdditionalArgumentsTitle(),
-                         LocalizationResources.HelpAdditionalArgumentsDescription(), context.Output);
+                         LocalizationResources.HelpAdditionalArgumentsDescription(), context.Writer);
         }
 
         private void WriteHeading(string? heading, string? description, TextWriter writer)
@@ -228,7 +228,7 @@ namespace System.CommandLine.Help
 
                 foreach (var (first, second) in ZipWithEmpty(firstColumnParts, secondColumnParts))
                 {
-                    context.Output.Write($"{Indent}{first}");
+                    context.Writer.Write($"{Indent}{first}");
                     if (!string.IsNullOrWhiteSpace(second))
                     {
                         int padSize = firstColumnWidth - first.Length;
@@ -238,10 +238,10 @@ namespace System.CommandLine.Help
                             padding = new string(' ', padSize);
                         }
 
-                        context.Output.Write($"{padding}{Indent}{second}");
+                        context.Writer.Write($"{padding}{Indent}{second}");
                     }
 
-                    context.Output.WriteLine();
+                    context.Writer.WriteLine();
                 }
             }
 

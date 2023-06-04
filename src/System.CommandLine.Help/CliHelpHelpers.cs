@@ -145,7 +145,7 @@ namespace System.CommandLine.Help
             { return; }
             foreach (var line in output)
             {
-                context.Output.WriteLine(line);
+                context.Writer.WriteLine(line);
             }
         }
 
@@ -154,7 +154,7 @@ namespace System.CommandLine.Help
 
         public static void WriteBlankLine(HelpContext context)
         {
-            context.Output.WriteLine();
+            context.Writer.WriteLine();
         }
 
         public static IEnumerable<CliCommand> SelfAndParentCommands(this CliSymbol symbol)

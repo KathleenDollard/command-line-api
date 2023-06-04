@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace System.CommandLine.CliOutput
@@ -19,53 +20,66 @@ namespace System.CommandLine.CliOutput
             //}
 
             var sections = outputContext.GetSections();
+            var dom = new List<CliOutputUnit>();
             foreach (var section in sections)
             {
-                IEnumerable<string> lines = new List<string>();
                 var body = section.GetBody(outputContext);
-                if ((body == null || !body.Any()) && !section.EmitHeaderOnEmptyBody)
-                { continue; }
-
-                var opening = section.GetOpening(outputContext);
-                var closing = section.GetClosing(outputContext);
-
-                if (opening is not null)
+                bool hasBody = body is not null && body.Any();
+                if (hasBody || section.EmitHeaderWhenNoData)
                 {
-                    if (section.EmitHeaderOnEmptyBody || (body is not null && body.Any()))
-                    {
-                        lines = lines.Concat(opening);
-                    }
+                    IEnumerable<CliOutputUnit>? opening = section.GetOpening(outputContext);
+                    if (opening is not null && opening.Any())
+                    { dom.AddRange(opening); }
                 }
-                if (body is not null && body.Any())
+                if (hasBody)
                 {
-                    lines = lines.Concat(body);
+                    dom.AddRange(body!);  // hasBody does the null check
                 }
-
-                if (closing is not null)
+                if (hasBody || section.EmitHeaderWhenNoData)
                 {
-                    if (section.EmitHeaderOnEmptyBody || (body is not null && body.Any()))
-                    {
-                        lines = lines.Concat(closing);
-                    }
+                    IEnumerable<CliOutputUnit>? closing = section.GetClosing(outputContext);
+                    if (closing is not null && closing.Any())
+                    { dom.AddRange(closing); }
                 }
-
-                WriteOutput(lines, outputContext);
             }
 
-            outputContext.Output.WriteLine();
-            outputContext.Output.WriteLine();
+            WriteLines(outputContext.Writer, outputContext.Formatter.GetOutput(dom, outputContext.MaxWidth));
+
+            //    if (opening is not null)
+            //    {
+            //        if (section.EmitHeaderOnEmptyBody || (body is not null && body.Any()))
+            //        {
+            //            lines = lines.Concat(opening);
+            //        }
+            //    }
+            //    if (body is not null && body.Any())
+            //    {
+            //        lines = lines.Concat(body);
+            //    }
+
+            //    if (closing is not null)
+            //    {
+            //        if (section.EmitHeaderOnEmptyBody || (body is not null && body.Any()))
+            //        {
+            //            lines = lines.Concat(closing);
+            //        }
+            //    }
+
+            //    WriteOutput(lines, outputContext);
+            //}
+
+            //outputContext.Output.WriteLine();
+            //outputContext.Output.WriteLine();
+
         }
 
-        private static void WriteOutput(IEnumerable<string> lines, CliOutputContext outputContext)
+        private void WriteLines(TextWriter writer, IEnumerable<string>? output)
         {
-
-            if (lines.Any())
+            if (output is null)
+            { return; }
+            foreach (var line in output)
             {
-                foreach (var line in lines)
-                {
-                    outputContext.Output.WriteLine(line);
-                }
-                outputContext.Output.WriteLine();
+                writer.WriteLine(line);
             }
         }
 

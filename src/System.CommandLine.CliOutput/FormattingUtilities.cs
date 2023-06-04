@@ -1,15 +1,18 @@
 ﻿using System.Collections.Generic;
+using System.Text;
 
 namespace System.CommandLine.CliOutput
 {
-    public class FormattingUtilities
+    public static class FormattingUtilities
     {
-        public static IEnumerable<string> WrapText(string text, int maxWidth)
+        public static IEnumerable<string> WrapText(string text, string indent, int maxWidth)
         {
-            if (string.IsNullOrWhiteSpace(text))
+            if (text is null)
             {
                 yield break;
             }
+
+            maxWidth = maxWidth - indent.Length;
 
             //First handle existing new lines
             var parts = text.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
@@ -18,7 +21,7 @@ namespace System.CommandLine.CliOutput
             {
                 if (part.Length <= maxWidth)
                 {
-                    yield return part;
+                    yield return $"{indent}{part}";
                 }
                 else
                 {
@@ -27,7 +30,7 @@ namespace System.CommandLine.CliOutput
                     {
                         if (part.Length - i < maxWidth)
                         {
-                            yield return part.Substring(i);
+                            yield return $"{indent}{part.Substring(i)}";
                             break;
                         }
                         else
@@ -44,7 +47,7 @@ namespace System.CommandLine.CliOutput
                             {
                                 length = maxWidth;
                             }
-                            yield return part.Substring(i, length);
+                            yield return $"{indent}{part.Substring(i, length)}"; 
 
                             i += length;
                         }
@@ -52,5 +55,12 @@ namespace System.CommandLine.CliOutput
                 }
             }
         }
+
+#if !NET6_0_OR_GREATER
+        public static void AppendJoin(this StringBuilder sb, string separator, IEnumerable<string> parts)
+        {
+            sb.Append(string.Join(separator, parts));
+        }
+#endif
     }
 }

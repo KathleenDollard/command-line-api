@@ -9,18 +9,14 @@ namespace System.CommandLine.Help
     {
 
         protected CliHelpSection(CliHelpConfiguration helpConfiguration, 
-                                 CliSymbolInspector symbolInspector,
-                                 CliFormatter formatter,
                                  string header,
                                  bool emitHeaderOnEmptyBody = false)
-            : base(formatter, header, emitHeaderOnEmptyBody)
+            : base( header, emitHeaderOnEmptyBody)
         {
             HelpConfiguration = helpConfiguration;
-            SymbolInspector = symbolInspector;
         }
 
         protected CliHelpConfiguration HelpConfiguration { get; }
-        public CliSymbolInspector SymbolInspector { get; }
 
 
     }

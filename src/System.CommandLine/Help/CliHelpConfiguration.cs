@@ -10,17 +10,18 @@ namespace System.CommandLine.Help
         public CliHelpConfiguration(CliConfiguration cliConfiguration)
         {
             CliConfiguration = cliConfiguration;
+            GetSymbolInspector = helpContext => new CliSymbolInspector(helpContext);
         }
 
 
         public CliConfiguration CliConfiguration { get; }
 
 
-        public abstract IEnumerable<CliHelpSection> GetSections(HelpContext helpContext);
+        public abstract IEnumerable<CliSection> GetSections(HelpContext helpContext);
 
-        public Func<HelpContext, CliSymbolInspector> SymbolInspectorFactory { get; set; }
+        public Func<HelpContext, CliSymbolInspector> GetSymbolInspector { get; set; }
   
-        public Func<HelpContext, CliFormatter> GetFormatter { get; set; }
+        public Func<ParseResult, CliFormatter>? GetFormatter { get; set; }
 
         public static class Defaults
         {

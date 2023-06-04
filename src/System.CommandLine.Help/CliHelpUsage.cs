@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.CommandLine.CliOutput;
-using System.CommandLine.Help.Formatting;
 using System.Linq;
 using System.Text;
 
@@ -15,12 +14,16 @@ namespace System.CommandLine.Help
         {
         }
 
-        public override IEnumerable<string>? GetBody(CliOutputContext outputContext) 
-            => (outputContext as HelpContext)?.Command switch
-                {
-                    CliCommand command => CliHelpHelpers.WrapAndIndentText(GetUsage(command), outputContext.MaxWidth, Formatter.IndentWidth),
-                    _ => null
-                };
+        public override IEnumerable<CliOutputUnit>? GetBody(CliOutputContext outputContext)
+        {
+            if (outputContext is not HelpContext helpContext)
+            { return null; }
+            var data = GetUsage(helpContext.Command);
+            return data is null
+                ? null
+                : new CliOutputUnit[] { new CliText(data, 1) };
+
+        }
 
 
         // Consider rewriting to make it easier to adjust parts without rewriting whole

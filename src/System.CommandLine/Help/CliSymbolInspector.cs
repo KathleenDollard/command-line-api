@@ -8,10 +8,10 @@ namespace System.CommandLine.Help
 {
     public class CliSymbolInspector
     {
-        protected HelpContext HelpContext { get; }
-
         public CliSymbolInspector(HelpContext helpContext)
             => HelpContext = helpContext;
+
+        protected HelpContext HelpContext { get; }
 
         public string? GetName(CliSymbol symbol)
         {

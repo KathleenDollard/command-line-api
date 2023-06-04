@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace System.CommandLine.CliOutput
 {
@@ -6,34 +7,42 @@ namespace System.CommandLine.CliOutput
 
     public abstract class CliSection
     {
-
-        protected CliSection(CliFormatter formatter,
-                             string header,
-                             bool emitHeaderOnEmptyBody = false)
+        protected CliSection(string header,
+                             bool emitHeaderOnEmptyData = false)
         {
-            Formatter = formatter;
             Header = header;
-            EmitHeaderOnEmptyBody = emitHeaderOnEmptyBody;
+            EmitHeaderWhenNoData = emitHeaderOnEmptyData;
         }
 
-        public CliFormatter Formatter { get; }
-        public CliOutputContext OutputContext { get; }
-        protected string Header { get; }
-        public bool EmitHeaderOnEmptyBody { get; }
+        public string Header { get; }
+        public bool EmitHeaderWhenNoData { get; }
 
-
-        public virtual IEnumerable<string>? GetOpening(CliOutputContext context)
-        => new string[]
+        public virtual IEnumerable<CliOutputUnit>? GetOpening(CliOutputContext context)
+        => new CliOutputUnit[]
             {
-                Heading(Header)
+                new CliHeading(Header ?? string.Empty)
             };
 
-        public virtual IEnumerable<string>? GetBody(CliOutputContext context) => null;
+        public virtual IEnumerable<CliOutputUnit>? GetBody(CliOutputContext context) => null;
 
-        public virtual IEnumerable<string>? GetClosing(CliOutputContext context) => null;
+        public virtual IEnumerable<CliOutputUnit>? GetClosing(CliOutputContext context)
+        => new CliOutputUnit[]
+            {
+                new CliText("")
+            };
+    }
 
-        public virtual string Heading(string? heading)
-            => heading ?? string.Empty;
+    public abstract class CliSection<T> : CliSection
+    {
+        protected CliSection(CliFormatter formatter,
+                      string header,
+                      bool emitHeaderOnEmptyBody = false)
+            : base(header, emitHeaderOnEmptyBody)
+        {
+            Data = new List<T>();
+        }
+
+        public IEnumerable<T> Data { get; }
 
     }
 }

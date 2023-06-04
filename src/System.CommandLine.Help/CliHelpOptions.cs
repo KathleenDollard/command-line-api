@@ -13,14 +13,17 @@ namespace System.CommandLine.Help
         {
         }
 
-        public override IEnumerable<string>? GetBody(CliOutputContext outputContext) 
-        => outputContext switch
-            {
-                HelpContext helpContext => Formatter.FormatTable(GetBodyTable(helpContext), outputContext.MaxWidth),
-                _ => null
-            };
+        public override IEnumerable<CliOutputUnit>? GetBody(CliOutputContext outputContext)
+        {
+            if (outputContext is not HelpContext helpContext) { return null; }
 
-        private Table<CliOption>? GetBodyTable(HelpContext helpContext)
+            var unit = GetBodyTable(helpContext);
+            return unit is null
+                ? null
+                : new CliOutputUnit[] { unit };
+        }
+
+        private CliTable<CliOption>? GetBodyTable(HelpContext helpContext)
         {
             if (helpContext?.Command is not CliCommand command)
             {
@@ -28,7 +31,8 @@ namespace System.CommandLine.Help
             }
 
             var options = GetOptions(command);
-            var table = new Table<CliOption>(Formatter.IndentWidth, options);
+            var table = new CliTable<CliOption>(2, options);
+            table.IndentLevel = 1;
             table.Body[0] = GetFirstColumn;
             table.Body[1] = GetSecondColumn;
             return table;

@@ -1,8 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.CommandLine.CliOutput;
-using System.CommandLine.Help.Formatting;
-using System.Linq;
 
 namespace System.CommandLine.Help
 {
@@ -13,16 +10,12 @@ namespace System.CommandLine.Help
         { }
 
 
-        public override IEnumerable<CliHelpSection> GetSections(HelpContext helpContext)
+        public override IEnumerable<CliSection> GetSections(HelpContext helpContext)
         {
+            var configuration = helpContext.CliConfiguration.HelpConfiguration;
+            var symbolInspector = configuration.GetSymbolInspector(helpContext);
 
-            var symbolInspector = SymbolInspectorFactory is null
-                    ? new CliSymbolInspector(helpContext)
-                    : SymbolInspectorFactory(helpContext);
-            CliFormatter formatter = helpContext.FormatterName switch
-            {
-                _ => new CliConsoleFormatter()
-            }; ;
+            var formatter = helpContext.Formatter;
 
             return new List<CliHelpSection>()
             {
