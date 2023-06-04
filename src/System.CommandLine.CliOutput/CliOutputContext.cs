@@ -6,28 +6,21 @@ namespace System.CommandLine.CliOutput;
 public abstract class CliOutputContext
 
 {
-    public CliOutputContext(int maxWidth, TextWriter output, CliFormatter? formatter = null)
+    public CliOutputContext(CliOutputConfiguration outputConfiguration, int maxWidth, TextWriter output)
     {
         MaxWidth = maxWidth <= 0
              ? int.MaxValue
              : maxWidth;
+        OutputConfiguration = outputConfiguration;
         Writer = output ?? throw new ArgumentNullException(nameof(output));
-        Formatter = formatter ?? new CliConsoleFormatter("  ");
     }
 
-    public abstract IEnumerable<CliSection> GetSections();
-
     public int MaxWidth { get; }
+    public CliOutputConfiguration OutputConfiguration { get; }
 
     /// <summary>
     /// A text writer to write output to.
     /// </summary>
     public TextWriter Writer { get; }
-
-    /// <summary>
-    /// A text writer to write output to.
-    /// </summary>
-    public CliFormatter Formatter { get; protected set; }
-
 
 }

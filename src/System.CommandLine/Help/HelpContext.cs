@@ -20,48 +20,39 @@ namespace System.CommandLine.Help
         /// <param name="maxWidth">The maximum width of the displayed output</param>
         /// <param name="formatter">The CliFormatter that will be used. If null, the Console formatter will be used.</param>
         /// <param name="parseResult">The result of the current parse operation.</param>
-        public HelpContext(CliCommand command,
-                           CliConfiguration cliConfiguration,
+        public HelpContext(CliConfiguration cliConfiguration,
                            int maxWidth,
                            TextWriter writer,
                            ParseResult? parseResult = null,
-                           CliFormatter? formatter = null)
-            : base(maxWidth, writer, formatter ?? GetFormatter(parseResult))
+                           CliCommand? command = null)
+            : base( cliConfiguration.HelpConfiguration, maxWidth, writer)
         {
-            Command = command ?? throw new ArgumentNullException(nameof(command));
+            CliConfiguration = cliConfiguration;
             ParseResult = parseResult ?? ParseResult.Empty();
             CliConfiguration = cliConfiguration;
+            Command = command ?? ParseResult.CommandResult.Command;
         }
 
-        private static CliFormatter? GetFormatter(ParseResult? parseResult)
-        {
-            if (parseResult is not null)
-            {
-                var formatterFactory = parseResult.Configuration.HelpConfiguration.GetFormatter;
-                if (formatterFactory is not null)
-                {
-                    return formatterFactory(parseResult);
-                }
-            }
-            return null;
-        }
-
-        public override IEnumerable<CliSection> GetSections()
-            => CliConfiguration.HelpConfiguration.GetSections(this);
+        /// <summary>
+        /// Access to the CliConfiguration for use in help
+        /// </summary>
+        public CliConfiguration CliConfiguration { get; }
 
         /// <summary>
         /// The result of the current parse operation.
         /// </summary>
         public ParseResult ParseResult { get; }
 
+
         /// <summary>
         /// The command for which help is being formatted.
         /// </summary>
+        // It is not clear when this would be used other than testing - where it is rather difficult to
+        // create a parseResult without excess scope sharing. And it is also a convenience.
         public CliCommand Command { get; }
 
+        // KAD: Remove when old HelpBuilder is removed
         internal bool WasSectionSkipped { get; set; }
-
-        public CliConfiguration CliConfiguration { get; }
 
     }
 }

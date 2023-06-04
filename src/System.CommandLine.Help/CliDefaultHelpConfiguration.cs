@@ -5,26 +5,17 @@ namespace System.CommandLine.Help
 {
     public class CliDefaultHelpConfiguration : CliHelpConfiguration
     {
-        public CliDefaultHelpConfiguration(CliConfiguration cliConfiguration, CliFormatter? formatter = null, int indent = 0)
+        public CliDefaultHelpConfiguration(CliConfiguration cliConfiguration)
             : base(cliConfiguration)
-        { }
-
-
-        public override IEnumerable<CliSection> GetSections(HelpContext helpContext)
-        {
-            var configuration = helpContext.CliConfiguration.HelpConfiguration;
-            var symbolInspector = configuration.GetSymbolInspector(helpContext);
-
-            var formatter = helpContext.Formatter;
-
-            return new List<CliHelpSection>()
+        { 
+        Sections.AddRange(new CliSection[]
             {
-                new CliHelpSynopsis(this, symbolInspector, formatter),
-                new CliHelpUsage(this,symbolInspector, formatter),
-                new CliHelpArguments(this,symbolInspector, formatter),
-                new CliHelpOptions(this,symbolInspector, formatter),
-                new CliHelpSubcommands(this,symbolInspector, formatter),
-            };
+                new CliHelpSynopsis(),
+                new CliHelpUsage(),
+                new CliHelpArguments(),
+                new CliHelpOptions(),
+                new CliHelpSubcommands(),
+            });
         }
 
         //public static class Defaults

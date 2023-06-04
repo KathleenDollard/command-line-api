@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 
 namespace System.CommandLine.CliOutput
 {
@@ -34,9 +33,7 @@ namespace System.CommandLine.CliOutput
 
     public abstract class CliSection<T> : CliSection
     {
-        protected CliSection(CliFormatter formatter,
-                      string header,
-                      bool emitHeaderOnEmptyBody = false)
+        protected CliSection(string header, bool emitHeaderOnEmptyBody = false)
             : base(header, emitHeaderOnEmptyBody)
         {
             Data = new List<T>();

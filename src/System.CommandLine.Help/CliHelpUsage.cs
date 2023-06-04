@@ -5,12 +5,10 @@ using System.Text;
 
 namespace System.CommandLine.Help
 {
-    public class CliHelpUsage : CliHelpSection
+    public class CliHelpUsage : CliSection<CliCommand>
     {
-        public CliHelpUsage(CliDefaultHelpConfiguration helpConfiguration,
-                               CliSymbolInspector symbolInspector,
-                               CliFormatter formatter)
-            : base(helpConfiguration, symbolInspector, formatter, LocalizationResources.HelpUsageTitle())
+        public CliHelpUsage()
+            : base(  LocalizationResources.HelpUsageTitle(), true)
         {
         }
 

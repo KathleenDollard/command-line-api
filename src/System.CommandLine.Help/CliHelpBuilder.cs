@@ -4,6 +4,7 @@ using System.Linq;
 
 namespace System.CommandLine.Help
 {
+    // KAD: This class only exists because of current intuition that it may be needed. Delete if not used for meaningful stuff when finalizing design.
     public class CliHelpBuilder : CliOutputRenderer, IHelpBuilder
     {
         // This temporarily satisfies IHelpBuilder
@@ -12,19 +13,6 @@ namespace System.CommandLine.Help
             _ = helpContext ?? throw new ArgumentNullException(nameof(helpContext));
 
              base.Write(helpContext);
-        }
-
-        private static void WriteOutput(IEnumerable<string> lines, HelpContext context)
-        {
-
-            if (lines.Any())
-            {
-                foreach (var line in lines)
-                {
-                    context.Writer.WriteLine(line);
-                }
-                context.Writer.WriteLine();
-            }
         }
 
     }

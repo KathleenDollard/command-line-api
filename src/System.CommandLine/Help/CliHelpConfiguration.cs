@@ -5,7 +5,8 @@ using System.Linq;
 
 namespace System.CommandLine.Help
 {
-    public abstract class CliHelpConfiguration
+    // Try to collapse this with CliDefaultHelpConfiguration
+    public abstract class CliHelpConfiguration : CliOutputConfiguration
     {
         public CliHelpConfiguration(CliConfiguration cliConfiguration)
         {
@@ -13,15 +14,9 @@ namespace System.CommandLine.Help
             GetSymbolInspector = helpContext => new CliSymbolInspector(helpContext);
         }
 
-
         public CliConfiguration CliConfiguration { get; }
 
-
-        public abstract IEnumerable<CliSection> GetSections(HelpContext helpContext);
-
         public Func<HelpContext, CliSymbolInspector> GetSymbolInspector { get; set; }
-  
-        public Func<ParseResult, CliFormatter>? GetFormatter { get; set; }
 
         public static class Defaults
         {

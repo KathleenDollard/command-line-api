@@ -1,61 +1,47 @@
-﻿Configuration is for permanent things and factories for current run things
+﻿## Principles (of this design)
+
+* Anything we can do, they can do better - well at least they should be able to do
+  * An alternate help system is needed to be sure ours can be extended. It could not.
+* Context is for passing between layers and should have no internal content
+
+## Responsibilities
+
+Configuration is for permanent things and factories for current run things
 Context is for current run
 
 Cli versions are generic, Help versions are specific
 
-## Current
 
 ### CliOutputConfiguration
+Sections prop: List<CliSection> --> This simplifies the common case, and a customer renderer can modify based on context
+GetFormatter(OutputContext) --> default to console
 
 ### CliHelpConfiguration
 
-GetSymbolInspector
-*GetSections 
-*GetFormatter
-*Defaults
+GetSymbolInspector(HelpContext)
+*Defaults --> consider removing
+
+*Try to collapse DefaultHelpConfiguration and HelpConfiguration (in help dll)*
 
 ### CliOutputContext
 
-GetSections (abstract) - may depend on something in specific context
+OutputConfiguration (for sections and formatter)
 MaxWidth
 Writer
-Formatter - set by derived classes in the constructor
-
-### HelpContext
-
-GetSections (override) - may depend on parseResult
-ParseResult
-Command
-CliConfiguration
-Formatter is set based on a factory in HelpConfiguration if not passed. Is this common?
-
-## Alternate
-
-### CliOutputConfiguration
-
-GetSections(OutputContext)
-GetFormatter(OutputContext)
-
-### CliHelpConfiguration
-
-GetSymbolInspector(IHelpContext)
-*Defaults
-
-### CliOutputContext
-
-CliOutputConfiguration (for sections and formatter)
-MaxWidth
-Writer
-Formatter - set by derived classes in the constructor
+~~Formatter~~ - Custom formatters must be done via the configuration override or in the OutputRenderer
 
 ### HelpContext
 
 ParseResult
 CliConfiguration
-Formatter is set based on a factory in HelpConfiguration if not passed. Is this common?
+Command -> It is not clear when this would be used other than testing - where it is rather difficult to
+           create a parseResult without excess scope sharing. And it is also a convenience.
 
+### CliOutputRender
 
-
+protected virtual
+* GetSections(outputContext) --> defaults to the one in outputContext.OutputConfiguration
+* GetFormatter(outputContext) --> defaults to the method in outputContext.OutputConfiguration
 
 
 

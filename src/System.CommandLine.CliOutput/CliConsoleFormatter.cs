@@ -12,7 +12,7 @@ namespace System.CommandLine.CliOutput
         public int LeftAndRightTableMarginWidth { get; }
         private int indentSize = 2;
 
-        public CliConsoleFormatter(string interColumnTableMargin,
+        public CliConsoleFormatter(string interColumnTableMargin = "  ",
                                    string leftTableMargin = "",
                                    string rightTableMargin = "",
                                    int? interColumnTableMarginWidth = null,
