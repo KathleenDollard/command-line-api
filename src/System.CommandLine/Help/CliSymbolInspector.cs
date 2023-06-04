@@ -3,11 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.CommandLine.Parsing;
 using System.Diagnostics.CodeAnalysis;
+using System.CommandLine.Completions;
+using System.Runtime.CompilerServices;
 
 namespace System.CommandLine.Help
 {
     public class CliSymbolInspector
     {
+
+        // Regions used to explain the code during development. Can delete if code is moved into BCL 
+        #region Retrieval methods
         public CliSymbolInspector(HelpContext helpContext)
             => HelpContext = helpContext;
 
@@ -34,13 +39,140 @@ namespace System.CommandLine.Help
         /// The expected customization here is to hide individual aliases that are logically deprecated
         /// </remarks>
         /// <returns>The aliases for commands and options, and an empty string for arguments</returns>
-        public virtual IEnumerable<string>? GetAliases(CliSymbol symbol)
+        public IEnumerable<string>? GetAliases(CliSymbol symbol)
         => symbol switch
         {
             CliCommand command => command.Aliases,
             CliOption option => option.Aliases,
             _ => null
         };
+
+        /// <summary>
+        /// The description for the symbol
+        /// </summary>
+        /// <param name="symbol">The symbol the description is for for.</param>
+        /// <remarks>
+        /// The expected customization here is to offer a different description for options when they appear 
+        /// on different commands. The current command is in the help context property
+        /// </remarks>
+        /// <returns>The symbol description</returns>
+        public string? GetDescription(CliSymbol symbol)
+        => symbol.Description;
+
+        public string? GetArgumentName(CliOption option)
+        => option.ArgumentHelpName;
+
+        public object? GetDefaultValue(CliSymbol symbol)
+        => symbol switch
+        {
+            CliArgument argument => argument.GetDefaultValue(),
+            CliOption option => option.GetDefaultValue(),
+            _ => null
+        };
+
+        public IEnumerable<string> GetCompletionsText(CliSymbol symbol, CompletionContext? completionContext = null)
+        {
+            completionContext ??= CompletionContext.Empty;
+            return symbol switch
+            {
+                CliOption opt => opt.GetCompletions(completionContext)
+                            .Select(x => x.Label),
+                CliArgument arg => arg.GetCompletions(completionContext)
+                            .Select(x => x.Label),
+                CliCommand cmd => cmd.GetCompletions(completionContext)
+                            .Select(x => x.Label),
+                _ => Enumerable.Empty<string>()
+            };
+        }
+        #endregion
+
+        #region Data structure building methods
+        // If these methods stay here, we may not need the individual retrieval methods
+        public InspectorOptionData GetOptionData(CliOption option, string? parentCommandName)
+            => new(GetName(option),
+                   GetAliases(option),
+                   GetDescription(option),
+                   parentCommandName,
+                   GetCompletionsText(option),
+                   option.ValueType,
+                   option.Argument.HasDefaultValue,
+                   option.GetDefaultValue(),
+                   option.Hidden);
+
+        public IEnumerable<InspectorOptionData> GetOptionData(CliCommand command)
+        {
+            return GetOptions(SelfAndParentCommands(command))
+                    .Select(opt => GetOptionData(opt, GetName(command)));
+
+            static IEnumerable<CliOption> GetOptions(IEnumerable<CliCommand> selfAndParents)
+                => selfAndParents
+                    .Reverse()
+                    .SelectMany(cmd => cmd.Options.Where(a => !a.Hidden))
+                    .Distinct();
+        }
+
+        public InspectorArgumentData GetArgumentData(CliArgument argument, string? parentCommandName)
+            => new(GetName(argument),
+                   GetDescription(argument),
+                   parentCommandName,
+                   GetCompletionsText(argument),
+                   argument.ValueType,
+                   argument.HasDefaultValue,
+                   argument.GetDefaultValue(),
+                   argument.Hidden);
+
+        public IEnumerable<InspectorArgumentData> GetArgumentData(CliCommand command)
+        {
+            return GetArguments(SelfAndParentCommands(command))
+                    .Select(arg => GetArgumentData(arg, GetName(command)));
+
+            static IEnumerable<CliArgument> GetArguments(IEnumerable<CliCommand> selfAndParents)
+                => selfAndParents
+                    .Reverse()
+                    .SelectMany(cmd => cmd.Arguments.Where(a => !a.Hidden))
+                    .Distinct();
+        }
+
+        public InspectorCommandData GetCommandData(CliCommand command, string? parentCommandName)
+            => new(GetName(command),
+                   GetAliases(command),
+                   GetDescription(command),
+                   parentCommandName,
+                   GetCompletionsText(command),
+                   GetArgumentData(command),
+                   GetOptionData(command),
+                   GetSubcommandData(command),
+                   command.Hidden);
+
+        public IEnumerable<InspectorCommandData> GetSubcommandData(CliCommand command)
+        {
+            return GetCommands(SelfAndParentCommands(command))
+                    .Select(cmd => GetCommandData(cmd, GetName(command)));
+
+            static IEnumerable<CliCommand> GetCommands(IEnumerable<CliCommand> selfAndParents)
+                => selfAndParents
+                    .Reverse();
+        }
+
+        public IEnumerable<CliCommand> SelfAndParentCommands(CliSymbol symbol)
+        {
+            var ret = new List<CliCommand>();
+            CliCommand? current = symbol switch
+            {
+                CliCommand command => command,
+                _ => symbol.Parents.FirstOrDefault() as CliCommand
+            }; ;
+            while (current is not null)
+            {
+                ret.Add(current);
+                current = current.Parents.FirstOrDefault() as CliCommand;
+            }
+            return ret;
+        }
+        #endregion
+
+        #region Semantic/concatenation methods
+        // This is not the right place for this as the user may want to customize
 
         /// <summary>
         /// Given a list of aliases, provide a consistent display
@@ -64,29 +196,6 @@ namespace System.CommandLine.Help
                     .Select(t => $"{t.Prefix}{t.Alias}");
             return string.Join(", ", allAliases);
         }
-
-        /// <summary>
-        /// The description for the symbol
-        /// </summary>
-        /// <param name="symbol">The symbol the description is for for.</param>
-        /// <remarks>
-        /// The expected customization here is to offer a different description for options when they appear 
-        /// on different commands. The current command is in the help context property
-        /// </remarks>
-        /// <returns>The symbol description</returns>
-        public virtual string? GetDescription(CliSymbol symbol)
-        => symbol.Description;
-
-        public string? GetArgumentName(CliOption option)
-        => option.ArgumentHelpName;
-
-        public object? GetDefaultValue(CliSymbol symbol)
-        => symbol switch
-        {
-            CliArgument argument => argument.GetDefaultValue(),
-            CliOption option => option.GetDefaultValue(),
-            _ => null
-        };
 
         public string GetDefaultValueText(
             CliSymbol symbol,
@@ -122,7 +231,7 @@ namespace System.CommandLine.Help
             CliArgument argument => GetArgUsage(null, argument.ValueType, argument, showUsageOnBool: true),
             CliOption option => GetUsage(option),
             CliCommand command => GetUsage(command),
-            _=> string.Empty
+            _ => string.Empty
         };
 
         protected string GetUsage(CliOption option)
@@ -161,7 +270,6 @@ namespace System.CommandLine.Help
                 : $"{text} {argumentText}";
         }
 
-
         protected string GetArgUsage(string? helpName, Type valueType, CliSymbol symbol, bool showUsageOnBool, bool skipNameDefault = false)
         {
             if (!string.IsNullOrWhiteSpace(helpName))
@@ -193,5 +301,100 @@ namespace System.CommandLine.Help
 
             return skipNameDefault ? "" : $"<{symbol.Name}>";
         }
+        #endregion
+    }
+
+    public abstract class InspectorSymbolData
+    {
+        protected InspectorSymbolData(string? name,
+                                   string? description,
+                                   string? parentCommandName,
+                                   IEnumerable<string> completions,
+                                   bool hidden )
+        {
+            Name = name ?? string.Empty;
+            Description = description ?? string.Empty;
+            ParentCommandName = parentCommandName ?? string.Empty;
+            Completions = completions;
+            Hidden = hidden;
+        }
+
+        public string? Name { get; }
+        public string Description { get; }
+        public string ParentCommandName { get; }
+        public IEnumerable<string> Completions { get; }
+        public bool Hidden { get; }
+    }
+
+    public class InspectorOptionData : InspectorSymbolData
+    {
+        public InspectorOptionData(string? name,
+                                   IEnumerable<string>? aliases,
+                                   string? description,
+                                   string? parentCommandName,
+                                   IEnumerable<string> completions,
+                                   Type valueType,
+                                   bool hasDefaultValue,
+                                   object? defaultValue,
+                                   bool hidden )
+    : base(name, description, parentCommandName, completions, hidden)
+        {
+            Aliases = aliases ?? Enumerable.Empty<string>();
+            ValueType = valueType;
+            HasDefaultValue = hasDefaultValue;
+            DefaultValue = defaultValue;
+        }
+
+        public IEnumerable<string> Aliases { get; }
+        public Type ValueType { get; }
+        public bool HasDefaultValue { get; }
+        public object? DefaultValue { get; }
+    }
+
+    public class InspectorArgumentData : InspectorSymbolData
+    {
+        public InspectorArgumentData(string? name,
+                                     string? description,
+                                     string? parentCommandName,
+                                     IEnumerable<string> completions,
+                                     Type valueType,
+                                     bool hasDefaultValue,
+                                     object? defaultValue,
+                                     bool hidden )
+            : base(name, description, parentCommandName, completions, hidden)
+        {
+            ValueType = valueType;
+            HasDefaultValue = hasDefaultValue;
+            DefaultValue = defaultValue;
+        }
+
+        public Type ValueType { get; }
+        public bool HasDefaultValue { get; }
+        public object? DefaultValue { get; }
+    }
+
+    public class InspectorCommandData : InspectorSymbolData
+    { 
+        public InspectorCommandData(string? name,
+                                    IEnumerable<string>? aliases,
+                                    string? description,
+                                    string? parentCommandName,
+                                    IEnumerable<string> completions,
+                                    IEnumerable<InspectorArgumentData> arguments,
+                                    IEnumerable<InspectorOptionData> options,
+                                    IEnumerable<InspectorCommandData> subcommands,
+                                    bool hidden)
+         : base(name, description, parentCommandName, completions,hidden)
+        {
+            Aliases = aliases ?? Enumerable.Empty<string>();
+            Arguments = arguments;
+            Options = options;
+            Subcommands = subcommands;
+        }
+
+        public IEnumerable<string> Aliases { get; }
+        public IEnumerable<InspectorArgumentData> Arguments { get; }
+        public IEnumerable<InspectorOptionData> Options { get; }
+        public IEnumerable<InspectorCommandData> Subcommands { get; }
     }
 }

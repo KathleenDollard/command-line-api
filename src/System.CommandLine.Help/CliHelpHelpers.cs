@@ -157,22 +157,6 @@ namespace System.CommandLine.Help
             context.Writer.WriteLine();
         }
 
-        public static IEnumerable<CliCommand> SelfAndParentCommands(this CliSymbol symbol)
-        {
-            var ret = new List<CliCommand>();
-            CliCommand? current = symbol switch
-            {
-                CliCommand command => command,
-                _ => symbol.Parents.FirstOrDefault() as CliCommand
-            }; ;
-            while (current is not null)
-            {
-                ret.Add(current);
-                current = current.Parents.FirstOrDefault() as CliCommand;
-            }
-            return ret;
-        }
-
         internal static IEnumerable<string>? WrapAndIndentText(object value, int maxWidth, int indent)
         {
             throw new NotImplementedException();

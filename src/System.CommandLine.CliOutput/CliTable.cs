@@ -70,4 +70,17 @@ namespace System.CommandLine.CliOutput
         //=> GetPaddedArrayOutput(GetTableCells(), maxWidth, interColumnMargin, leftMargin, rightMargin,
         //    interColumnMarginWidth, leftAndRightMarginWidth, headerWidths);
     }
+
+    public class Cli2DArrayTable : CliTable<object[]>
+    {
+        public Cli2DArrayTable(int columnCount, IEnumerable<object[]> data)
+            : base(columnCount, data)
+        {
+            for (int i = 0; i < columnCount; i++)
+            {
+                var j = i; // avoid capture
+                Body[i] = item => item[j].ToString() ?? string.Empty;
+            }
+        }
+    }
 }

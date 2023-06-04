@@ -37,7 +37,7 @@ namespace System.CommandLine.Tests.Help
         private HelpContext GetHelpContext(CliCommand command = null, int maxWidth = 0, TextWriter output = null)
         {
             CliCommand rootCommand = command ?? new CliRootCommand();
-            return new HelpContext(rootCommand, GetCliConfiguration(rootCommand), maxWidth, output ?? _console);
+            return new HelpContext(GetCliConfiguration(rootCommand), maxWidth, output ?? _console, command: rootCommand);
         }
 
         private CliConfiguration GetCliConfiguration(CliCommand command)
@@ -573,6 +573,7 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
+        [Trait("NewLine", "Known Issue")]
         public void Arguments_section_keeps_added_newlines()
         {
             var command = new CliCommand("outer", "Help text for the outer command")
@@ -595,7 +596,6 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
-        [Trait("EndWhitespace", "FinalWhite")]
         public void Arguments_section_keeps_added_newlines_when_width_is_very_small()
         {
             // This test fails because it does not pad at the end of the row. 
@@ -626,7 +626,6 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
-        [Trait("EndWhitespace", "FinalWhite")]
         public void Arguments_section_properly_wraps_description()
         {
             var longCmdText =
@@ -655,7 +654,6 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
-        [Trait("EndWhitespace", "FinalWhite")]
         public void Arguments_section_properly_wraps()
         { 
             // see note in 
@@ -1084,7 +1082,6 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
-        [Trait("EndWhitespace", "FinalWhite")]
         public void Options_section_properly_wraps_description()
         {
             var longOptionText =
@@ -1110,7 +1107,6 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
-        [Trait("EndWhitespace", "FinalWhite")]
         public void Options_section_properly_wraps_description_when_long_default_value_is_specified()
         {
             var longOptionText =
@@ -1139,7 +1135,6 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
-        [Trait("EndWhitespace", "FinalWhite")]
         public void Options_section_properly_wraps()
         {
             var alias = "--option-alias-for-a-command-that-is-long-enough-to-wrap-to-a-new-line";
@@ -1397,7 +1392,6 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
-        [Trait("EndWhitespace", "FinalWhite")]
         public void Subcommands_properly_wraps_description()
         {
             var longSubcommandDescription =
@@ -1428,7 +1422,6 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
-        [Trait("EndWhitespace", "FinalWhite")]
         public void Subcommands_section_properly_wraps()
         {
             var name = "subcommand-name-that-is-long-enough-to-wrap-to-a-new-line";

@@ -31,15 +31,13 @@ namespace System.CommandLine.CliOutput
             };
     }
 
-    public abstract class CliSection<T> : CliSection
+    public abstract class CliSection<TData> : CliSection
     {
         protected CliSection(string header, bool emitHeaderOnEmptyBody = false)
             : base(header, emitHeaderOnEmptyBody)
-        {
-            Data = new List<T>();
-        }
+        {     }
 
-        public IEnumerable<T> Data { get; }
+        public abstract IEnumerable<TData> GetData(CliOutputContext outputContext);
 
     }
 }

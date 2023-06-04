@@ -5,35 +5,49 @@ using System.Text;
 
 namespace System.CommandLine.Help
 {
-    public class CliHelpUsage : CliSection<CliCommand>
+    public class CliHelpUsage : CliSection<InspectorCommandData>
     {
         public CliHelpUsage()
-            : base(  LocalizationResources.HelpUsageTitle(), true)
+            : base(LocalizationResources.HelpUsageTitle(), true)
         {
+        }
+
+        public override IEnumerable<InspectorCommandData> GetData(CliOutputContext outputContext)
+        {
+            if (outputContext is not HelpContext helpContext)
+            {
+                return Enumerable.Empty<InspectorCommandData>();
+            }
+
+            var symbolInspector = CliHelpUtilities.SymbolInspector(helpContext);
+            return new InspectorCommandData[]
+                {
+                    symbolInspector.GetCommandData(helpContext.Command, null) 
+                };
         }
 
         public override IEnumerable<CliOutputUnit>? GetBody(CliOutputContext outputContext)
         {
             if (outputContext is not HelpContext helpContext)
             { return null; }
-            var data = GetUsage(helpContext.Command);
+            var symbolInspector = CliHelpUtilities.SymbolInspector(helpContext);
+            var data = GetUsage(helpContext.Command, symbolInspector);
             return data is null
                 ? null
                 : new CliOutputUnit[] { new CliText(data, 1) };
 
         }
 
-
         // Consider rewriting to make it easier to adjust parts without rewriting whole
-        private string GetUsage(CliCommand command)
+        private string GetUsage(CliCommand command, CliSymbolInspector symbolInspector)
         {
-            return string.Join(" ", GetUsageParts().Where(x => !string.IsNullOrWhiteSpace(x)));
+            return string.Join(" ", GetUsageParts(symbolInspector).Where(x => !string.IsNullOrWhiteSpace(x)));
 
-            IEnumerable<string> GetUsageParts()
+            IEnumerable<string> GetUsageParts(CliSymbolInspector symbolInspector)
             {
                 bool displayOptionTitle = false;
 
-                var selfAndParents = command.SelfAndParentCommands()
+                var selfAndParents = symbolInspector.SelfAndParentCommands(command)
                     .Reverse();
 
                 // KAD: We either accept a few extra allocations, or we expose HasOptions, etc.

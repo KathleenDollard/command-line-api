@@ -3,6 +3,13 @@
 * Anything we can do, they can do better - well at least they should be able to do
   * An alternate help system is needed to be sure ours can be extended. It could not.
 * Context is for passing between layers and should have no internal content
+* Data is distinct from layout is distinct from formatting is distinct from output location
+    * This realization led to the creation of GetData() for JSON output.
+   
+
+After a bunch of struggle about where to put it, I decided that all customization of compound concepts (like GetUsage or second column description + default) should reside in the section. This makes reuse a little trickier but leaves all layout customization in a single location and avoids some layering problems. Honestly, I think I am stressing too much over this; if you change usage you are probably changing other things and will be customizing layout all up. This location allows Data to be available.
+
+The intention is to cache the data collection. It is currently done multiple time (Synopsis, Usage for Command) and the individual items are created an additional time for their own section.
 
 ## Responsibilities
 
@@ -16,7 +23,7 @@ Cli versions are generic, Help versions are specific
 Sections prop: List<CliSection> --> This simplifies the common case, and a customer renderer can modify based on context
 GetFormatter(OutputContext) --> default to console
 
-### CliHelpConfiguration
+### CliHelpConfiguration : CliOutputConfiguration
 
 GetSymbolInspector(HelpContext)
 *Defaults --> consider removing
@@ -30,18 +37,41 @@ MaxWidth
 Writer
 ~~Formatter~~ - Custom formatters must be done via the configuration override or in the OutputRenderer
 
-### HelpContext
+### HelpContext : CliOutputContext
 
 ParseResult
 CliConfiguration
 Command -> It is not clear when this would be used other than testing - where it is rather difficult to
            create a parseResult without excess scope sharing. And it is also a convenience.
 
-### CliOutputRender
+### CliOutputRender (HelpBuilder)
 
+Write(OutputContext)
 protected virtual
 * GetSections(outputContext) --> defaults to the one in outputContext.OutputConfiguration
 * GetFormatter(outputContext) --> defaults to the method in outputContext.OutputConfiguration
+
+### Cli[...]Section
+
+GetData(outputContext) - For JSON, etc and to drive GetBody(), etc.
+GetOpening(outputContext)
+GetClosing(outputContext)
+GetBody(outputContext)
+
+### SymbolInspector
+
+Abstract System.CommandLine primitives
+
+### Issue
+
+Where does GetUsage(), GetDefaultValue() etc go? They likely may need to be customized. Customization will also allow deprecation of aliases, which has been requested. 
+
+* Section would combine them with layout responsibilities, but would make reuse hard
+* SymbolInspector might make reuse easy, ut it has nothing to do with abstracting primitives
+* Overridable methods on HelpConfiguration might be intuitive and allows reuse, but doesn't work due to layering
+* Overridable methods on HelpDefaultConfiguration is less intuitive and allows reuse, but just feels odd
+
+*Current plan: Have these virtual in each section and have utilities. If someone wants to change, they will need to override in each section and use their own utilities. Feels a bit snarky.
 
 
 

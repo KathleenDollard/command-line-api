@@ -4,57 +4,69 @@ using System.Linq;
 
 namespace System.CommandLine.Help
 {
-    public class CliHelpOptions : CliSection<CliOption>
+    public class CliHelpOptions : CliSection<InspectorOptionData>
     {
+
         public CliHelpOptions()
             : base(LocalizationResources.HelpOptionsTitle())
         { }
+
+        public override IEnumerable<InspectorOptionData> GetData(CliOutputContext outputContext)
+        {
+            if (outputContext is not HelpContext helpContext)
+            {
+                return Enumerable.Empty<InspectorOptionData>();
+            }
+
+            var symbolInspector = CliHelpUtilities.SymbolInspector(helpContext);
+            return symbolInspector.GetOptionData(helpContext.Command);
+        }
 
         public override IEnumerable<CliOutputUnit>? GetBody(CliOutputContext outputContext)
         {
             if (outputContext is not HelpContext helpContext) { return null; }
 
             var unit = GetBodyTable(helpContext);
-            return unit is null
+            return unit is null || !unit.Data.Any()
                 ? null
                 : new CliOutputUnit[] { unit };
         }
 
-        private CliTable<CliOption>? GetBodyTable(HelpContext helpContext)
+        private CliTable<InspectorOptionData>? GetBodyTable(HelpContext helpContext)
         {
             if (helpContext?.Command is not CliCommand command)
             {
                 return null;
             }
 
-            var symbolInspector = CliHelpUtilities.SymbolInspector(helpContext);
+            var data = GetData(helpContext);
 
-            var options = GetOptions(command);
-            var table = new CliTable<CliOption>(2, options);
-            table.IndentLevel = 1;
-            table.Body[0] = opt => GetFirstColumn(opt, symbolInspector);
-            table.Body[1] = opt => GetSecondColumn(opt, symbolInspector);
+            var table = new CliTable<InspectorOptionData>(2, data)
+            {
+                IndentLevel = 1
+            };
+            table.Body[0] = dataItem => GetFirstColumn(dataItem);
+            table.Body[1] = dataItem => GetSecondColumn(dataItem);
             return table;
 
-            static IEnumerable<CliOption>? GetOptions(CliCommand command)
-                => command?.SelfAndParentCommands()
-                    .Reverse()
-                    .SelectMany(cmd => cmd.Options.Where(a => !a.Hidden))
-                    .Distinct();
         }
 
-        private string GetFirstColumn(CliOption option, CliSymbolInspector symbolInspector)
-            => symbolInspector.GetUsage(option);
+        private string GetFirstColumn(InspectorOptionData data, bool showUsageOnBool = false, bool skipNameDefault = false)
+            => GetUsage(data, showUsageOnBool,skipNameDefault);
 
-        private string GetSecondColumn(CliOption option, CliSymbolInspector symbolInspector)
+        private string GetSecondColumn(InspectorOptionData data)
         {
-            var symbolDescription = symbolInspector.GetDescription(option) ?? string.Empty;
-
-            var defaultValueDescription = symbolInspector.GetDefaultValueText(option);
+            var defaultValueDescription = GetDefaultValueText(data);
 
             return string.IsNullOrEmpty(defaultValueDescription)
-                ? $"{symbolDescription}".Trim()
-                : $"{symbolDescription} [{defaultValueDescription}]".Trim();
+                ? $"{data.Description}".Trim()
+                : $"{data.Description} [{defaultValueDescription}]".Trim();
         }
+
+        protected virtual string GetUsage(InspectorOptionData data, bool showUsageOnBool = false, bool skipNameDefault = false)
+            => CliHelpUtilities.GetUsage(data, showUsageOnBool, skipNameDefault);
+
+        protected virtual string GetDefaultValueText(InspectorOptionData data, bool displaySymbolName = false)
+            => CliHelpUtilities.GetDefaultValueText(data, displaySymbolName);
     }
 }

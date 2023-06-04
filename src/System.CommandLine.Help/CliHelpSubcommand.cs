@@ -1,67 +1,90 @@
 ﻿using System.Collections.Generic;
 using System.CommandLine.CliOutput;
 using System.Linq;
-using Default = System.CommandLine.Help.CliDefaultHelpConfiguration.Defaults;
 
 namespace System.CommandLine.Help
 {
-    public class CliHelpSubcommands : CliSection<CliCommand>
+    public class CliHelpSubcommands : CliSection<InspectorCommandData>
     {
+
         public CliHelpSubcommands()
             : base(LocalizationResources.HelpCommandsTitle())
         { }
 
+        public override IEnumerable<InspectorCommandData> GetData(CliOutputContext outputContext)
+        {
+            if (outputContext is not HelpContext helpContext)
+            {
+                return Enumerable.Empty<InspectorCommandData>();
+            }
+
+            var symbolInspector = CliHelpUtilities.SymbolInspector(helpContext);
+            return symbolInspector.GetSubcommandData(helpContext.Command);
+        }
 
         public override IEnumerable<CliOutputUnit>? GetBody(CliOutputContext outputContext)
         {
             if (outputContext is not HelpContext helpContext) { return null; }
 
             var unit = GetBodyTable(helpContext);
-            return unit is null
+            return unit is null || !unit.Data.Any()
                 ? null
                 : new CliOutputUnit[] { unit };
         }
 
-        private CliTable<CliCommand>? GetBodyTable(HelpContext helpContext)
+        private CliTable<InspectorCommandData>? GetBodyTable(HelpContext? helpContext)
         {
             if (helpContext?.Command is not CliCommand command)
             {
                 return null;
             }
 
-            var symbolInspector = CliHelpUtilities.SymbolInspector(helpContext);
+            var data = GetData(helpContext);
 
-            var subCommands = command.Subcommands;
-
-            var table = new CliTable<CliCommand>(2, subCommands);
-            table.IndentLevel = 1;
-            table.Body[0] = cmd => GetFirstColumn(cmd, symbolInspector);
-            table.Body[1] = cmd => GetSecondColumn(cmd, symbolInspector);
+            var table = new CliTable<InspectorCommandData>(2, data)
+            {
+                IndentLevel = 1
+            };
+            table.Body[0] = data => GetFirstColumn(data);
+            table.Body[1] = data => GetSecondColumn(data);
             return table;
         }
 
-        private string GetFirstColumn(CliCommand command, CliSymbolInspector symbolInspector)
-            => symbolInspector.GetUsage(command);
+        private string GetFirstColumn(InspectorCommandData data)
+            => GetUsage(data);
 
-        private string GetSecondColumn(CliCommand command, CliSymbolInspector symbolInspector)
+        private string GetSecondColumn(InspectorCommandData data)
         {
-            var symbolDescription = symbolInspector.GetDescription(command) ?? string.Empty;
+            var defaultValueDescription = GetDefaultValueText(data);
+            return string.IsNullOrEmpty(defaultValueDescription)
+            ? $"{data.Description}".Trim()
+                : $"{data.Description} [{defaultValueDescription}]".Trim();
 
-            var defaultValueDescription = GetCommandDefaultArgValues(command, symbolInspector);
-            return $"{symbolDescription} {defaultValueDescription}".Trim();
+            //var symbolDescription = symbolInspector.GetDescription(command) ?? string.Empty;
+
+            //var defaultValueDescription = GetCommandDefaultArgValues(command, symbolInspector);
+            //return $"{symbolDescription} {defaultValueDescription}".Trim();
         }
 
-        private string GetCommandDefaultArgValues(CliCommand command, CliSymbolInspector symbolInspector)
-        {
-            var args = command.Arguments
-                .Where(arg => !arg.Hidden && arg.HasDefaultValue);
+        //private string GetCommandDefaultArgValues(CliCommand command, CliSymbolInspector symbolInspector)
+        //{
+        //    var args = command.Arguments
+        //        .Where(arg => !arg.Hidden && arg.HasDefaultValue);
 
-            return args.Count() switch
-            {
-                0 => "",
-                1 => $"[{Default.DefaultValueTextAndLabel(args.First(), false)}]",
-                _ => $"[{string.Join(", ", args.Select(arg => symbolInspector.GetDefaultValueText(arg, true)))}]"
-            };
-        }
+        //    return args.Count() switch
+        //    {
+        //        0 => "",
+        //        1 => $"[{Default.DefaultValueTextAndLabel(args.First(), false)}]",
+        //        _ => $"[{string.Join(", ", args.Select(arg => symbolInspector.GetDefaultValueText(arg, true)))}]"
+        //    };
+        //}
+
+        protected virtual string GetUsage(InspectorCommandData data, bool showUsageOnBool = false, bool skipNameDefault = false)
+            => CliHelpUtilities.GetUsage(data, showUsageOnBool, skipNameDefault);
+
+        protected virtual string GetDefaultValueText(InspectorCommandData data, bool displaySymbolName = false)
+            => CliHelpUtilities.GetDefaultValueText(data, displaySymbolName);
+
+
     }
 }
