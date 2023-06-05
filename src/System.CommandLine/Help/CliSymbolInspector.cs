@@ -104,6 +104,7 @@ namespace System.CommandLine.Help
         public IEnumerable<InspectorOptionData> GetOptionData(CliCommand command)
         {
             return GetOptions(SelfAndParentCommands(command))
+                    .Where(a => !a.Hidden)
                     .Select(opt => GetOptionData(opt, GetName(command)));
 
             static IEnumerable<CliOption> GetOptions(IEnumerable<CliCommand> selfAndParents)
@@ -126,7 +127,8 @@ namespace System.CommandLine.Help
         public IEnumerable<InspectorArgumentData> GetArgumentData(CliCommand command)
         {
             return GetArguments(SelfAndParentCommands(command))
-                    .Select(arg => GetArgumentData(arg, GetName(command)));
+                     .Where(a => !a.Hidden)
+                     .Select(arg => GetArgumentData(arg, GetName(command)));
 
             static IEnumerable<CliArgument> GetArguments(IEnumerable<CliCommand> selfAndParents)
                 => selfAndParents
@@ -149,6 +151,7 @@ namespace System.CommandLine.Help
         public IEnumerable<InspectorCommandData> GetSubcommandData(CliCommand command)
         {
             var subCommands = command.Subcommands
+                    .Where(a => !a.Hidden)
                     .Select(cmd => GetCommandData(cmd, GetName(command)));
             return subCommands;
         }

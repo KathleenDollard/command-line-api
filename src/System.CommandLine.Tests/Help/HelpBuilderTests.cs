@@ -1375,6 +1375,7 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
+        [Trait("NewLine", "Known Issue")]
         public void Subcommands_keep_added_newlines()
         {
             var command = new CliCommand("outer", "outer command help")
@@ -1399,6 +1400,7 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
+        [Trait("Whitespace", "Tabs")]
         public void Subcommands_properly_wraps_description()
         {
             var longSubcommandDescription =

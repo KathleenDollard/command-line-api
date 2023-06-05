@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Net.WebSockets;
+using System.Runtime.InteropServices;
 
 namespace System.CommandLine.CliOutput
 {
@@ -155,12 +157,10 @@ namespace System.CommandLine.CliOutput
             // using the remaining space for the rightermost rows
             var wrappedCellText = new IEnumerable<string>[allCellText.GetLength(0), allCellText.GetLength(1)];
             var remainingWidth = usableWidth;
-            var lastFairWidth = GetFairWidth(currentColumnWidths, remainingWidth, currentColumnWidths.Length);
             var remainingColumnCount = allCellText.GetLength(1);
             for (int col = 0; col < currentColumnWidths.Length; col++)
             {
-                var requestedWidth = currentColumnWidths.Sum();
-                var fairWidth = GetFairWidth(currentColumnWidths, remainingWidth, remainingColumnCount);
+                var fairWidth = GetThisWidth(currentColumnWidths, remainingWidth, col);
                 if (currentColumnWidths[col] <= fairWidth)
                 {
                     currentColumnWidths[col] = UpdateTextToCurrent(allCellText, wrappedCellText, col);
@@ -192,25 +192,46 @@ namespace System.CommandLine.CliOutput
             return ret;
         }
 
-        private static int GetFairWidth(int[] currentColumnWidths, int remainingWidth, int remainingColumns)
+        private static int GetThisWidth(int[] currentColumnWidths, int remainingWidth, int pos)
         {
             // This would need to iterate a bit on with large number of columns to avoid skewing space to the right
-            var tentative = remainingColumns == 0
-                  ? remainingWidth
-                  : remainingWidth / remainingColumns;
-            var remainingNarrowColumns = currentColumnWidths
-                        .Skip(currentColumnWidths.Length - remainingColumns)
-                        .Select(x => (x < tentative, x));
-            var remainingWideCount = remainingNarrowColumns.Count(t => !t.Item1);
-            if (remainingWideCount == 0)
-            {  // everything already fits
-                return int.MaxValue;
+            var remainingColumnCount = currentColumnWidths.Length - pos; 
+            var isLast = remainingColumnCount <= 1;
+            if (isLast)
+            {
+                return remainingWidth;
             }
-            var remainingNarrowExtra = remainingNarrowColumns.Where(t => t.Item1).Sum(t => tentative - t.Item2);
-            remainingWidth += remainingNarrowExtra;
-            //var narrowWidth = remainingNarrowColumns.Where(t => t.Item1).Sum(t => t.Item2);
-            //remainingWidth = remainingWidth = narrowWidth;
-            return remainingWidth / remainingWideCount;
+
+            // Is it smaller than the average share?
+            var tentative = remainingWidth / remainingColumnCount;
+            if (currentColumnWidths[pos] < tentative)
+            {
+                return currentColumnWidths[pos];
+            }
+            var wideAndNarrowColumns = currentColumnWidths
+                        .Skip(pos)
+                        .Select(x => (x < tentative, x));
+            var narrowColumns = wideAndNarrowColumns.Where(x => x.Item1);
+            var narrowColumnWidth = narrowColumns.Sum(x=>x.Item2);
+            var narrowCount = narrowColumns.Count();
+            var wideCount = remainingColumnCount - narrowCount;
+
+            // This would mean that current is < tentative, meaning we should not hit this scenario - but best to check
+            if (wideCount <= 0)
+            {
+                // .NET Standard does not have int.Min
+                return remainingWidth < currentColumnWidths[pos]
+                    ? remainingWidth
+                    : currentColumnWidths[pos];
+            }
+
+            var toSplit = remainingWidth - narrowColumnWidth;
+            var fairWidth = toSplit / wideCount; // integer division, this truncates, which is OK.
+
+            // After considering narrow columns, does it fully fit?
+            return currentColumnWidths[pos] < fairWidth 
+                ? currentColumnWidths[pos] 
+                : fairWidth;
         }
 
         private static int UpdateTextToCurrent(string[,] allCellText, IEnumerable<string>[,] wrappedCellText, int currentColumn)
