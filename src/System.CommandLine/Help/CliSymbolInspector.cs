@@ -13,10 +13,6 @@ namespace System.CommandLine.Help
 
         // Regions used to explain the code during development. Can delete if code is moved into BCL 
         #region Retrieval methods
-        public CliSymbolInspector(HelpContext helpContext)
-            => HelpContext = helpContext;
-
-        protected HelpContext HelpContext { get; }
 
         public string? GetName(CliSymbol symbol)
         {

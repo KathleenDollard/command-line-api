@@ -195,7 +195,10 @@ namespace System.CommandLine.Parsing
                 {
                     if (option.Action is not null)
                     {
-                        if (option is HelpOption)
+                        // KAD: This was an issue: the explicit hard coding of our HelpOption prohibits this
+                        //      behavior for anyone else's help option. Either we do not need it, we need a 
+                        //      or we need a marker
+                        if (option is IHelpOption)
                         {
                             _isHelpRequested = true;
                         }

@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace System.CommandLine.CliOutput
 {
+    // KAD: this class is intended to support Json, etc output parallel to Table/text. Work was temporarily halted ont that.
     public class CliDataOutputUnit : CliOutputUnit
     {
         public CliDataOutputUnit(IEnumerable<object> value, int indentLevel = 0)

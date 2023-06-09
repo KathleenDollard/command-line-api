@@ -3,6 +3,8 @@
 
 using System.CommandLine.Completions;
 using System.CommandLine.Help;
+using System.CommandLine.Invocation;
+
 using System.IO;
 using System.Threading.Tasks;
 using FluentAssertions;

@@ -3,6 +3,7 @@
 
 using FluentAssertions;
 using System.CommandLine.Tests.Utility;
+using System.CommandLine.Invocation;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;

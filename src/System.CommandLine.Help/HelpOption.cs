@@ -3,7 +3,7 @@
 
 namespace System.CommandLine.Help
 {
-    public sealed class HelpOption : CliOption<bool>
+    public sealed class HelpOption : CliOption<bool>, IHelpOption
     {
         private CliAction? _action;
 
@@ -32,9 +32,9 @@ namespace System.CommandLine.Help
         }
 
         /// <inheritdoc />
-        public override CliAction? Action 
-        { 
-            get => _action ??= new HelpAction(); 
+        public override CliAction? Action
+        {
+            get => _action ??= new HelpAction();
             set => _action = value ?? throw new ArgumentNullException(nameof(value));
         }
     }

@@ -5,14 +5,14 @@ namespace System.CommandLine.Help
 {
     public sealed class HelpAction : CliAction
     {
-        private IHelpBuilder? _builder;
+        private CliHelpRenderer? _builder;
 
         /// <summary>
         /// Specifies an <see cref="Builder"/> to be used to format help output when help is requested.
         /// </summary>
-        public IHelpBuilder Builder
+        public CliHelpRenderer Builder
         {
-            get => _builder ??= new HelpBuilderOld();
+            get => _builder ??= new CliHelpRenderer();
             set => _builder = value ?? throw new ArgumentNullException(nameof(value));
         }
 

@@ -60,7 +60,7 @@ namespace System.CommandLine
             Errors = errors is not null ? errors : Array.Empty<ParseError>();
         }
 
-        internal static ParseResult Empty() => new CliRootCommand().Parse(Array.Empty<string>());
+        public static ParseResult Empty() => new CliRootCommand().Parse(Array.Empty<string>());
 
         /// <summary>
         /// A result indicating the command specified in the command line input.
@@ -284,19 +284,7 @@ namespace System.CommandLine
                     .ToArray();
         }
 
-        /// <summary>
-        /// Invokes the appropriate command handler for a parsed command line input.
-        /// </summary>
-        /// <param name="cancellationToken">A token that can be used to cancel an invocation.</param>
-        /// <returns>A task whose result can be used as a process exit code.</returns>
-        public Task<int> InvokeAsync(CancellationToken cancellationToken = default)
-            => InvocationPipeline.InvokeAsync(this, cancellationToken);
-
-        /// <summary>
-        /// Invokes the appropriate command handler for a parsed command line input.
-        /// </summary>
-        /// <returns>A value that can be used as a process exit code.</returns>
-        public int Invoke() => InvocationPipeline.Invoke(this);
+ 
 
         /// <summary>
         /// Gets the <see cref="CliAction"/> for parsed result. The handler represents the action
@@ -304,7 +292,7 @@ namespace System.CommandLine
         /// </summary>
         public CliAction? Action => _action ?? CommandResult.Command.Action;
 
-        internal IReadOnlyList<CliAction>? NonexclusiveActions => _nonexclusiveActions;
+        public IReadOnlyList<CliAction>? NonexclusiveActions => _nonexclusiveActions;
 
         private SymbolResult SymbolToComplete(int? position = null)
         {

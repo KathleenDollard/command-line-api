@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.CommandLine.Parsing;
 using System.CommandLine.Tests.Utility;
+using System.CommandLine.Invocation;
 using System.IO;
 using FluentAssertions;
 using System.Linq;

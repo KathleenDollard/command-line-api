@@ -4,8 +4,27 @@ using System.Linq;
 
 namespace System.CommandLine.CliOutput
 {
-    public class CliOutputRenderer
+    public abstract class CliOutputRenderer
     {
+        private List<CliSection>? sections;
+
+        public List<CliSection> Sections
+        {
+            get
+            {
+                sections ??= new();
+                return sections;
+            }
+        }
+
+        /// <summary>
+        /// Provides the formatter for output. Derived classes can use this to select a formatter.
+        /// </summary>
+        /// <param name="outputContext"></param>
+        /// <returns></returns>
+        public virtual CliFormatter GetFormatter(CliOutputContext outputContext)
+            => new CliConsoleFormatter(); 
+        
         /// <summary>
         /// Writes help output for the specified command.
         /// </summary>
@@ -14,10 +33,9 @@ namespace System.CommandLine.CliOutput
             _ = outputContext ?? throw new ArgumentNullException(nameof(outputContext));
 
 
-            var sections = GetSections(outputContext);
             var formatter = GetFormatter(outputContext);
             var dom = new List<CliOutputUnit>();
-            foreach (var section in sections)
+            foreach (var section in Sections)
             {
                 var body = section.GetBody(outputContext);
                 bool hasBody = body is not null && body.Any();
@@ -41,12 +59,6 @@ namespace System.CommandLine.CliOutput
 
             WriteLines(outputContext.Writer, formatter.GetOutput(dom, outputContext.MaxWidth));
         }
-
-        protected virtual CliFormatter GetFormatter(CliOutputContext outputContext)
-        => outputContext.OutputConfiguration.GetFormatter(outputContext);
-
-        protected virtual IEnumerable<CliSection> GetSections(CliOutputContext outputContext)
-            => outputContext.OutputConfiguration.Sections;
 
         private void WriteLines(TextWriter writer, IEnumerable<string>? output)
         {

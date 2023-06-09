@@ -37,6 +37,7 @@ namespace System.CommandLine.Help
         /// Access to the CliConfiguration for use in help
         /// </summary>
         public CliConfiguration CliConfiguration { get; }
+        public HelpConfiguration HelpConfiguration { get; }     
 
         /// <summary>
         /// The result of the current parse operation.

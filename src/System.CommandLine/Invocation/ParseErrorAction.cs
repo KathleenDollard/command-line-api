@@ -23,7 +23,8 @@ namespace System.CommandLine.Invocation
 
             ConsoleHelpers.ResetTerminalForegroundColor();
 
-            new HelpOption().Action!.Invoke(parseResult);
+            // KAD: Temporarily removed during relayering
+            //new HelpOption().Action!.Invoke(parseResult);
 
             return 1;
         }

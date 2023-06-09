@@ -39,6 +39,7 @@
   <ItemGroup>
     <ProjectReference Include="..\System.CommandLine.Help\System.CommandLine.Help.csproj" />
     <ProjectReference Include="..\System.CommandLine\System.CommandLine.csproj" />
+    <ProjectReference Include="..\System.CommandLine.Execution\System.CommandLine.Execution.csproj" />
   </ItemGroup>
   
   <ItemGroup>

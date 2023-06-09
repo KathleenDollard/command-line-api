@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
 using static System.Environment;
+using  System.CommandLine.Invocation;
 
 namespace System.CommandLine.Tests.Invocation
 {

@@ -33,7 +33,7 @@ namespace System.CommandLine.Tests.Help
             _executableName = CliRootCommand.ExecutableName;
         }
 
-        private CliHelpBuilder GetHelpBuilder() => new();
+        private CliHelpRenderer GetHelpBuilder() => new();
         private HelpContext GetHelpContext(CliCommand command = null, int maxWidth = 0, TextWriter output = null)
         {
             CliCommand rootCommand = command ?? new CliRootCommand();
@@ -43,7 +43,7 @@ namespace System.CommandLine.Tests.Help
         private CliConfiguration GetCliConfiguration(CliCommand command)
         {
             var config = new CliConfiguration(command);
-            config.HelpConfiguration = new CliDefaultHelpConfiguration(config);
+            config.HelpConfiguration = new CliHelpConfiguration(config);
             return config;
         }
 
@@ -76,7 +76,7 @@ namespace System.CommandLine.Tests.Help
 
             var command = new CliRootCommand(description: longSynopsisText);
 
-            CliHelpBuilder helpBuilder = GetHelpBuilder();
+            CliHelpRenderer helpBuilder = GetHelpBuilder();
             helpBuilder.Write(GetHelpContext(command, SmallMaxWidth, _console));
 
             var expected =
@@ -129,7 +129,7 @@ namespace System.CommandLine.Tests.Help
             var rootCommand = new CliRootCommand();
             rootCommand.Subcommands.Add(command);
 
-            new CliHelpBuilder().Write(GetHelpContext(command, LargeMaxWidth, _console));
+            new CliHelpRenderer().Write(GetHelpContext(command, LargeMaxWidth, _console));
 
             var expected =
                 $"Usage:{NewLine}" +
@@ -643,7 +643,7 @@ namespace System.CommandLine.Tests.Help
                 }
             };
 
-            CliHelpBuilder helpBuilder = GetHelpBuilder();
+            CliHelpRenderer helpBuilder = GetHelpBuilder();
 
             helpBuilder.Write(GetHelpContext(command, SmallMaxWidth, _console));
 
@@ -671,7 +671,7 @@ namespace System.CommandLine.Tests.Help
                 }
             };
 
-            CliHelpBuilder helpBuilder = GetHelpBuilder();
+            CliHelpRenderer helpBuilder = GetHelpBuilder();
             helpBuilder.Write(GetHelpContext(command, SmallMaxWidth, _console));
 
             var expected =
@@ -701,7 +701,7 @@ namespace System.CommandLine.Tests.Help
                 argument
             };
 
-            CliHelpBuilder helpBuilder = GetHelpBuilder();
+            CliHelpRenderer helpBuilder = GetHelpBuilder();
 
             helpBuilder.Write(GetHelpContext(command, SmallMaxWidth, _console));
 
@@ -729,7 +729,7 @@ namespace System.CommandLine.Tests.Help
                 option
             };
 
-            CliHelpBuilder helpBuilder = GetHelpBuilder();
+            CliHelpRenderer helpBuilder = GetHelpBuilder();
 
             helpBuilder.Write(GetHelpContext(command, SmallMaxWidth, _console));
 
@@ -775,7 +775,7 @@ namespace System.CommandLine.Tests.Help
                 option
             };
 
-            CliHelpBuilder helpBuilder = GetHelpBuilder();
+            CliHelpRenderer helpBuilder = GetHelpBuilder();
 
             helpBuilder.Write(GetHelpContext(command, SmallMaxWidth, _console));
 
@@ -794,7 +794,7 @@ namespace System.CommandLine.Tests.Help
             var command = new CliCommand("the-command",
                 "Help text from description") { argument };
 
-            CliHelpBuilder helpBuilder = GetHelpBuilder();
+            CliHelpRenderer helpBuilder = GetHelpBuilder();
 
             helpBuilder.Write(GetHelpContext(command, SmallMaxWidth, _console));
 
@@ -868,7 +868,7 @@ namespace System.CommandLine.Tests.Help
                 otherArgument
             };
 
-            CliHelpBuilder helpBuilder = GetHelpBuilder();
+            CliHelpRenderer helpBuilder = GetHelpBuilder();
 
             helpBuilder.Write(GetHelpContext(command, SmallMaxWidth, _console));
 
@@ -1099,7 +1099,7 @@ namespace System.CommandLine.Tests.Help
                 new CliOption<string>("-y") { Description = "Option with a short description" },
             };
 
-            CliHelpBuilder helpBuilder = GetHelpBuilder();
+            CliHelpRenderer helpBuilder = GetHelpBuilder();
             helpBuilder.Write(GetHelpContext(command, SmallMaxWidth, _console));
 
             var expected =
@@ -1129,7 +1129,7 @@ namespace System.CommandLine.Tests.Help
                 new CliOption<string>("-y") { Description = "Option with a short description" },
             };
 
-            CliHelpBuilder helpBuilder = GetHelpBuilder();
+            CliHelpRenderer helpBuilder = GetHelpBuilder();
             helpBuilder.Write(GetHelpContext(command, SmallMaxWidth, _console));
 
             var expected =
@@ -1152,7 +1152,7 @@ namespace System.CommandLine.Tests.Help
                 new CliOption<bool>(alias) { Description = description }
             };
 
-            CliHelpBuilder helpBuilder = GetHelpBuilder();
+            CliHelpRenderer helpBuilder = GetHelpBuilder();
             helpBuilder.Write(GetHelpContext(command, SmallMaxWidth, _console));
 
             var expected =
@@ -1207,7 +1207,7 @@ namespace System.CommandLine.Tests.Help
         public void Help_option_is_shown_in_help()
         {
             var configuration = new CliConfiguration(new CliRootCommand());
-            configuration.HelpConfiguration = new CliDefaultHelpConfiguration(configuration);
+            configuration.HelpConfiguration = new CliHelpConfiguration(configuration);
 
             _helpBuilder.Write(GetHelpContext(configuration.RootCommand, LargeMaxWidth, _console));
 
@@ -1297,7 +1297,7 @@ namespace System.CommandLine.Tests.Help
                 }
             };
 
-            CliHelpBuilder helpBuilder = GetHelpBuilder();
+            CliHelpRenderer helpBuilder = GetHelpBuilder();
 
             helpBuilder.Write(GetHelpContext(command, SmallMaxWidth, _console));
 
@@ -1540,7 +1540,7 @@ namespace System.CommandLine.Tests.Help
                     }
                 };
 
-            CliHelpBuilder helpBuilder = GetHelpBuilder();
+            CliHelpRenderer helpBuilder = GetHelpBuilder();
 
             helpBuilder.Write(GetHelpContext(command, LargeMaxWidth, _console));
 
@@ -1571,7 +1571,7 @@ namespace System.CommandLine.Tests.Help
                     }
                 };
 
-            CliHelpBuilder helpBuilder = GetHelpBuilder();
+            CliHelpRenderer helpBuilder = GetHelpBuilder();
 
             helpBuilder.Write(GetHelpContext(command, LargeMaxWidth, _console));
 

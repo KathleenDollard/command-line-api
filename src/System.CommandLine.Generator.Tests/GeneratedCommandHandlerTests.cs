@@ -4,6 +4,7 @@
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
+using System.CommandLine.Invocation;
 
 namespace System.CommandLine.Generator.Tests
 {

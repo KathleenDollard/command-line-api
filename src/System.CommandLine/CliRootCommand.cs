@@ -25,8 +25,6 @@ namespace System.CommandLine
         /// <param name="description">The description of the command, shown in help.</param>
         public CliRootCommand(string description = "") : base(ExecutableName, description)
         {
-            Options.Add(new HelpOption());
-            Options.Add(new VersionOption());
         }
 
         internal static Assembly GetAssembly()

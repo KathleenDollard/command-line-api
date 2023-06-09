@@ -8,6 +8,7 @@ using System.CommandLine.Help;
 using System.Linq;
 using FluentAssertions;
 using Xunit;
+using System.CommandLine.Invocation;
 
 namespace System.CommandLine.Tests
 {

@@ -3,6 +3,7 @@
 
 using FluentAssertions;
 using Xunit;
+using System.CommandLine.Invocation;
 
 namespace System.CommandLine.Tests;
 

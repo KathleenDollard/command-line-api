@@ -4,20 +4,20 @@ using System.Threading.Tasks;
 
 namespace System.CommandLine.Invocation;
 
-internal sealed class ProcessTerminationHandler : IDisposable
+public sealed class ProcessTerminationHandler : IDisposable
 {
     private const int SIGINT_EXIT_CODE = 130;
     private const int SIGTERM_EXIT_CODE = 143;
         
-    internal readonly TaskCompletionSource<int> ProcessTerminationCompletionSource;
+    public readonly TaskCompletionSource<int> ProcessTerminationCompletionSource;
     private readonly CancellationTokenSource _handlerCancellationTokenSource;
     private readonly Task<int> _startedHandler;
     private readonly TimeSpan _processTerminationTimeout;
 #if NET7_0_OR_GREATER
     private readonly IDisposable? _sigIntRegistration, _sigTermRegistration;
 #endif
-        
-    internal ProcessTerminationHandler(
+
+    public ProcessTerminationHandler(
         CancellationTokenSource handlerCancellationTokenSource, 
         Task<int> startedHandler,
         TimeSpan processTerminationTimeout)

@@ -1,4 +1,51 @@
-﻿## Principles (of this design)
+﻿## Overall goals
+
+* Improve extensibility
+  * Make help, error reporting, exception reporting, etc independent units replaceable by extenders with an easy story for how CLI authors use the extension (single line) for the CLI author
+  * Allow new unknown extensible units that can be added with a single predictable line of code for the CLI author
+* Improve help and error reporting
+  * Make it easier to customize (like context driven option descriptions) and lay
+  * Reduce the amount of S.CL details you need to know (particularly around Option's Argument)
+  * Lay the groundwork for awesome future help
+* Provide pay for play for parsing - allow simple non-routing CLI to avoid invocation overhead
+
+## User scenarios
+
+* Simple, simple (argparse) CLI
+* Wide, simple, high performance CLI (CLangSharp)
+* Common mid-size CLIs (dotnet-uninstall)
+* Large complex CLIs
+
+I think we have the last two well understood.
+
+The second wants pay for play without extra overhead, and the first wants simplicity. 
+
+For both of these, we could have something like:
+
+if (myCli.TryParse(args))
+{ happy path }
+else
+{ self report }
+
+For the argparse scenario, where overhead is not an issue (because it requires invocation), we could do something like:
+
+if (myCli.TryParse(args).AlternateHandling())
+{ happy path }
+
+And for the pay for play, it would be nice if individual features could be brought in. 
+
+## General intended shape of this branch's approach (not yet achieved)
+
+* Individual concerns (help, error reporting ,etc) are in different assemblies (some may be combined later)
+* Parser assembly
+  * Contains symbol definition and parser
+  * Contains a `ConfiguredAction` which is the basis for all extra concerns (help, etc)
+  * Contains a common configuration which has a collection of ConfiguredActions
+* Invocation assembly
+  * Contains invocation items and a standard configuration (standard help, etc)
+  * Has a dependency on the parser assembly and all the assemblies for concerns
+
+## Principles (of theCliOutput help design)
 
 * Anything we can do, they can do better - well at least they should be able to do
   * An alternate help system is needed to be sure ours can be extended. It could not.

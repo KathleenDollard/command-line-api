@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Xunit;
+using System.CommandLine.Invocation;
 
 namespace System.CommandLine.Tests
 {

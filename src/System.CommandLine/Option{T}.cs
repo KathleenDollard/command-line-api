@@ -21,13 +21,13 @@ namespace System.CommandLine
         {
         }
 
-        private protected CliOption(string name, CliArgument<T> argument) : base(name)
+        protected internal CliOption(string name, CliArgument<T> argument) : base(name)
         {
             argument.AddParent(this);
             _argument = argument;
         }
 
-        private protected CliOption(string name, string[] aliases, CliArgument<T> argument)
+        protected internal CliOption(string name, string[] aliases, CliArgument<T> argument)
             : base(name, aliases)
         {
             argument.AddParent(this);

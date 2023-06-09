@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 
 namespace System.CommandLine
 {
-    internal static class ConsoleHelpers
+    public static class ConsoleHelpers
     {
         private static readonly bool ColorsAreSupported = GetColorsAreSupported();
 
@@ -20,7 +20,7 @@ namespace System.CommandLine
 #endif
             && !Console.IsOutputRedirected;
 
-        internal static void SetTerminalForegroundRed()
+        public static void SetTerminalForegroundRed()
         {
             if (ColorsAreSupported)
             {
@@ -28,7 +28,7 @@ namespace System.CommandLine
             }
         }
 
-        internal static void ResetTerminalForegroundColor()
+        public static void ResetTerminalForegroundColor()
         {
             if (ColorsAreSupported)
             {
