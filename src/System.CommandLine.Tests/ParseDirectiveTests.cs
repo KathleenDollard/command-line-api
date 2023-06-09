@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 using System.CommandLine.Invocation;
+using System.CommandLine.Execution;
 
 namespace System.CommandLine.Tests
 {
@@ -28,7 +29,7 @@ namespace System.CommandLine.Tests
             var option = new CliOption<int>("-c", "--count");
             subcommand.Options.Add(option);
 
-            CliConfiguration config = new(rootCommand)
+            CliInvokableConfiguration config = new(rootCommand)
             {
                 Output = new StringWriter(),
                 Directives = { new DiagramDirective() }
@@ -51,7 +52,7 @@ namespace System.CommandLine.Tests
         {
             CliRootCommand rootCommand = new ();
 
-            CliConfiguration config = new(rootCommand)
+            CliInvokableConfiguration config = new(rootCommand)
             {
                 Output = new StringWriter(),
                 Directives = { new DiagramDirective() }
@@ -74,7 +75,7 @@ namespace System.CommandLine.Tests
         {
             CliRootCommand rootCommand = new();
 
-            CliConfiguration config = new(rootCommand)
+            CliInvokableConfiguration config = new(rootCommand)
             {
                 Output = new StringWriter(),
                 Directives = { new DiagramDirective() }
@@ -100,7 +101,7 @@ namespace System.CommandLine.Tests
                 new CliOption<int>("-x")
             };
 
-            CliConfiguration config = new(command)
+            CliInvokableConfiguration config = new(command)
             {
                 Output = new StringWriter(),
                 Directives = { new DiagramDirective() }
@@ -119,7 +120,7 @@ namespace System.CommandLine.Tests
                 new CliOption<int>("-x")
             };
 
-            CliConfiguration config = new(command)
+            CliInvokableConfiguration config = new(command)
             {
                 Output = new StringWriter(),
                 Directives = { new DiagramDirective() }
@@ -138,7 +139,7 @@ namespace System.CommandLine.Tests
                 new CliOption<int>("-x")
             };
 
-            CliConfiguration config = new(command)
+            CliInvokableConfiguration config = new(command)
             {
                 Output = new StringWriter(),
                 Directives = { new DiagramDirective

@@ -107,9 +107,9 @@ namespace System.CommandLine
         /// </summary>
         /// <returns>Returns the default value for the argument, if defined. Null otherwise.</returns>
         public object? GetDefaultValue()
-        => HasDefaultValue // Without this check, the internal GetDefaultValue throws
-            ? GetDefaultValue(new ArgumentResult(this, null!, null))
-            : null;
+        {
+            return GetDefaultValue(new ArgumentResult(this, null!, null));
+        }
 
         internal abstract object? GetDefaultValue(ArgumentResult argumentResult);
 

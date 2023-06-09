@@ -5,9 +5,9 @@ using System.Linq;
 namespace System.CommandLine.Help
 {
     // KAD: This class only exists because of current intuition that it may be needed. Delete if not used for meaningful stuff when finalizing design.
-    public class CliHelpRenderer : CliOutputRenderer
+    public class CliHelpBuilder : CliOutputRenderer
     {
-        public CliHelpRenderer()
+        public CliHelpBuilder()
         {
             {
                 Sections.AddRange(new CliSection[]
@@ -38,9 +38,10 @@ namespace System.CommandLine.Help
         public override CliFormatter GetFormatter(CliOutputContext outputContext)
             => outputContext switch
             {
-                HelpContext helpContext => helpContext.HelpConfiguration.Formatter ?? base.GetFormatter(outputContext),
-                _ => null
+                HelpContext helpContext =>
+                    ((helpContext.CliConfiguration[HelpConfiguration.Key] as HelpConfiguration)?.Formatter)
+                        ?? base.GetFormatter(outputContext),
+                _ => base.GetFormatter(outputContext)
             };
-
     }
 }

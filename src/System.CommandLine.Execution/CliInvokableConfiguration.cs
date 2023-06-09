@@ -1,4 +1,5 @@
 ﻿using System.CommandLine.Help;
+using System.Net.NetworkInformation;
 
 namespace System.CommandLine.Execution
 {
@@ -7,8 +8,7 @@ namespace System.CommandLine.Execution
 
         public CliInvokableConfiguration(CliCommand rootCommand) : base(rootCommand)
         {
-
-            RootCommand.Options.Add(new HelpOption());
+            AddConfiguration( new HelpConfiguration(), rootCommand);
             RootCommand.Options.Add(new VersionOption());
         }
     }

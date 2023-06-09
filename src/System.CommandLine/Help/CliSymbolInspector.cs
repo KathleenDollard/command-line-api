@@ -61,8 +61,8 @@ namespace System.CommandLine.Help
         public object? GetDefaultValue(CliSymbol symbol)
         => symbol switch
         {
-            CliArgument argument => argument.GetDefaultValue(),
-            CliOption option => option.GetDefaultValue(),
+            CliArgument { HasDefaultValue: true} argument=> argument.GetDefaultValue(),
+            CliOption { Argument.HasDefaultValue: true } option => option.GetDefaultValue(),
             _ => null
         };
 
@@ -93,7 +93,7 @@ namespace System.CommandLine.Help
                    GetCompletionsText(option),
                    option.ValueType,
                    option.Argument.HasDefaultValue,
-                   option.GetDefaultValue(),
+                   GetDefaultValue(option),
                    option.Required,
                    option.Hidden);
 
@@ -117,7 +117,7 @@ namespace System.CommandLine.Help
                    GetCompletionsText(argument),
                    argument.ValueType,
                    argument.HasDefaultValue,
-                   argument.GetDefaultValue(),
+                   GetDefaultValue(argument),
                    argument.Hidden);
 
         public IEnumerable<InspectorArgumentData> GetArgumentData(CliCommand command)

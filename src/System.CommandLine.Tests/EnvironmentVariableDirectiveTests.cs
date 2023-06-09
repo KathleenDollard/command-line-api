@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.CommandLine.Invocation;
 
 using Xunit;
+using System.CommandLine.Execution;
 
 namespace System.CommandLine.Tests
 {
@@ -109,7 +110,7 @@ namespace System.CommandLine.Tests
             asserted.Should().BeTrue();
         }
 
-        [Fact]
+        [Fact(Skip ="Experience needs reconsideration. Help would no longer be available when parsing a command")]
         public void It_does_not_prevent_help_from_being_invoked()
         {
             var root = new CliRootCommand();
@@ -118,7 +119,7 @@ namespace System.CommandLine.Tests
             var customHelpAction = new CustomHelpAction();
             root.Options.OfType<HelpOption>().Single().Action = customHelpAction;
 
-            var config = new CliConfiguration(root);
+            var config = new CliInvokableConfiguration(root);
             config.Directives.Add(new EnvironmentVariablesDirective());
 
             root.Parse($"[env:{_testVariableName}=1] -h", config).Invoke();

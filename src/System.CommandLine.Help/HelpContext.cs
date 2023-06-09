@@ -18,14 +18,13 @@ namespace System.CommandLine.Help
         /// <param name="cliConfiguration">The configuration for the current CLI tree</param>
         /// <param name="writer">A text writer to write output to.</param>
         /// <param name="maxWidth">The maximum width of the displayed output</param>
-        /// <param name="formatter">The CliFormatter that will be used. If null, the Console formatter will be used.</param>
         /// <param name="parseResult">The result of the current parse operation.</param>
         public HelpContext(CliConfiguration cliConfiguration,
                            int maxWidth,
                            TextWriter writer,
                            ParseResult? parseResult = null,
                            CliCommand? command = null)
-            : base( cliConfiguration.HelpConfiguration, maxWidth, writer)
+            : base(  maxWidth, writer)
         {
             CliConfiguration = cliConfiguration;
             ParseResult = parseResult ?? ParseResult.Empty();
@@ -37,7 +36,6 @@ namespace System.CommandLine.Help
         /// Access to the CliConfiguration for use in help
         /// </summary>
         public CliConfiguration CliConfiguration { get; }
-        public HelpConfiguration HelpConfiguration { get; }     
 
         /// <summary>
         /// The result of the current parse operation.

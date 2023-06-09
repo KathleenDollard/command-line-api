@@ -19,9 +19,9 @@ namespace System.CommandLine.Help
                 previousHelpContext = helpContext;
                 symbolInspector = previousHelpContext is null
                     ? throw new ArgumentException("Argument should be a HelpContext", nameof(helpContext))
-                    : previousHelpContext.CliConfiguration.HelpConfiguration.GetSymbolInspector(previousHelpContext);
+                    : (helpContext.CliConfiguration[HelpConfiguration.Key] as HelpConfiguration)?.GetSymbolInspector(previousHelpContext);
             }
-            return symbolInspector;
+            return symbolInspector ?? throw new InvalidOperationException("Symbol inspector cannot be null");
         }
 
         // This is an attempt to move these out of the SymbolInspector as they are not absolutes

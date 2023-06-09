@@ -9,6 +9,7 @@ using System.Threading;
 using System.IO;
 using System.CommandLine.Completions;
 using System.CommandLine.Help;
+using System.Collections.ObjectModel;
 
 namespace System.CommandLine
 {
@@ -30,7 +31,6 @@ namespace System.CommandLine
             {
                 new SuggestDirective()
             };
-            //HelpConfiguration = null;
         }
 
         /// <summary>
@@ -104,7 +104,7 @@ namespace System.CommandLine
         /// If you want to disable the output, please set it to <see cref="TextWriter.Null"/>.
         /// </summary>
         public TextWriter Output
-        { 
+        {
             get => _output ??= Console.Out;
             set => _output = value ?? throw new ArgumentNullException(nameof(value), "Use TextWriter.Null to disable the output");
         }
@@ -126,7 +126,14 @@ namespace System.CommandLine
         /// <param name="args">The string arguments to parse.</param>
         /// <returns>A parse result describing the outcome of the parse operation.</returns>
         public ParseResult Parse(IReadOnlyList<string> args)
-            => CliParser.Parse(RootCommand, args, this);
+        {
+            foreach (var pair in specficConfiguration)
+            {
+                var configAction = pair.Value;
+                configAction.AddSymbol(RootCommand);
+            }
+            return CliParser.Parse(RootCommand, args, this);
+        }
 
         /// <summary>
         /// Parses a command line string value using the configured <see cref="RootCommand"/>.
@@ -208,5 +215,26 @@ namespace System.CommandLine
                 return command.Options[index - command.Subcommands.Count];
             }
         }
+
+        private readonly Dictionary<string, CliSpecificConfiguration> specficConfiguration = new();
+        public void AddConfiguration(CliSpecificConfiguration specificConfig, CliCommand? command = null)
+        {
+            specficConfiguration[specificConfig.Key] = specificConfig;
+            if (command is not null)
+            {
+                specificConfig.AddSymbol(command);
+            }
+        }
+
+        public CliSpecificConfiguration? this[string index]
+        {
+            get
+            {
+                return specficConfiguration.TryGetValue(index, out var action) 
+                    ? action 
+                    : null;
+            }
+        }
+
     }
 }

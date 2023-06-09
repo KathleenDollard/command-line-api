@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
+﻿//using System.Collections.Generic;
 
-namespace System.CommandLine.CliOutput
-{
-    public abstract class CliOutputConfiguration
-    {
+//namespace System.CommandLine.CliOutput
+//{
+//    public abstract class CliOutputConfiguration
+//    {
 
-    }
-}
+//    }
+//}
