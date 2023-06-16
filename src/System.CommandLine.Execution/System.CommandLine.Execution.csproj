@@ -55,8 +55,4 @@
     <ProjectReference Include="..\System.CommandLine\System.CommandLine.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Invocation\" />
-  </ItemGroup>
-
 </Project>
