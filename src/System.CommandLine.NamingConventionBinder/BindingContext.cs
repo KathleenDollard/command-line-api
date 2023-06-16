@@ -14,7 +14,7 @@ namespace System.CommandLine.Binding
     /// </summary>
     public sealed class BindingContext : IServiceProvider
     {
-        private HelpBuilderOld? _helpBuilder;
+        private HelpBuilder? _helpBuilder;
 
         internal BindingContext(ParseResult parseResult)
         {
@@ -27,7 +27,7 @@ namespace System.CommandLine.Binding
         /// </summary>
         public ParseResult ParseResult { get; }
         
-        internal HelpBuilderOld HelpBuilder => _helpBuilder ??= (HelpBuilderOld)ServiceProvider.GetService(typeof(HelpBuilderOld))!;
+        internal HelpBuilder HelpBuilder => _helpBuilder ??= (HelpBuilder)ServiceProvider.GetService(typeof(HelpBuilder))!;
 
         internal ServiceProvider ServiceProvider { get; }
 

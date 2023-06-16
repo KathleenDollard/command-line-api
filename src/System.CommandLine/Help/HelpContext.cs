@@ -10,22 +10,26 @@ namespace System.CommandLine.Help
     /// </summary>
     public class HelpContext
     {
+        /// <param name="helpBuilder">The current help builder.</param>
         /// <param name="command">The command for which help is being formatted.</param>
         /// <param name="output">A text writer to write output to.</param>
         /// <param name="parseResult">The result of the current parse operation.</param>
         public HelpContext(
+            HelpBuilder helpBuilder,
             CliCommand command,
-            int maxWidth,
             TextWriter output,
             ParseResult? parseResult = null)
         {
+            HelpBuilder = helpBuilder ?? throw new ArgumentNullException(nameof(helpBuilder));
             Command = command ?? throw new ArgumentNullException(nameof(command));
-            MaxWidth = maxWidth <= 0
-                 ? int.MaxValue
-                 : maxWidth;
             Output = output ?? throw new ArgumentNullException(nameof(output));
             ParseResult = parseResult ?? ParseResult.Empty();
         }
+
+        /// <summary>
+        /// The help builder for the current operation.
+        /// </summary>
+        public HelpBuilder HelpBuilder { get; }
 
         /// <summary>
         /// The result of the current parse operation.
@@ -36,7 +40,6 @@ namespace System.CommandLine.Help
         /// The command for which help is being formatted.
         /// </summary>
         public CliCommand Command { get; }
-        public int MaxWidth { get; }
 
         /// <summary>
         /// A text writer to write output to.

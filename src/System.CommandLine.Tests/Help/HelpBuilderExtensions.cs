@@ -6,13 +6,12 @@ using System.IO;
 
 namespace System.CommandLine.Tests.Help
 {
-    //public static class HelpBuilderExtensions
-    //{
-    //    public static void Write(
-    //        this CliHelpBuilder builder,
-    //        CliCommand command,
-    //        int maxWidth,
-    //        TextWriter writer) =>
-    //        builder.Write(new HelpContext(builder, command, maxWidth, writer));
-    //}
+    public static class HelpBuilderExtensions
+    {
+        public static void Write(
+            this HelpBuilder builder,
+            CliCommand command,
+            TextWriter writer) =>
+            builder.Write(new HelpContext(builder, command, writer));
+    }
 }

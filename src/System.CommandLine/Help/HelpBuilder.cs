@@ -5,14 +5,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.CommandLine.Help;
 
 namespace System.CommandLine.Help
 {
     /// <summary>
     /// Formats output to be shown to users to describe how to use a command line tool.
     /// </summary>
-    public partial class HelpBuilderOld : IHelpBuilder
+    public partial class HelpBuilder 
     {
         private const string Indent = "  ";
 
@@ -20,7 +19,7 @@ namespace System.CommandLine.Help
         private Func<HelpContext, IEnumerable<Action<HelpContext>>>? _getLayout;
 
         /// <param name="maxWidth">The maximum width in characters after which help output is wrapped.</param>
-        public HelpBuilderOld(int maxWidth = int.MaxValue)
+        public HelpBuilder(int maxWidth = int.MaxValue)
         {
             if (maxWidth <= 0)
             {
@@ -314,12 +313,11 @@ namespace System.CommandLine.Help
 
         private IEnumerable<Action<HelpContext>> GetLayout(HelpContext context)
         {
-            return null;
-            //if (_getLayout is null)
-            //{
-            //    _getLayout = _ => Default.GetLayout();
-            //}
-            //return _getLayout(context);
+            if (_getLayout is null)
+            {
+                _getLayout = _ => Default.GetLayout();
+            }
+            return _getLayout(context);
         }
 
         private static IEnumerable<string> WrapText(string text, int maxWidth)

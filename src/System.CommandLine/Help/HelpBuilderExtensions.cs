@@ -5,7 +5,7 @@ using System.IO;
 
 namespace System.CommandLine.Help
 {
-    public partial class HelpBuilderOld
+    public partial class HelpBuilder
     {
         /// <summary>
         /// Specifies custom help details for a specific symbol.
@@ -23,13 +23,12 @@ namespace System.CommandLine.Help
             CustomizeSymbol(symbol, _ => firstColumnText, _ => secondColumnText, _ => defaultValue);
         }
 
-        ///// <summary>
-        ///// Writes help output for the specified command.
-        ///// </summary>
-        //public void Write(CliCommand command, TextWriter writer)
-        //{
-
-        //    Write(new HelpContext(this, command, writer));
-        //}
+        /// <summary>
+        /// Writes help output for the specified command.
+        /// </summary>
+        public void Write(CliCommand command, TextWriter writer)
+        {
+            Write(new HelpContext(this, command, writer));
+        }
     }
 }

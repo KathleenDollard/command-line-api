@@ -56,7 +56,6 @@ namespace System.CommandLine
         /// </summary>
         public bool Hidden { get; set; }
 
-        // KAD: If parents are now always commands, we should update this code for simplicity
         /// <summary>
         /// Gets the parent symbols.
         /// </summary>
@@ -76,7 +75,7 @@ namespace System.CommandLine
         /// <summary>
         /// Gets completions for the symbol.
         /// </summary>
-        public abstract IEnumerable<CompletionItem> GetCompletions(CompletionContext? context = null);
+        public abstract IEnumerable<CompletionItem> GetCompletions(CompletionContext context);
 
         /// <inheritdoc/>
         public override string ToString() => $"{GetType().Name}: {Name}";

@@ -11,7 +11,7 @@ namespace System.CommandLine.Tests
 {
     public class HelpOptionTests
     {
-        [Fact(Skip ="KAD: Assigning HelpBuilder issue")]
+        [Fact]
         public async Task Help_option_writes_help_for_the_specified_command()
         {
             CliCommand command = new CliRootCommand
@@ -53,7 +53,7 @@ namespace System.CommandLine.Tests
             wasCalled.Should().BeFalse();
         }
 
-        [Theory(Skip = "KAD: Assigning help builder issue")]
+        [Theory]
         [InlineData("-h")]
         [InlineData("--help")]
         [InlineData("-?")]
@@ -145,7 +145,7 @@ namespace System.CommandLine.Tests
             result.Errors.Should().BeEmpty();
         }
 
-        [Theory(Skip = "KAD: Assigning help builder issue")]
+        [Theory]
         [InlineData("/lost")]
         [InlineData("--confused")]
         public async Task HelpOption_with_custom_aliases_uses_aliases(string helpAlias)

@@ -48,7 +48,7 @@ namespace System.CommandLine.Tests
             wasCalled.Should().BeFalse();
         }
 
-        [Fact(Skip = "KAD: Assigning help builder issue")]
+        [Fact]
         public async Task Version_option_appears_in_help()
         {
             CliConfiguration configuration = new(new CliRootCommand())
