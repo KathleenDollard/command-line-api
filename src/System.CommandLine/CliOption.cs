@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Completions;
+using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.Linq;
 
@@ -32,6 +33,11 @@ namespace System.CommandLine
         /// Gets the <see cref="Argument">argument</see> for the option.
         /// </summary>
         internal abstract CliArgument Argument { get; }
+
+        /// <summary>
+        /// Specifies if a default value is defined for the option.
+        /// </summary>
+        public bool HasDefaultValue => Argument.HasDefaultValue;
 
         /// <summary>
         /// Gets or sets the name of the Option when displayed in help.
@@ -116,11 +122,6 @@ namespace System.CommandLine
         /// <inheritdoc />
         public override IEnumerable<CompletionItem> GetCompletions(CompletionContext context)
         {
-            if (Argument is null)
-            {
-                return Array.Empty<CompletionItem>();
-            }
-
             List<CompletionItem>? completions = null;
 
             foreach (var completion in Argument.GetCompletions(context))

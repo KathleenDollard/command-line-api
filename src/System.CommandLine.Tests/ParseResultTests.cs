@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.CommandLine.Invocation;
 using System.Linq;
 using System.CommandLine.Parsing;
 using FluentAssertions;
@@ -51,6 +52,23 @@ namespace System.CommandLine.Tests
             var result = command.Parse("the-command");
 
             result.GetResult(option).Should().NotBeNull();
+        }
+
+        [Fact]
+        public void GetResult_can_be_used_for_root_command_itself()
+        {
+            CliRootCommand rootCommand = new()
+            {
+                new CliCommand("the-command")
+                {
+                    new CliOption<int>("-c")
+                }
+            };
+
+            var result = rootCommand.Parse("the-command -c 123");
+
+            result.RootCommandResult.Command.Should().BeSameAs(rootCommand);
+            result.GetResult(rootCommand).Should().BeSameAs(result.RootCommandResult);
         }
 
         [Fact]
@@ -139,7 +157,7 @@ namespace System.CommandLine.Tests
             parseResult.Action.Should().NotBeNull();
             handlerWasCalled.Should().BeFalse();
 
-            parseResult.Action.Invoke(null!).Should().Be(0);
+            ((SynchronousCliAction)parseResult.Action!).Invoke(null!).Should().Be(0);
             handlerWasCalled.Should().BeTrue();
         }
     }

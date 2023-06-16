@@ -14,13 +14,13 @@ namespace System.CommandLine.Tests.Binding
 {
     public class TypeConversionTests
     {
-        protected virtual T GetValue<T>(CliOption<T> option, string commandLine)
+        protected T GetValue<T>(CliOption<T> option, string commandLine)
         {
             var result = new CliRootCommand { option }.Parse(commandLine);
             return result.GetValue(option);
         }
 
-        protected virtual T GetValue<T>(CliArgument<T> argument, string commandLine)
+        protected T GetValue<T>(CliArgument<T> argument, string commandLine)
         {
             var result = new CliRootCommand { argument }.Parse(commandLine);
             return result.GetValue(argument);
@@ -193,6 +193,30 @@ namespace System.CommandLine.Tests.Binding
                 .GetValue(option)
                 .Should()
                 .BeTrue();
+        }
+
+        [Fact] // https://github.com/dotnet/command-line-api/issues/2210
+        public void Nullable_bool_with_unparseable_argument_does_not_throw()
+        {
+            CliRootCommand rootCommand = new();
+            CliOption<bool?> option = new("--test");
+            rootCommand.Options.Add(option);
+            var result = rootCommand.Parse("--test ouch");
+
+            result.Invoking(r =>  r.GetValue(option))
+                  .Should().NotThrow();
+        }
+
+        [Fact] // https://github.com/dotnet/command-line-api/issues/2210
+        public void Bool_with_unparseable_argument_does_not_throw()
+        {
+            CliRootCommand rootCommand = new();
+            CliOption<bool> option = new("--test");
+            rootCommand.Options.Add(option);
+            var result = rootCommand.Parse("--test ouch");
+
+            result.Invoking(r => r.GetValue(option))
+                  .Should().NotThrow();
         }
 
         [Theory]
