@@ -16,7 +16,7 @@ namespace System.CommandLine.Extended.Tests
     public class RunnerTests
     {
         [Fact]
-        public void When_runner_extension_is_used_an_extension_runs()
+        public void Extension_runs_when_requested()
         {
             var rootCommand = new CliRootCommand
             {
@@ -31,6 +31,25 @@ namespace System.CommandLine.Extended.Tests
             runner.Execute(result);
 
             versionOption.TempFlagForTest.Should().BeTrue();
+
+        }
+
+        [Fact]
+        public void Extension_does_not_runs_when_not_requested()
+        {
+            var rootCommand = new CliRootCommand
+            {
+                new CliOption<bool>("-x")
+            };
+            var configuration = new CliConfiguration(rootCommand);
+            var versionOption = new VersionOption();
+            configuration.AddExtension(versionOption);
+            Runner runner = new Runner();
+            configuration.AddExtension(runner);
+            var result = CliParser.Parse(rootCommand, "-x", configuration);
+            runner.Execute(result);
+
+            versionOption.TempFlagForTest.Should().BeFalse();
 
         }
     }
