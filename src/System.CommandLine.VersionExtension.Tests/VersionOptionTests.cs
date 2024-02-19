@@ -178,6 +178,8 @@ namespace System.CommandLine.Extended.Tests
                 .Be(0);
         }
 
+
+
         /* 
          // TODO: determine if this was just to check aliases or there is a use case for the CLI author, rather than the extension author, changing the option
          [Fact]

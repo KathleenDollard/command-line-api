@@ -86,6 +86,19 @@ namespace System.CommandLine.Extensions
         /// <returns>Whether CLI execution has been handled. If this true, other extensions will not be run.</returns>
         public virtual bool Execute(ParseResult result) => true;
 
+        /// <summary>
+        /// Runs before any extensions run. This should generally check whether the extension is activated, 
+        /// nless it supplies info to other extensions. Default behavior is to do nothing.
+        /// </summary>
+        /// <remarks>
+        /// Not all extensions may execute. Some may supply information to other extensions?
+        /// </remarks>
+        /// <param name="result">The parse result.</param>
+        /// <returns>Whether CLI execution has been handled. If this true, other extensions will not be run.</returns>
+#pragma warning disable IDE0075 // Simplifying this conditional expression makes it less clear, imo
+        public virtual bool ExecuteIfNeeded(ParseResult result) => GetIsActivated(result) ?  Execute(result) : false ; // 
+#pragma warning restore IDE0075 // Simplify conditional expression
+
         //TODO: Should there be an explicit cleanup method, or should we rely on derived classes implementing IDispose
 
     }

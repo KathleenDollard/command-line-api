@@ -1,4 +1,5 @@
 ﻿using System.CommandLine.Extensions;
+using System.CommandLine.Parsing;
 
 namespace System.CommandLine.RunnerExtension
 {
@@ -40,6 +41,13 @@ namespace System.CommandLine.RunnerExtension
                 }
             }
             return true;
+        }
+
+        public static bool Execute(CliRootCommand rootCommand, string v, CliConfiguration configuration)
+        {
+            var runner = new Runner();
+            var result = CliParser.Parse(rootCommand, "-v", configuration);
+            return runner.Execute(result);
         }
     }
 }
