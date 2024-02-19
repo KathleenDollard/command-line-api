@@ -8,11 +8,13 @@ namespace System.CommandLine.Extensions
         public static readonly int CategoryBeforeValidation = 0;
         public static readonly int CategoryValidation = 2 * spread;
         public static readonly int CategoryAfterValidation = 3 * spread;
-        public static readonly int CategoryBeforeHelp = 4 * spread;
-        public static readonly int CategoryHelp = 6 * spread;
+        public static readonly int CategoryBeforeRunner = 4 * spread;
+        public static readonly int CategoryRunner = 5 * spread;
+        public static readonly int CategoryAfterRunner = 6 * spread; public static readonly int CategoryBeforeHelp = 4 * spread;
+        public static readonly int CategoryHelp =7 * spread;
         public static readonly int CategoryBeforeInvocation = 8 * spread;
-        public static readonly int CategoryBeforeFinishing = 10 * spread;
-        public static readonly int CategoryFinishing = 12 * spread;
+        public static readonly int CategoryBeforeFinishing = 9 * spread;
+        public static readonly int CategoryFinishing = 10 * spread;
 
         protected Extension(string name, int category)
         {
@@ -63,7 +65,8 @@ namespace System.CommandLine.Extensions
         /// <summary>
         /// Runs before any extensions run to provide any setup. This should generally 
         /// check whether the extension is activated, unless it supplies info to other 
-        /// extensions. Default behavior is to do nothing.
+        /// extensions. This currently runs even if there is no runner/invocation.
+        /// Default behavior is to do nothing.
         /// </summary>
         /// <remarks>
         /// Running this before any extension is to support supplying info to other extensions.
