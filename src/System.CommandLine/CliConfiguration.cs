@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
 using System.IO;
+using System.CommandLine.Extensions;
 
 namespace System.CommandLine
 {
@@ -15,6 +16,18 @@ namespace System.CommandLine
     /// </summary>
     public class CliConfiguration
     {
+        private readonly List<Extension> _extensions = new();
+
+        public void AddExtension(Extension extension) => _extensions.Add(extension);
+
+        internal void SetupExtensions(CliCommand rootCommand, IReadOnlyList<string> arguments, string? rawInput)
+        {
+            foreach (var extension in _extensions)
+            {
+                extension.BeforeParsing(rootCommand, arguments, rawInput, this);
+            }
+        }
+
         /*
         private TextWriter? _output, _error;
 

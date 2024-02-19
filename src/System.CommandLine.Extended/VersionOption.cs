@@ -7,6 +7,8 @@ using System.Linq;
 
 namespace System.CommandLine
 {
+    // TODO: I think the approach of explicit help and version options is unfortunate, and hope we can leave this to the extension. KAD
+
     /// <summary>
     /// A standard option that indicates that version information should be displayed for the app.
     /// </summary>

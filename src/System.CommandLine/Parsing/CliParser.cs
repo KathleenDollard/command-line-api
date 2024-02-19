@@ -141,6 +141,8 @@ namespace System.CommandLine.Parsing
             string? rawInput,
             CliConfiguration? configuration)
         {
+            configuration?.SetupExtensions(rootCommand, arguments, rawInput);
+
             if (arguments is null)
             {
                 throw new ArgumentNullException(nameof(arguments));
