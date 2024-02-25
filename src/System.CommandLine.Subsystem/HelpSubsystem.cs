@@ -4,7 +4,7 @@
 using System.CommandLine.Extended.Annotations;
 using System.CommandLine.Subsystem.System.CommandLine.Extended.Annotations;
 
-namespace System.CommandLine.Extended;
+namespace System.CommandLine.Subsystem;
 
 // stub Help subsystem demonstrating annotation model.
 //

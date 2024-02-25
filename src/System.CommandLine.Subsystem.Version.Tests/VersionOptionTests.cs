@@ -8,7 +8,6 @@ using System.Linq;
 using FluentAssertions;
 using Xunit;
 using System.CommandLine.Parsing;
-using System.CommandLine.VersionExtension;
 
 namespace System.CommandLine.Extended.Tests
 {
@@ -62,14 +61,14 @@ namespace System.CommandLine.Extended.Tests
         }
 
         [Fact]
-        public async Task Version_option_appears_in_help()
+        public async Task Version_option_appears_in_Version()
         {
             CliConfiguration configuration = new(new CliRootCommand())
             {
                 Output = new StringWriter()
             };
 
-            await configuration.InvokeAsync("--help");
+            await configuration.InvokeAsync("--Version");
 
             configuration.Output
                    .ToString()

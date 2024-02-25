@@ -3,7 +3,9 @@
 
 using FluentAssertions;
 using System.CommandLine.Parsing;
-using System.CommandLine.Pipeline;
+using System.CommandLine.Subsystem;
+using System.CommandLine.Subsystem.Version;
+using System.Reflection.PortableExecutable;
 using Xunit;
 
 namespace System.CommandLine.Extended.Tests
@@ -32,7 +34,7 @@ namespace System.CommandLine.Extended.Tests
             { };
             var configuration = new CliConfiguration(rootCommand);
             var versionOption = new VersionExtension.VersionExtension();
-            var pipeline = new Pipeline.Pipeline();
+            var pipeline = new Subsystem.Pipeline();
             pipeline.AddExtension(new VersionExtension.VersionExtension());
 
             var parseResult = pipeline.Parse(configuration, "");
@@ -60,7 +62,7 @@ namespace System.CommandLine.Extended.Tests
         //    {
         //        pipelineResult = versionOption.PipelineExtension.Execute(parseResult);
         //    }
-        //    else if (helpOption.PipelineExtension.GetIsActivated(parseResult))
+        //    else if (VersionOption.PipelineExtension.GetIsActivated(parseResult))
         //    {
         //        pipelineResult = versionOption.PipelineExtension.Execute(parseResult);
         //    }

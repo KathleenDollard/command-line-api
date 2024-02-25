@@ -1,10 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using Microsoft.VisualBasic.FileIO;
 using System.CommandLine.Extended.Annotations;
-using System.CommandLine.Subsystem.System.CommandLine.Extended.Annotations;
-using System.Windows.Input;
 
 namespace System.CommandLine.Extended;
 

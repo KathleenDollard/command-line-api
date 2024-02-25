@@ -2,16 +2,25 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Extended.Annotations;
+using System.CommandLine.Subsystem;
 using System.Diagnostics.CodeAnalysis;
 
-namespace System.CommandLine.Extended;
+namespace System.CommandLine.Subsystem;
 
 /// <summary>
 /// Base class for CLI subsystems. Implements storage of annotations.
 /// </summary>
 /// <param name="annotationProvider"></param>
-public abstract class CliSubsystem(IAnnotationProvider? annotationProvider)
+public abstract class CliSubsystem(IAnnotationProvider? annotationProvider, string name, PipelineSupport pipelineSupport = null)
 {
+
+    /// <summary>
+    /// The name of the extension. 
+    /// </summary>
+    public string Name { get; } = name;
+
+    public PipelineSupport? PipelineSupport { get; } = pipelineSupport;
+    
     DefaultAnnotationProvider? _defaultProvider;
     readonly IAnnotationProvider? _annotationProvider = annotationProvider;
 

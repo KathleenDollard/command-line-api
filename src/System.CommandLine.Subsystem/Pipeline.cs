@@ -7,20 +7,20 @@ using System.Windows.Input;
 using System.CommandLine;
 using System.CommandLine.Parsing;
 
-namespace System.CommandLine.Pipeline
+namespace System.CommandLine.Subsystem
 {
     public class Pipeline
     {
-        private readonly List<Extension> _extensions = new();
+        private readonly List<CliSubsystem> _extensions = new();
 
-        public void AddExtension(Extension extension) => _extensions.Add(extension);
-        public IEnumerable<Extension> Extensions => _extensions;
+        public void AddExtension(CliSubsystem extension) => _extensions.Add(extension);
+        public IEnumerable<CliSubsystem> Extensions => _extensions;
 
         public void InitializeExtensions(CliConfiguration configuration, IReadOnlyList<string> arguments, string rawInput)
         {
             foreach (var extension in _extensions)
             {
-                extension.PipelineExtension.Initialization(configuration, arguments, rawInput);
+                extension.PipelineSupport?.Initialization(configuration, arguments, rawInput);
             }
         }
 
@@ -28,21 +28,20 @@ namespace System.CommandLine.Pipeline
         {
             foreach (var extension in _extensions)
             {
-                extension.PipelineExtension.TearDown(parseResult);
+                extension.PipelineSupport?.TearDown(parseResult);
             }
         }
 
-        public void ExecuteRequestedExtensions(PipelineResult pipelineResult)
+        public void ExecuteRequestedExtensions(CliExit cliExit)
         {
             foreach (var extension in _extensions)
             {
-                pipelineResult = extension.PipelineExtension.ExecuteIfNeeded(pipelineResult.ParseResult);
-                if (pipelineResult.Handled)
+                extension.PipelineSupport?.ExecuteIfNeeded(cliExit.ParseResult);
+                if (cliExit.Handled)
                 {
                     break;
                 }
             }
-            pipelineResult.Handled = pipelineResult.Handled;
         }
 
         public ParseResult Parse(CliConfiguration configuration, string rawInput)
@@ -56,14 +55,14 @@ namespace System.CommandLine.Pipeline
             return parseResult;
         }
 
-        public PipelineResult Execute(CliConfiguration configuration, string rawInput)
+        public CliExit Execute(CliConfiguration configuration, string rawInput)
             => Execute(configuration, CliParser.SplitCommandLine(rawInput).ToArray(), rawInput);
 
-        public PipelineResult Execute(CliConfiguration configuration, string[] args, string rawInput)
+        public CliExit Execute(CliConfiguration configuration, string[] args, string rawInput)
         {
-            var pipelineResult = new PipelineResult(Parse(configuration, args, rawInput));
-            ExecuteRequestedExtensions(pipelineResult);
-            return pipelineResult;
+            var cliExit = new CliExit(Parse(configuration, args, rawInput));
+            ExecuteRequestedExtensions(cliExit);
+            return cliExit;
         }
     }
 }

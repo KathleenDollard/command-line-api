@@ -1,6 +1,6 @@
 ﻿using System.CommandLine.Pipeline;
 
-namespace System.CommandLine.VersionExtension
+namespace System.CommandLine.Subsystem.Version
 {
     public class VersionPipelineExtension : PipelineExtension
     {
@@ -19,12 +19,12 @@ namespace System.CommandLine.VersionExtension
             return true;
         }
 
-        public override bool GetIsActivated(ParseResult result)
-            => result.GetValue<bool>("--version");
+        public override bool GetIsActivated(ParseResult parseResult)
+            => parseResult.GetValue<bool>("--version");
 
         // TODO: Determine how we test console output
         public bool TempFlagForTest = false;
-        public override PipelineResult Execute(ParseResult result)
+        public override PipelineResult Execute(ParseResult parseResult)
         {
             // TODO: Match testable output pattern
             Console.WriteLine(CliExecutable.ExecutableVersion);

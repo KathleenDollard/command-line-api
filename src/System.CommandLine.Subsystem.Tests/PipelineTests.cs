@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace System.CommandLine.Pipeline.Tests
+namespace System.CommandLine.Subsystem.Tests
 {
     public class PipelineTests
     {
