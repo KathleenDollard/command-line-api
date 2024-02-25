@@ -9,5 +9,5 @@ namespace System.CommandLine.Extended.Annotations;
 public static class VersionAnnotations
 {
     const string Prefix = "Version.";
-    public static AnnotationId<string> Description { get; } = new(Prefix + nameof(Description));
+    public static AnnotationId<string> Version { get; } = new(Prefix + nameof(Version));
 }

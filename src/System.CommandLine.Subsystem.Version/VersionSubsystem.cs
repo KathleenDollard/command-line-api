@@ -6,7 +6,7 @@ namespace System.CommandLine.Subsystem
     {
         // TODO: Should we block adding version anywhere but root?
         public void SetVersion(CliSymbol symbol, string description) 
-            => SetAnnotation(symbol, VersionAnnotations.Description, description);
+            => SetAnnotation(symbol, VersionAnnotations.Version, description);
 
         public AnnotationAccessor<string> Version => new(this, VersionAnnotations.Version);
     }

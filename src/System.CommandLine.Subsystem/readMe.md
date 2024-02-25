@@ -2,7 +2,7 @@ Notes on variations from "System.CommandLine Extensibility"
 
 * Can we delete the projects that are not part of this effort? Could we add them back if we are wrong and preserve any history?
 
-* The pipeline sample hardcodes a series of execution steps. I do not see how this is extensible to two currently unknown subsystems. I think we need a collection here.
+* The pipeline sample hard codes a series of execution steps. I do not see how this is extensible to two currently unknown subsystems. I think we need a collection here.
 
 * Defaults
     * It is desirable to have the default values be calculated once when first requested (mostly for wide CLIs) and not caclulated if not requested
@@ -11,7 +11,9 @@ Notes on variations from "System.CommandLine Extensibility"
 
 * Validation: The examples in the doc appear to combine validation and error reporting into one step. I do not think this is desirable as error reporting was a point of customization. 
     
-* I think it could be quite good to treat defaults and valdiation as having a set interface. 
+* I think it could be quite good to treat defaults and validation as having a set interface. 
+
+* Small thing: The annotation ids do not appear to have a separator, which could lead to ambiguity (`nameof(A) + "BC"` vs `nameof(AB) + "C"`)
 
 * We have history that the order of extension execution (and possibily initialization and teardown) is difficult and essential. We need to control this in almost all cases
    * Where the user needs something else to control ordering, allow inheritance of the Runner

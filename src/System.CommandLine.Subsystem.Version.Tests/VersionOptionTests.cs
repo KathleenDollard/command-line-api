@@ -13,6 +13,8 @@ namespace System.CommandLine.Extended.Tests
 {
     public class VersionOptionTests
     {
+        const string SkipValidationTests = "VersionOption does not yet do validation";
+
 // TODO: invocation/output
 /*
         private static readonly string version = (Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly())
@@ -116,9 +118,7 @@ namespace System.CommandLine.Extended.Tests
 
             configuration.Output.ToString().Should().Be($"{version}{NewLine}");
         }
-*/
 
-        const string SkipValidationTests = "VersionOption does not yet do validation";
 
         [Fact]
         public void When_version_extension_is_used_the_version_option_is_added_to_the_root()
@@ -130,13 +130,13 @@ namespace System.CommandLine.Extended.Tests
             var configuration = new CliConfiguration(rootCommand);
             var pipeline = new Pipeline.Pipeline();
             pipeline.AddExtension(new VersionExtension.VersionExtension());
-            var result = pipeline.Parse(configuration,  "");
+            var result = pipeline.Parse(configuration, "");
 
             rootCommand.Options.Should().NotBeNull();
             rootCommand.Options
                 .Count(x => x.Name == "--version")
                 .Should()
-                .Be( 1);
+                .Be(1);
 
         }
 
@@ -179,9 +179,6 @@ namespace System.CommandLine.Extended.Tests
                 .Be(0);
         }
 
-
-
-        /* 
          // TODO: determine if this was just to check aliases or there is a use case for the CLI author, rather than the extension author, changing the option
          [Fact]
           public void Version_can_specify_additional_alias()
