@@ -2,58 +2,120 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using FluentAssertions;
+using System.CommandLine.Parsing;
+using System.CommandLine.Pipeline;
+using Xunit;
 
 namespace System.CommandLine.Extended.Tests
 {
-    public class RunnerTests
+    public class Samples
     {
 
-        private void Sample_1()
+        [Fact]
+        [Trait("Category", "Sample")]
+        public void Author_can_run_with_just_the_parser()
         {
             var rootCommand = new CliRootCommand
             { };
             var configuration = new CliConfiguration(rootCommand);
-            // TODO: Throughout consider Add returning the thing that was added. This would avoid the extra line here
+            var result = CliParser.Parse(configuration.RootCommand, "");
+
+            result.Should().NotBeNull();
+        }
+
+        [Fact]
+        [Trait("Category", "Sample")]
+        // NOTE: This test is a little gnarly because we anticipate users that want to add extensions will run them via the pipeline
+        public void Author_can_add_subsystem_and_manually_handle()
+        {
+            var rootCommand = new CliRootCommand
+            { };
+            var configuration = new CliConfiguration(rootCommand);
             var versionOption = new VersionExtension.VersionExtension();
             var pipeline = new Pipeline.Pipeline();
             pipeline.AddExtension(new VersionExtension.VersionExtension());
-            var result = pipeline.Parse(configuration, "");
 
-            var handled = versionOption.PipelineExtension.ExecuteIfNeeded(result.ParseResult);
+            var parseResult = pipeline.Parse(configuration, "");
+            if (versionOption.PipelineExtension.GetIsActivated(parseResult))
+            {
+                Console.WriteLine("Version!!!!");
+            }
 
-            handled.Should().BeTrue();
             versionOption.PipelineExtension.TempFlagForTest.Should().BeTrue();
-
         }
-        /*
-        private void Sample_2()
+
+        //[Fact]
+        //[Trait("Category", "Sample")]
+        //// TODO: This test is requires solving where the standard extensions should be located without a circular dependency
+        //public void Author_can_add_standard_set_of_subsystems_and_manually_execute()
+        //{
+        //    var rootCommand = new CliRootCommand
+        //    { };
+        //    var configuration = new CliConfiguration(rootCommand);
+        //    var pipeline = new Pipeline.Pipeline().AddStandardExtensions();
+
+        //    var parseResult = pipeline.Parse(configuration, "");
+        //    PipelineResult? pipelineResult = null;
+        //    if (versionOption.PipelineExtension.GetIsActivated(parseResult))
+        //    {
+        //        pipelineResult = versionOption.PipelineExtension.Execute(parseResult);
+        //    }
+        //    else if (helpOption.PipelineExtension.GetIsActivated(parseResult))
+        //    {
+        //        pipelineResult = versionOption.PipelineExtension.Execute(parseResult);
+        //    }
+
+        //    pipelineResult.Handled.Should().BeTrue();
+        //    var versionOption = pipeline.GetExtensions().Where(x=>x.Name=="VersionOption");
+        //    versionOption.PipelineExtension.TempFlagForTest.Should().BeTrue();
+        //}
+
+        [Fact]
+        [Trait("Category", "Sample")]
+        public void Author_can_add_one_subsystem_and_auto_execute_them()
         {
             var rootCommand = new CliRootCommand
             { };
             var configuration = new CliConfiguration(rootCommand);
+            var versionOption = new VersionExtension.VersionExtension();
+            //TODO: Consider whether this should allow fluent for adding extensions
             var pipeline = new Pipeline.Pipeline();
             pipeline.AddExtension(new VersionExtension.VersionExtension());
-            var result = pipeline.Parse(configuration, "");
-            var runner = new Runner();
-            var result = CliParser.Parse(rootCommand, "-v", configuration);
-            var handled = runner.Execute(result);
 
-            handled.Should().BeTrue();
+            var pipelineResult = pipeline.Execute(configuration,"");
 
+            pipelineResult.Handled.Should().BeTrue();
+            versionOption.PipelineExtension.TempFlagForTest.Should().BeTrue();
         }
 
+        //[Fact]
+        //[Trait("Category", "Sample")]
+        ////// TODO: This test is requires solving where the standard extensions should be located without a circular dependency
+        //public void Author_can_add_standard_set_of_subsystems_and_auto_execute_them()
+        //{
+        //    var rootCommand = new CliRootCommand
+        //    { };
+        //    var configuration = new CliConfiguration(rootCommand);
+        //    var pipeline = new Pipeline.Pipeline().AddStandardExtensions();
 
-        private void Sample_3()
-        {
-            var rootCommand = new CliRootCommand
-            { };
-            var configuration = new CliConfiguration(rootCommand);
-            configuration.AddExtension(new VersionExtension.VersionExtension());
-            var handled = Runner.Execute(rootCommand, "-v", configuration);
+        //    var pipelineResult = pipeline.Execute(configuration, "");
 
-            handled.Should().BeTrue();
+        //    pipelineResult.Handled.Should().BeTrue();
+        //    var versionOption = pipeline.GetExtensions().Where(x=>x.Name=="VersionOption");
+        //    versionOption.PipelineExtension.TempFlagForTest.Should().BeTrue();
+        //}
 
-        }
+        //[Fact]
+        //[Trait("Category", "Sample")]
+        //public void Author_can_add_subsystem_and_invoke_command()
+        //{ }
+
+        //[Fact]
+        //[Trait("Category", "Sample")]
+        //public void Author_can_add_subsystem_and_aut_execute_instead_of_invoking()
+        //{ }
+
+
 
 
         [Fact]
@@ -75,7 +137,7 @@ namespace System.CommandLine.Extended.Tests
 
         }
 
-        [Fact(Skip ="Bug that causes recursion")]
+        [Fact(Skip = "Bug that causes recursion")]
         public void Extension_does_not_runs_when_not_requested()
         {
             var rootCommand = new CliRootCommand
@@ -149,6 +211,6 @@ namespace System.CommandLine.Extended.Tests
             versionOption.TempFlagForTest.Should().BeTrue();
 
         }
-        */
+
     }
 }

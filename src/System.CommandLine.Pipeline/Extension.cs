@@ -16,7 +16,19 @@ namespace System.CommandLine.Pipeline
     //   the second most natural and a RootCommand with a Config hanging off it the least natural. I used configuration as the most 
     //   clear in our current state
     //
- 
+    // * Should issues on initialization, including licensing and other extension specific expected error, be handled via exceptions
+    //
+    // * Pipeline is unique from Invocations, because a CLI author might want everything handled, except command invocation
+    //   * This might be true for a single level command without subcommands, for example, which would avoid the complexity of a delegate
+    //
+    // * I added the concept of a PipelineResult to avoid polluting ParseResult with data unneeded by the parser
+    //   * This includes ParseResult, and two things only of interest to the Pipeline/Invocation: Handled and ExitCode
+    //   * Passing a PipelineResult that included Handled allows extensions to execute, even if something already handled the result (as opposed to returning a bool)
+    //   * We could use a tuple, but that would be fragile if more needs to be added in the future
+
+
+
+
 
 
 

@@ -50,7 +50,7 @@ namespace System.CommandLine.Pipeline
         /// <param name="configuration">The CLI configuration</param>
         /// <returns>True if parsing should continue</returns> // there might be a better design that supports a message
         // TODO: Because of this and similar usage, consider combining CLI declaration and config. ArgParse calls this the parser, which I like
-        public virtual bool BeforeParsing(CliConfiguration configuration, IReadOnlyList<string> arguments, string rawInput) => true;
+        public virtual bool Initialization(CliConfiguration configuration, IReadOnlyList<string> arguments, string rawInput) => true;
 
         /// <summary>
         /// Indicates to invocation patterns that the extension should be run.
@@ -73,7 +73,7 @@ namespace System.CommandLine.Pipeline
         /// </remarks>
         /// <param name="result">The parse result.</param>
         /// <returns>Whether CLI execution has been handled. If this true, other extensions will not be run.</returns>
-        public virtual bool AfterParsing(ParseResult result) => true;
+        public virtual bool TearDown(ParseResult result) => true;
 
         /// <summary>
         /// Runs before any extensions run. This should generally check whether the extension is activated, 

@@ -8,7 +8,7 @@ namespace System.CommandLine.VersionExtension
         { }
 
 
-        public override bool BeforeParsing(CliConfiguration configuration, IReadOnlyList<string> arguments, string rawInput)
+        public override bool Initialization(CliConfiguration configuration, IReadOnlyList<string> arguments, string rawInput)
         {
             var option = new CliOption<bool>("--version", ["-v"])
             {
@@ -24,12 +24,12 @@ namespace System.CommandLine.VersionExtension
 
         // TODO: Determine how we test console output
         public bool TempFlagForTest = false;
-        public override bool Execute(ParseResult result)
+        public override PipelineResult Execute(ParseResult result)
         {
             // TODO: Match testable output pattern
             Console.WriteLine(CliExecutable.ExecutableVersion);
             TempFlagForTest = true;
-            return true;
+            return new PipelineResult(parseResult, true, 0);
         }
     }
 }
