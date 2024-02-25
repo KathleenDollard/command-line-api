@@ -1,8 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace System.CommandLine.Extensions
+namespace System.CommandLine.Pipeline
 {
-    public class Extension
+    public class PipelineExtension
     {
         private static readonly int spread = 100;
         public static readonly int CategoryBeforeValidation = 0;
@@ -11,21 +15,16 @@ namespace System.CommandLine.Extensions
         public static readonly int CategoryBeforeRunner = 4 * spread;
         public static readonly int CategoryRunner = 5 * spread;
         public static readonly int CategoryAfterRunner = 6 * spread; public static readonly int CategoryBeforeHelp = 4 * spread;
-        public static readonly int CategoryHelp =7 * spread;
+        public static readonly int CategoryHelp = 7 * spread;
         public static readonly int CategoryBeforeInvocation = 8 * spread;
         public static readonly int CategoryBeforeFinishing = 9 * spread;
         public static readonly int CategoryFinishing = 10 * spread;
+        private int categoryAfterValidation;
 
-        protected Extension(string name, int category)
+        public PipelineExtension(int categoryAfterValidation)
         {
-            Name = name;
-            Category = category;
+            this.categoryAfterValidation = categoryAfterValidation;
         }
-
-        /// <summary>
-        /// The name of the extension. 
-        /// </summary>
-        public string Name { get; }
 
         /// <summary>
         /// The order in which extensions will be run. This should be entered as one of the 
@@ -33,6 +32,7 @@ namespace System.CommandLine.Extensions
         /// run in the correct order.
         /// </summary>
         public int Category { get; }
+
 
         /// <summary>
         /// Runs before parsing to prepare the parser. Since it always runs, slow code that is only needed when the extension 
@@ -50,7 +50,7 @@ namespace System.CommandLine.Extensions
         /// <param name="configuration">The CLI configuration</param>
         /// <returns>True if parsing should continue</returns> // there might be a better design that supports a message
         // TODO: Because of this and similar usage, consider combining CLI declaration and config. ArgParse calls this the parser, which I like
-        public virtual bool BeforeParsing(CliCommand rootCommand, IReadOnlyList<string> arguments, string rawInput, CliConfiguration configuration) => true;
+        public virtual bool BeforeParsing(CliConfiguration configuration, IReadOnlyList<string> arguments, string rawInput) => true;
 
         /// <summary>
         /// Indicates to invocation patterns that the extension should be run.
@@ -96,10 +96,11 @@ namespace System.CommandLine.Extensions
         /// <param name="result">The parse result.</param>
         /// <returns>Whether CLI execution has been handled. If this true, other extensions will not be run.</returns>
 #pragma warning disable IDE0075 // Simplifying this conditional expression makes it less clear, imo
-        public virtual bool ExecuteIfNeeded(ParseResult result) => GetIsActivated(result) ?  Execute(result) : false ; // 
+        public virtual bool ExecuteIfNeeded(ParseResult result) => GetIsActivated(result) ? Execute(result) : false; // 
 #pragma warning restore IDE0075 // Simplify conditional expression
 
         //TODO: Should there be an explicit cleanup method, or should we rely on derived classes implementing IDispose
+
 
     }
 }

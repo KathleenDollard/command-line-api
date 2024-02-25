@@ -141,7 +141,6 @@ namespace System.CommandLine.Parsing
             string? rawInput,
             CliConfiguration? configuration)
         {
-            configuration?.RunExtensionsBeforeParsing(rootCommand, arguments, rawInput);
 
             if (arguments is null)
             {
@@ -167,10 +166,7 @@ namespace System.CommandLine.Parsing
 
             var parseResult = operation.Parse();
 
-            configuration?.RunExtensionsAfterParsing(parseResult);
-
             return parseResult;
-
         }
 
         private enum Boundary

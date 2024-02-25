@@ -26,7 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\System.CommandLine.RunnerExtension\System.CommandLine.RunnerExtension.csproj" />
+    <ProjectReference Include="..\System.CommandLine.Pipeline\System.CommandLine.Pipeline.csproj" />
     <ProjectReference Include="..\System.CommandLine.VersionExtension\System.CommandLine.VersionExtension.csproj" />
     <ProjectReference Include="..\System.CommandLine\System.CommandLine.csproj" />
   </ItemGroup>

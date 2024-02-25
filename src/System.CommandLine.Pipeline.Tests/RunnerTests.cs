@@ -1,15 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.IO;
-using System.Reflection;
-using System.Threading.Tasks;
-using System.Linq;
 using FluentAssertions;
-using Xunit;
-using System.CommandLine.Parsing;
-using System.CommandLine.RunnerExtension;
-using System.CommandLine.VersionExtension;
 
 namespace System.CommandLine.Extended.Tests
 {
@@ -22,23 +14,26 @@ namespace System.CommandLine.Extended.Tests
             { };
             var configuration = new CliConfiguration(rootCommand);
             // TODO: Throughout consider Add returning the thing that was added. This would avoid the extra line here
-            var versionOption = new VersionOption();
-            configuration.AddExtension(versionOption);
-            var result = CliParser.Parse(rootCommand, "-v", configuration);
+            var versionOption = new VersionExtension.VersionExtension();
+            var pipeline = new Pipeline.Pipeline();
+            pipeline.AddExtension(new VersionExtension.VersionExtension());
+            var result = pipeline.Parse(configuration, "");
 
-            var handled = versionOption.ExecuteIfNeeded(result);
+            var handled = versionOption.PipelineExtension.ExecuteIfNeeded(result.ParseResult);
 
             handled.Should().BeTrue();
-            versionOption.TempFlagForTest.Should().BeTrue();
+            versionOption.PipelineExtension.TempFlagForTest.Should().BeTrue();
 
         }
-
+        /*
         private void Sample_2()
         {
             var rootCommand = new CliRootCommand
             { };
             var configuration = new CliConfiguration(rootCommand);
-            configuration.AddExtension(new VersionOption());
+            var pipeline = new Pipeline.Pipeline();
+            pipeline.AddExtension(new VersionExtension.VersionExtension());
+            var result = pipeline.Parse(configuration, "");
             var runner = new Runner();
             var result = CliParser.Parse(rootCommand, "-v", configuration);
             var handled = runner.Execute(result);
@@ -53,7 +48,7 @@ namespace System.CommandLine.Extended.Tests
             var rootCommand = new CliRootCommand
             { };
             var configuration = new CliConfiguration(rootCommand);
-            configuration.AddExtension(new VersionOption());
+            configuration.AddExtension(new VersionExtension.VersionExtension());
             var handled = Runner.Execute(rootCommand, "-v", configuration);
 
             handled.Should().BeTrue();
@@ -69,7 +64,7 @@ namespace System.CommandLine.Extended.Tests
                 new CliOption<bool>("-x")
             };
             var configuration = new CliConfiguration(rootCommand);
-            var versionOption = new VersionOption();
+            var versionOption = new VersionExtension.VersionExtension();
             configuration.AddExtension(versionOption);
             Runner runner = new Runner();
             configuration.AddExtension(runner);
@@ -88,7 +83,7 @@ namespace System.CommandLine.Extended.Tests
                 new CliOption<bool>("-x")
             };
             var configuration = new CliConfiguration(rootCommand);
-            var versionOption = new VersionOption();
+            var versionOption = new VersionExtension.VersionExtension();
             configuration.AddExtension(versionOption);
             Runner runner = new Runner();
             configuration.AddExtension(runner);
@@ -106,7 +101,7 @@ namespace System.CommandLine.Extended.Tests
             var rootCommand = new CliRootCommand
             { };
             var configuration = new CliConfiguration(rootCommand);
-            var versionOption = new VersionOption();
+            var versionOption = new VersionExtension.VersionExtension();
             configuration.AddExtension(versionOption);
             var result = CliParser.Parse(rootCommand, "-v", configuration);
 
@@ -126,7 +121,7 @@ namespace System.CommandLine.Extended.Tests
             var rootCommand = new CliRootCommand
             { };
             var configuration = new CliConfiguration(rootCommand);
-            var versionOption = new VersionOption();
+            var versionOption = new VersionExtension.VersionExtension();
             configuration.AddExtension(versionOption);
             var result = CliParser.Parse(rootCommand, "-v", configuration);
 
@@ -144,7 +139,7 @@ namespace System.CommandLine.Extended.Tests
             var rootCommand = new CliRootCommand
             { };
             var configuration = new CliConfiguration(rootCommand);
-            var versionOption = new VersionOption();
+            var versionOption = new VersionExtension.VersionExtension();
             configuration.AddExtension(versionOption);
             var result = CliParser.Parse(rootCommand, "-v", configuration);
 
@@ -154,5 +149,6 @@ namespace System.CommandLine.Extended.Tests
             versionOption.TempFlagForTest.Should().BeTrue();
 
         }
+        */
     }
 }

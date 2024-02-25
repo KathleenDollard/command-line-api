@@ -1,6 +1,7 @@
-﻿using System.CommandLine.Extensions;
-using System.CommandLine.Parsing;
+﻿using System.CommandLine.Parsing;
+using System.CommandLine.Pipeline;
 
+/*
 namespace System.CommandLine.RunnerExtension
 {
     public class Runner : Extension
@@ -51,3 +52,4 @@ namespace System.CommandLine.RunnerExtension
         }
     }
 }
+*/

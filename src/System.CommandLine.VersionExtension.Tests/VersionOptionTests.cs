@@ -129,8 +129,9 @@ namespace System.CommandLine.Extended.Tests
                 new CliOption<bool>("-x")
             };
             var configuration = new CliConfiguration(rootCommand);
-            configuration.AddExtension(new VersionExtension.VersionOption());
-            var result = CliParser.Parse(rootCommand, "", configuration );
+            var pipeline = new Pipeline.Pipeline();
+            pipeline.AddExtension(new VersionExtension.VersionExtension());
+            var result = pipeline.Parse(configuration,  "");
 
             rootCommand.Options.Should().NotBeNull();
             rootCommand.Options
@@ -168,8 +169,9 @@ namespace System.CommandLine.Extended.Tests
                 childCommand
             };
             var configuration = new CliConfiguration(rootCommand);
-            configuration.AddExtension(new VersionExtension.VersionOption());
-            var result = CliParser.Parse(rootCommand, "", configuration);
+            var pipeline = new Pipeline.Pipeline();
+            pipeline.AddExtension(new VersionExtension.VersionExtension());
+            var result = pipeline.Parse(configuration, "");
 
             childCommand.Options.Should().NotBeNull();
             childCommand.Options
