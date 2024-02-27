@@ -21,8 +21,8 @@ namespace System.CommandLine.Extended.Tests
         public void Outputs_assembly_version()
         {
             var consoleHack = new ConsoleHack().RedirectToBuffer(true);
-            var versionOption = new VersionSubsystem();
-            versionOption.PipelineSupport.Execute(new PipelineContext(null, consoleHack));
+            var versionSubsystem = new VersionSubsystem();
+            versionSubsystem.PipelineSupport.Execute(new PipelineContext(null, consoleHack));
             consoleHack.GetBuffer().Trim().Should().Be(version);
         }
 
@@ -30,9 +30,9 @@ namespace System.CommandLine.Extended.Tests
         public void Outputs_specified_version()
         {
             var consoleHack = new ConsoleHack().RedirectToBuffer(true);
-            var versionOption = new VersionSubsystem();
-            versionOption.Version = "42";
-            versionOption.PipelineSupport.Execute(new PipelineContext(null, consoleHack));
+            var versionSubsystem = new VersionSubsystem();
+            versionSubsystem.Version = "42";
+            versionSubsystem.PipelineSupport.Execute(new PipelineContext(null, consoleHack));
             consoleHack.GetBuffer().Trim().Should().Be("42");
         }
 
@@ -40,9 +40,9 @@ namespace System.CommandLine.Extended.Tests
         public void Outputs_assembly_version_when_specified_version_set_to_null()
         {
             var consoleHack = new ConsoleHack().RedirectToBuffer(true);
-            var versionOption = new VersionSubsystem();
-            versionOption.Version = null;
-            versionOption.PipelineSupport.Execute(new PipelineContext(null, consoleHack));
+            var versionSubsystem = new VersionSubsystem();
+            versionSubsystem.Version = null;
+            versionSubsystem.PipelineSupport.Execute(new PipelineContext(null, consoleHack));
             consoleHack.GetBuffer().Trim().Should().Be(version);
         }
 
@@ -53,8 +53,8 @@ namespace System.CommandLine.Extended.Tests
             { };
 
             var consoleHack = new ConsoleHack().RedirectToBuffer(true);
-            var versionOption = new VersionSubsystem();
-            versionOption.PipelineSupport.Execute(new PipelineContext(null, consoleHack));
+            var versionSubsystem = new VersionSubsystem();
+            versionSubsystem.PipelineSupport.Execute(new PipelineContext(null, consoleHack));
             consoleHack.GetBuffer().Trim().Should().Be(version);
         }
 

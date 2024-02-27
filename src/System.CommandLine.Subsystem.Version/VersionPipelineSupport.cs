@@ -4,9 +4,8 @@
 
 namespace System.CommandLine.Subsystem.Version
 {
-    public class VersionPipelineSupport() : PipelineSupport(CategoryAfterValidation)
+    public class VersionPipelineSupport() : PipelineSupport<VersionSubsystem>(CategoryAfterValidation)
     {
-        internal VersionSubsystem VersionSubsystem { get; set; }
 
         public override bool Initialization(CliConfiguration configuration, IReadOnlyList<string> arguments, string rawInput)
         {
@@ -24,9 +23,10 @@ namespace System.CommandLine.Subsystem.Version
 
         public override CliExit Execute(PipelineContext pipelineContext)
         {
-            var version = VersionSubsystem.Version is null
+            var subsystemVersion = Subsystem.Version;
+            var version = subsystemVersion is null
                 ? CliExecutable.ExecutableVersion
-                : VersionSubsystem.Version;
+                : subsystemVersion;
             pipelineContext.ConsoleHack.WriteLine(version);
             return new CliExit(pipelineContext.ParseResult, true, 0);
         }

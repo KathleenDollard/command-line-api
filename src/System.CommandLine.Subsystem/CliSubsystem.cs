@@ -3,29 +3,28 @@
 
 using System.CommandLine.Extended.Annotations;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection.PortableExecutable;
 
 namespace System.CommandLine.Subsystem;
 
-/// <summary>
-/// Base class for CLI subsystems. Implements storage of annotations.
-/// </summary>
-/// <remarks>
-/// annotationProvider is required because deriving types should accept that parameter and pass it in almost all cases
-/// </remarks>
-/// <param name="annotationProvider"></param>
-public abstract class CliSubsystem(string name, PipelineSupport pipelineSupport, IAnnotationProvider? annotationProvider)
-
+public abstract class CliSubsystem
 {
+    protected CliSubsystem(string name, PipelineSupport pipelineSupport, IAnnotationProvider? annotationProvider)
+    {
+        Name = name;
+        PipelineSupport = pipelineSupport;
+        _annotationProvider = annotationProvider;
+    }
+
+    public PipelineSupport PipelineSupport { get; }
 
     /// <summary>
     /// The name of the extension. 
     /// </summary>
-    public string Name { get; } = name;
-
-    public PipelineSupport PipelineSupport { get; protected set; } = pipelineSupport;
+    public string Name { get; }
 
     DefaultAnnotationProvider? _defaultProvider;
-    readonly IAnnotationProvider? _annotationProvider = annotationProvider;
+    readonly IAnnotationProvider? _annotationProvider;
 
     protected internal bool TryGetAnnotation<TValue>(CliSymbol symbol, AnnotationId<TValue> id, [NotNullWhen(true)] out TValue? value)
     {
@@ -47,3 +46,24 @@ public abstract class CliSubsystem(string name, PipelineSupport pipelineSupport,
         (_defaultProvider ??= new DefaultAnnotationProvider()).Set(symbol, id, value);
     }
 }
+
+
+/// <summary>
+/// Base class for CLI subsystems. Implements storage of annotations.
+/// </summary>
+/// <remarks>
+/// annotationProvider is required because deriving types should accept that parameter and pass it in almost all cases
+/// </remarks>
+public abstract class CliSubsystem<TSubsystem> : CliSubsystem
+    where TSubsystem : CliSubsystem<TSubsystem>
+{
+    /// <param name="annotationProvider"></param>
+    public CliSubsystem(string name, PipelineSupport<TSubsystem> pipelineSupport, IAnnotationProvider? annotationProvider)
+        : base(name, pipelineSupport, annotationProvider)
+    {
+        PipelineSupport.Subsystem = (TSubsystem)this;
+    }
+
+    public new PipelineSupport<TSubsystem> PipelineSupport => (PipelineSupport<TSubsystem>)base.PipelineSupport;
+}
+

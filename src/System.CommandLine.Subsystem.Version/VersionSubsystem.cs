@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace System.CommandLine.Subsystem
 {
-    public class VersionSubsystem : CliSubsystem
+    public class VersionSubsystem : CliSubsystem<VersionSubsystem>
     {
         private string specificVersion = null;
 
