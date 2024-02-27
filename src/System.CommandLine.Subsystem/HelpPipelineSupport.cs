@@ -2,15 +2,17 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 
-namespace System.CommandLine.Subsystem.Version
+namespace System.CommandLine.Subsystem.Help
 {
-    public class VersionPipelineSupport() : PipelineSupport(CategoryAfterValidation)
+    public class HelpPipelineSupport : PipelineSupport
     {
-        internal VersionSubsystem VersionSubsystem { get; set; }
+        public HelpPipelineSupport(): base(CategoryAfterValidation)
+        { }
+
 
         public override bool Initialization(CliConfiguration configuration, IReadOnlyList<string> arguments, string rawInput)
         {
-            var option = new CliOption<bool>("--version", ["-v"])
+            var option = new CliOption<bool>("--help", ["-h"])
             {
                 Arity = ArgumentArity.Zero
             };
@@ -19,15 +21,13 @@ namespace System.CommandLine.Subsystem.Version
             return true;
         }
 
-        public override bool GetIsActivated(ParseResult parseResult)
-            => parseResult.GetValue<bool>("--version");
+        public override bool GetIsActivated(ParseResult  parseResult)
+            => parseResult.GetValue<bool>("--help");
 
         public override CliExit Execute(PipelineContext pipelineContext)
         {
-            var version = VersionSubsystem.Version is null
-                ? CliExecutable.ExecutableVersion
-                : VersionSubsystem.Version;
-            pipelineContext.ConsoleHack.WriteLine(version);
+            // TODO: Match testable output pattern
+            pipelineContext.ConsoleHack.WriteLine("Help me!");
             return new CliExit(pipelineContext.ParseResult, true, 0);
         }
     }

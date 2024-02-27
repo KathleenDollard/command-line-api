@@ -26,6 +26,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\System.CommandLine.Subsystem\System.CommandLine.Subsystem.csproj" />
+    <ProjectReference Include="..\System.CommandLine.Subsystem.Version\System.CommandLine.Subsystem.Version.csproj" />
     <ProjectReference Include="..\System.CommandLine\System.CommandLine.csproj" />
   </ItemGroup>
 

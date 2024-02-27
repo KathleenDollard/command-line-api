@@ -2,9 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Extended.Annotations;
-using System.CommandLine.Subsystem.System.CommandLine.Extended.Annotations;
 
-namespace System.CommandLine.Subsystem;
+namespace System.CommandLine.Subsystem.Help;
 
 // stub Help subsystem demonstrating annotation model.
 //
@@ -15,7 +14,7 @@ namespace System.CommandLine.Subsystem;
 //        var command = new CliCommand("greet")
 //          .With(help.Description, "Greet the user");
 //
-internal class HelpSubsystem(IAnnotationProvider? annotationProvider = null) : CliSubsystem(annotationProvider)
+internal class HelpSubsystem(IAnnotationProvider? annotationProvider = null) : CliSubsystem("Hep", new HelpPipelineSupport(), annotationProvider: annotationProvider)
 {
     public void SetDescription(CliSymbol symbol, string description) => SetAnnotation(symbol, HelpAnnotations.Description, description);
 

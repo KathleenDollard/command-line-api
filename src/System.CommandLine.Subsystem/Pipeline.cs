@@ -32,14 +32,13 @@ namespace System.CommandLine.Subsystem
             }
         }
 
-        public void ExecuteRequestedExtensions(CliExit cliExit)
+        public void ExecuteRequestedExtensions(PipelineContext pipelineContext)
         {
             foreach (var extension in _extensions)
             {
-                extension.PipelineSupport?.ExecuteIfNeeded(cliExit.ParseResult);
-                if (cliExit.Handled)
+                if (!pipelineContext.AlreadyHandled || extension.PipelineSupport.RunsEvenIfAlreadyHandled)
                 {
-                    break;
+                 extension.PipelineSupport?.ExecuteIfNeeded(pipelineContext);
                 }
             }
         }
@@ -55,14 +54,15 @@ namespace System.CommandLine.Subsystem
             return parseResult;
         }
 
-        public CliExit Execute(CliConfiguration configuration, string rawInput)
+        public PipelineContext Execute(CliConfiguration configuration, string rawInput)
             => Execute(configuration, CliParser.SplitCommandLine(rawInput).ToArray(), rawInput);
 
-        public CliExit Execute(CliConfiguration configuration, string[] args, string rawInput)
+        public PipelineContext Execute(CliConfiguration configuration, string[] args, string rawInput)
         {
-            var cliExit = new CliExit(Parse(configuration, args, rawInput));
-            ExecuteRequestedExtensions(cliExit);
-            return cliExit;
+            ParseResult parseResult = Parse(configuration, args, rawInput);
+            var pipelineContext = new PipelineContext(parseResult, new ConsoleHack());
+            ExecuteRequestedExtensions(pipelineContext);
+            return pipelineContext;
         }
     }
 }

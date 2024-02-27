@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Extended.Annotations;
-using System.CommandLine.Subsystem;
 using System.Diagnostics.CodeAnalysis;
 
 namespace System.CommandLine.Subsystem;
@@ -10,8 +9,12 @@ namespace System.CommandLine.Subsystem;
 /// <summary>
 /// Base class for CLI subsystems. Implements storage of annotations.
 /// </summary>
+/// <remarks>
+/// annotationProvider is required because deriving types should accept that parameter and pass it in almost all cases
+/// </remarks>
 /// <param name="annotationProvider"></param>
-public abstract class CliSubsystem(IAnnotationProvider? annotationProvider, string name, PipelineSupport pipelineSupport = null)
+public abstract class CliSubsystem(string name, PipelineSupport pipelineSupport, IAnnotationProvider? annotationProvider)
+
 {
 
     /// <summary>
@@ -19,8 +22,8 @@ public abstract class CliSubsystem(IAnnotationProvider? annotationProvider, stri
     /// </summary>
     public string Name { get; } = name;
 
-    public PipelineSupport? PipelineSupport { get; } = pipelineSupport;
-    
+    public PipelineSupport PipelineSupport { get; protected set; } = pipelineSupport;
+
     DefaultAnnotationProvider? _defaultProvider;
     readonly IAnnotationProvider? _annotationProvider = annotationProvider;
 
@@ -38,6 +41,7 @@ public abstract class CliSubsystem(IAnnotationProvider? annotationProvider, stri
         return false;
     }
 
+    // TODO: Consider allowing null so the annotation provider can hold general information. Alternatively, it would be stored in the subsystem itself.
     protected internal void SetAnnotation<T>(CliSymbol symbol, AnnotationId<T> id, T value)
     {
         (_defaultProvider ??= new DefaultAnnotationProvider()).Set(symbol, id, value);

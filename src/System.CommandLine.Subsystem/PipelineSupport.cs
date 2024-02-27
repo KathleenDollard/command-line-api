@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+using System.ComponentModel;
 
 namespace System.CommandLine.Subsystem
 {
-    public class PipelineSupport
+    public class PipelineSupport(int category, bool runsEvenIfAlreadyHandled = false)
     {
         private static readonly int spread = 100;
         public static readonly int CategoryBeforeValidation = 0;
@@ -19,19 +18,13 @@ namespace System.CommandLine.Subsystem
         public static readonly int CategoryBeforeInvocation = 8 * spread;
         public static readonly int CategoryBeforeFinishing = 9 * spread;
         public static readonly int CategoryFinishing = 10 * spread;
-        private int categoryAfterValidation;
-
-        public PipelineSupport(int categoryAfterValidation)
-        {
-            this.categoryAfterValidation = categoryAfterValidation;
-        }
 
         /// <summary>
         /// The order in which extensions will be run. This should be entered as one of the 
         /// category constants, or an incremented offset from those constants to ensure things 
         /// run in the correct order.
         /// </summary>
-        public int Category { get; }
+        public int Category { get; } = category;
 
 
         /// <summary>
@@ -60,7 +53,7 @@ namespace System.CommandLine.Subsystem
         /// </remarks>
         /// <param name="result">The parse result.</param>
         /// <returns></returns>
-        public virtual bool GetIsActivated(ParseResult result) => false;
+        public virtual bool GetIsActivated(ParseResult parseResult) => false;
 
         /// <summary>
         /// Runs before any extensions run to provide any setup. This should generally 
@@ -75,6 +68,8 @@ namespace System.CommandLine.Subsystem
         /// <returns>Whether CLI execution has been handled. If this true, other extensions will not be run.</returns>
         public virtual bool TearDown(ParseResult result) => true;
 
+        internal virtual bool RunsEvenIfAlreadyHandled { get; } = runsEvenIfAlreadyHandled;
+
         /// <summary>
         /// Runs before any extensions run. This should generally check whether the extension is activated, 
         /// nless it supplies info to other extensions. Default behavior is to do nothing.
@@ -84,7 +79,7 @@ namespace System.CommandLine.Subsystem
         /// </remarks>
         /// <param name="result">The parse result.</param>
         /// <returns>Whether CLI execution has been handled. If this true, other extensions will not be run.</returns>
-        public virtual CliExit Execute(ParseResult parseResult) => new CliExit(parseResult, true, 0);
+        public virtual CliExit Execute(PipelineContext pipelineContext) => new CliExit(pipelineContext.ParseResult, true, 0);
 
         /// <summary>
         /// Runs before any extensions run. This should generally check whether the extension is activated, 
@@ -96,9 +91,10 @@ namespace System.CommandLine.Subsystem
         /// <param name="result">The parse result.</param>
         /// <returns>Whether CLI execution has been handled. If this true, other extensions will not be run.</returns>
 #pragma warning disable IDE0075 // Simplifying this conditional expression makes it less clear, imo
-        public virtual CliExit ExecuteIfNeeded(ParseResult parseResult) => GetIsActivated(parseResult) 
-            ? Execute(parseResult) 
-            : new CliExit(parseResult, false, 0); // 
+        public virtual CliExit ExecuteIfNeeded(PipelineContext pipelineContext)
+            => GetIsActivated(pipelineContext.ParseResult)
+                ? Execute(pipelineContext)
+                : new CliExit(pipelineContext.ParseResult, false, 0); // 
 #pragma warning restore IDE0075 // Simplify conditional expression
 
         //TODO: Should there be an explicit cleanup method, or should we rely on derived classes implementing IDispose

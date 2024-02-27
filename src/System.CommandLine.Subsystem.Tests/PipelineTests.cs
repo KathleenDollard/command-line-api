@@ -10,7 +10,7 @@ namespace System.CommandLine.Subsystem.Tests
     public class PipelineTests
     {
 
-/* These tests are from a version of invocation that is not currently working
+        /* These tests are from a version of pipeline that is not currently working
 
 
         [Fact]
@@ -32,6 +32,8 @@ namespace System.CommandLine.Subsystem.Tests
             versionOption.TempFlagForTest.Should().BeTrue();
 
         }
+
+
 
         [Fact(Skip = "Bug that causes recursion")]
         public void Extension_does_not_runs_when_not_requested()
