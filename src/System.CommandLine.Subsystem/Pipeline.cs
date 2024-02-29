@@ -8,9 +8,9 @@ namespace System.CommandLine.Subsystem
     public class Pipeline
     {
         private readonly List<CliSubsystem> _extensions = new();
+        public IEnumerable<CliSubsystem> Extensions => _extensions;
 
         public void AddExtension(CliSubsystem extension) => _extensions.Add(extension);
-        public IEnumerable<CliSubsystem> Extensions => _extensions;
 
         public void InitializeExtensions(CliConfiguration configuration)
         {

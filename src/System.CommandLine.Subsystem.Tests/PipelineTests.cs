@@ -36,7 +36,7 @@ namespace System.CommandLine.Subsystem.Tests
             consoleHack.GetBuffer().Trim().Should().Be(version);
         }
 
-
+        // TODO: Does this test do what it says it does
         [Fact]
         public void Extension_does_not_runs_with_explicit_parse_when_requested()
         {
@@ -59,6 +59,7 @@ namespace System.CommandLine.Subsystem.Tests
 
         }
 
+        // TODO: Does this test do what it says it does
         [Fact]
         public void Extension_does_not_runs_when_not_requested()
         {
@@ -95,6 +96,7 @@ namespace System.CommandLine.Subsystem.Tests
             CliExit? exit = null;
             if (parseResult.GetValue<bool>("--version"))
             {
+                // TODO: Add an execute overload to avoid checking activated twice
                 exit = versionSubsystem.PipelineSupport.ExecuteIfNeeded(parseResult, consoleHack);
             }
 
