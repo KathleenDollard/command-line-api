@@ -2,22 +2,21 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Extended.Annotations;
-using System.CommandLine.Subsystem.Version;
 using System.Reflection;
 
 namespace System.CommandLine.Subsystem
 {
-    public class VersionSubsystem : CliSubsystem<VersionSubsystem>
+    public class Version : CliSubsystem<Version>
     {
         private string specificVersion = null;
 
-        public VersionSubsystem(IAnnotationProvider? annotationProvider = null) 
+        public Version(IAnnotationProvider? annotationProvider = null) 
             : base( "Version",  new VersionPipelineSupport(), annotationProvider)
         {
         }
 
         // TODO: Should we block adding version anywhere but root?
-        public string Version
+        public string SpecificVersion
         {
             get
             {

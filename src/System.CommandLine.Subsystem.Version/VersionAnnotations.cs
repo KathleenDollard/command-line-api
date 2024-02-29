@@ -3,7 +3,7 @@
 
 using System.CommandLine.Extended.Annotations;
 
-namespace System.CommandLine.Subsystem.Version;
+namespace System.CommandLine.Subsystem;
 
 /// <summary>
 /// IDs for well-known Version annotations.

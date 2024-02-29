@@ -3,12 +3,9 @@
 
 using FluentAssertions;
 using System.CommandLine.Parsing;
-using System.CommandLine.Subsystem;
-using System.CommandLine.Subsystem.Version;
-using System.Reflection.PortableExecutable;
 using Xunit;
 
-namespace System.CommandLine.Extended.Tests
+namespace System.CommandLine.Subsystem.Tests
 {
     public class Samples
     {
@@ -33,9 +30,9 @@ namespace System.CommandLine.Extended.Tests
             var rootCommand = new CliRootCommand
             { };
             var configuration = new CliConfiguration(rootCommand);
-            var versionOption = new VersionSubsystem();
+            var versionOption = new Version();
             var pipeline = new Subsystem.Pipeline();
-            pipeline.AddExtension(new VersionSubsystem());
+            pipeline.AddExtension(new Version());
 
             var parseResult = pipeline.Parse(configuration, "");
             if (versionOption.PipelineSupport.GetIsActivated(parseResult))

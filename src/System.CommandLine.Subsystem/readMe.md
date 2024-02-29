@@ -1,5 +1,12 @@
 Notes on variations from "System.CommandLine Extensibility"
 
+* PipelineContext
+  * To ease adding new data to a class that will be passed to unknown subsystems, a context, currently called PipelineContext is used
+  * The pipeline context needs to be created except for testing and when a non-pipeline usage wants to use help.
+  * Testing uses IVT to create the context
+
+## Dependencies
+
 * Order dependencies - generally the first thing that succeeds blocks all other subsystems
   * Many subsystems will have the dependency that they run after validation. This includes all error reporting and invocation - consider a phased approach for this.
   * It would be inefficient for items that do not need validated data to run after validation as it may be expensive
@@ -12,25 +19,36 @@ Notes on variations from "System.CommandLine Extensibility"
   * The description is at least as likely to be needed by something that runs after help when help didn't run
   * The best approach for data dependencies is that subsystems should not require being executed to supply data
   * Subsystems may require validation to supply data
-  * A complex example
+  * A complex example (Diagramming and error reporting may be close to this)
 
 ```mermaid
-
-
 sequenceDiagram
-    participant Alice
-    participant Bob
-    Alice->>John: Hello John, how are you?
-    loop Healthcheck
-        John->>John: Fight against hypochondria
-    end
-    Note right of John: Rational thoughts <br/>prevail!
-    John-->>Alice: Great!
-    John->>Bob: How about you?
-    Bob-->>John: Jolly good!
+    participant A
+    participant B
+    participant C
+    participant Validation
+    A->>B: I need x
+    B->>Validation: Validate 
+    Validation->>C: I need y
+    C->>Validation: y
+    Validation->>B: You're OK
+    B->>A: x
 ```
 
+  * Subsystems should expect incoming data calls and provide dependencies, including validation
+  * Subsystems should ensure work that is not needed is not done and work that is needed is done exactly once
+
 * Can we delete the projects that are not part of this effort? Could we add them back if we are wrong and preserve any history?
+
+## Subsystem/support
+
+* There is a set of things associated with adding data to the subsystem that will be used by CLI authors
+* There is a set of things for execution that will only be used by extensibility folks
+* The expected ration of CLI authors to extensibility folks is likely to be 100-1,000 to one
+* I understand the BCL hates interfaces, and there is not guarantee this API will not change
+* Thus, I am using a rather ugly two class approach where the Subsystem holds a support object.
+
+## Older notes
 
 * The pipeline sample hard codes a series of execution steps. I do not see how this is extensible to two currently unknown subsystems. I think we need a collection here.
 

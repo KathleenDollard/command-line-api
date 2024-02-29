@@ -2,12 +2,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 
-namespace System.CommandLine.Subsystem.Version
+namespace System.CommandLine.Subsystem
 {
-    public class VersionPipelineSupport() : PipelineSupport<VersionSubsystem>(CategoryAfterValidation)
+    public class VersionPipelineSupport() : PipelineSupport<Version>(CategoryAfterValidation)
     {
 
-        public override bool Initialization(CliConfiguration configuration, IReadOnlyList<string> arguments, string rawInput)
+        public override bool Initialization(CliConfiguration configuration)
         {
             var option = new CliOption<bool>("--version", ["-v"])
             {
@@ -23,12 +23,13 @@ namespace System.CommandLine.Subsystem.Version
 
         public override CliExit Execute(PipelineContext pipelineContext)
         {
-            var subsystemVersion = Subsystem.Version;
+            var subsystemVersion = Subsystem.SpecificVersion;
             var version = subsystemVersion is null
                 ? CliExecutable.ExecutableVersion
                 : subsystemVersion;
             pipelineContext.ConsoleHack.WriteLine(version);
-            return new CliExit(pipelineContext.ParseResult, true, 0);
+            pipelineContext.AlreadyHandled = true;
+            return CliExit.SuccessfullyHandled(pipelineContext.ParseResult);
         }
     }
 }

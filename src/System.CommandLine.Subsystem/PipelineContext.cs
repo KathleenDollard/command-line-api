@@ -9,6 +9,7 @@ namespace System.CommandLine.Subsystem
         public ConsoleHack ConsoleHack { get; } = consoleHack;
 
         public bool AlreadyHandled { get; set; }
+        public int ExitCode { get; set; }
 
     }
 }

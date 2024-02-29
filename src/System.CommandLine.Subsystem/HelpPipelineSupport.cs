@@ -10,7 +10,7 @@ namespace System.CommandLine.Subsystem.Help
         { }
 
 
-        public override bool Initialization(CliConfiguration configuration, IReadOnlyList<string> arguments, string rawInput)
+        public override bool Initialization(CliConfiguration configuration)
         {
             var option = new CliOption<bool>("--help", ["-h"])
             {
@@ -28,7 +28,7 @@ namespace System.CommandLine.Subsystem.Help
         {
             // TODO: Match testable output pattern
             pipelineContext.ConsoleHack.WriteLine("Help me!");
-            return new CliExit(pipelineContext.ParseResult, true, 0);
+            return CliExit.SuccessfullyHandled(pipelineContext.ParseResult);
         }
     }
 }

@@ -1,8 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+using FluentAssertions;
+using System.CommandLine.Parsing;
+using System.Reflection;
 using Xunit;
 
 namespace System.CommandLine.Subsystem.Tests
@@ -10,32 +11,55 @@ namespace System.CommandLine.Subsystem.Tests
     public class PipelineTests
     {
 
-        /* These tests are from a version of pipeline that is not currently working
+        private static readonly string version = (Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly())
+                                                .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+                                                .InformationalVersion;
 
 
         [Fact]
-        public void Extension_runs_when_requested()
+        public void Extension_runs_in_pipeline_when_requested()
         {
             var rootCommand = new CliRootCommand
             {
                 new CliOption<bool>("-x")
             };
             var configuration = new CliConfiguration(rootCommand);
-            var versionOption = new VersionExtension.VersionExtension();
+            var versionSubsystem = new Version();
             var pipeline = new Pipeline();
-            pipeline.AddExtension(versionOption);
-            Runner runner = new Runner();
-            configuration.AddExtension(runner);
-            var result = CliParser.Parse(rootCommand, "-v", configuration);
-            runner.Execute(result);
+            var consoleHack = new ConsoleHack().RedirectToBuffer(true);
+            pipeline.AddExtension(versionSubsystem);
 
-            versionOption.TempFlagForTest.Should().BeTrue();
+            var exit = pipeline.Execute(configuration, "-v", consoleHack);
 
+            exit.ExitCode.Should().Be(0);
+            exit.Handled.Should().BeTrue();
+            consoleHack.GetBuffer().Trim().Should().Be(version);
         }
 
 
+        [Fact]
+        public void Extension_does_not_runs_with_explicit_parse_when_requested()
+        {
+            var rootCommand = new CliRootCommand
+            {
+                new CliOption<bool>("-x")
+            };
+            var configuration = new CliConfiguration(rootCommand);
+            var versionSubsystem = new Version();
+            var pipeline = new Pipeline();
+            var consoleHack = new ConsoleHack().RedirectToBuffer(true);
+            pipeline.AddExtension(versionSubsystem);
 
-        [Fact(Skip = "Bug that causes recursion")]
+            var result = pipeline.Parse(configuration, "-v");
+            var exit = pipeline.Execute(result, consoleHack);
+
+            exit.ExitCode.Should().Be(0);
+            exit.Handled.Should().BeTrue();
+            consoleHack.GetBuffer().Trim().Should().Be(version);
+
+        }
+
+        [Fact]
         public void Extension_does_not_runs_when_not_requested()
         {
             var rootCommand = new CliRootCommand
@@ -43,17 +67,19 @@ namespace System.CommandLine.Subsystem.Tests
                 new CliOption<bool>("-x")
             };
             var configuration = new CliConfiguration(rootCommand);
-            var versionOption = new VersionExtension.VersionExtension();
-            configuration.AddExtension(versionOption);
-            Runner runner = new Runner();
-            configuration.AddExtension(runner);
-            var result = CliParser.Parse(rootCommand, "-x", configuration);
-            runner.Execute(result);
+            var versionSubsystem = new Version();
+            var pipeline = new Pipeline();
+            var consoleHack = new ConsoleHack().RedirectToBuffer(true);
+            pipeline.AddExtension(versionSubsystem);
 
-            versionOption.TempFlagForTest.Should().BeFalse();
+            var result = pipeline.Parse(configuration, "-v");
+            var exit = pipeline.Execute(result, consoleHack);
+
+            exit.ExitCode.Should().Be(0);
+            exit.Handled.Should().BeTrue();
+            consoleHack.GetBuffer().Trim().Should().Be(version);
 
         }
-
 
         [Fact]
         public void Extension_can_be_used_without_runner()
@@ -61,17 +87,21 @@ namespace System.CommandLine.Subsystem.Tests
             var rootCommand = new CliRootCommand
             { };
             var configuration = new CliConfiguration(rootCommand);
-            var versionOption = new VersionExtension.VersionExtension();
-            configuration.AddExtension(versionOption);
-            var result = CliParser.Parse(rootCommand, "-v", configuration);
+            var versionSubsystem = new Version();
+            var consoleHack = new ConsoleHack().RedirectToBuffer(true);
+            versionSubsystem.PipelineSupport.Initialization(configuration);
 
-            if (versionOption.GetIsActivated(result))
+            var parseResult = CliParser.Parse(rootCommand, "-v", configuration);
+            CliExit? exit = null;
+            if (parseResult.GetValue<bool>("--version"))
             {
-                versionOption.Execute(result);
+                exit = versionSubsystem.PipelineSupport.ExecuteIfNeeded(parseResult, consoleHack);
             }
 
-            versionOption.TempFlagForTest.Should().BeTrue();
-
+            exit.Should().NotBeNull();
+            exit.ExitCode.Should().Be(0);
+            exit.Handled.Should().BeTrue();
+            consoleHack.GetBuffer().Trim().Should().Be(version);
         }
 
 
@@ -81,33 +111,16 @@ namespace System.CommandLine.Subsystem.Tests
             var rootCommand = new CliRootCommand
             { };
             var configuration = new CliConfiguration(rootCommand);
-            var versionOption = new VersionExtension.VersionExtension();
-            configuration.AddExtension(versionOption);
-            var result = CliParser.Parse(rootCommand, "-v", configuration);
+            var versionSubsystem = new Version();
+            var consoleHack = new ConsoleHack().RedirectToBuffer(true);
+            versionSubsystem.PipelineSupport.Initialization(configuration);
 
-            var handled = versionOption.ExecuteIfNeeded(result);
+            var parseResult = CliParser.Parse(rootCommand, "-v", configuration);
+            var exit = versionSubsystem.PipelineSupport.ExecuteIfNeeded(parseResult, consoleHack);
 
-            handled.Should().BeTrue();
-            versionOption.TempFlagForTest.Should().BeTrue();
-
+            exit.ExitCode.Should().Be(0);
+            exit.Handled.Should().BeTrue();
+            consoleHack.GetBuffer().Trim().Should().Be(version);
         }
-
-
-        [Fact]
-        public void Extension_can_be_used_with_explicit_call_to_runner()
-        {
-            var rootCommand = new CliRootCommand
-            { };
-            var configuration = new CliConfiguration(rootCommand);
-            var versionOption = new VersionExtension.VersionExtension();
-            configuration.AddExtension(versionOption);
-            var result = CliParser.Parse(rootCommand, "-v", configuration);
-
-            var runner = new Runner();
-            runner.Execute(result);
-
-            versionOption.TempFlagForTest.Should().BeTrue();
-
-        */
     }
 }

@@ -28,30 +28,19 @@ namespace System.CommandLine.Subsystem
 
         internal virtual bool RunsEvenIfAlreadyHandled { get; } = runsEvenIfAlreadyHandled;
 
-        /// <summary>
-        /// Runs before any extensions run. This should generally check whether the extension is activated, 
-        /// nless it supplies info to other extensions. Default behavior is to do nothing.
-        /// </summary>
-        /// <remarks>
-        /// Not all extensions may execute. Some may supply information to other extensions?
-        /// </remarks>
-        /// <param name="result">The parse result.</param>
-        /// <returns>Whether CLI execution has been handled. If this true, other extensions will not be run.</returns>
-        public virtual CliExit Execute(PipelineContext pipelineContext) => new CliExit(pipelineContext.ParseResult, true, 0);
+        public virtual CliExit Execute(PipelineContext pipelineContext) => CliExit.NotRun(pipelineContext.ParseResult);
 
-        /// <summary>
-        /// Runs before any extensions run. This should generally check whether the extension is activated, 
-        /// nless it supplies info to other extensions. Default behavior is to do nothing.
-        /// </summary>
-        /// <remarks>
-        /// Not all extensions may execute. Some may supply information to other extensions?
-        /// </remarks>
-        /// <param name="result">The parse result.</param>
-        /// <returns>Whether CLI execution has been handled. If this true, other extensions will not be run.</returns>
-        public virtual CliExit ExecuteIfNeeded(PipelineContext pipelineContext)
-            => GetIsActivated(pipelineContext.ParseResult)
-                ? Execute(pipelineContext)
-                : new CliExit(pipelineContext.ParseResult, false, 0); // 
+        public CliExit ExecuteIfNeeded(PipelineContext pipelineContext)
+            => ExecuteIfNeeded(pipelineContext.ParseResult, pipelineContext.ConsoleHack, pipelineContext);
+
+        public CliExit ExecuteIfNeeded(ParseResult parseResult, ConsoleHack consoleHack)
+            => ExecuteIfNeeded(parseResult,consoleHack,null);
+
+        protected CliExit ExecuteIfNeeded(ParseResult parseResult, ConsoleHack consoleHack, PipelineContext? pipelineContext = null)
+            => GetIsActivated(parseResult)
+                ? Execute(pipelineContext ?? new PipelineContext(parseResult, consoleHack))
+                : CliExit.NotRun(parseResult);
+
 
         /// <summary>
         /// Indicates to invocation patterns that the extension should be run.
@@ -79,23 +68,13 @@ namespace System.CommandLine.Subsystem
         /// <param name="configuration">The CLI configuration</param>
         /// <returns>True if parsing should continue</returns> // there might be a better design that supports a message
         // TODO: Because of this and similar usage, consider combining CLI declaration and config. ArgParse calls this the parser, which I like
-        public virtual bool Initialization(CliConfiguration configuration, IReadOnlyList<string> arguments, string rawInput) => true;
+        public virtual bool Initialization(CliConfiguration configuration) => true;
 
-        /// <summary>
-        /// Runs before any extensions run to provide any setup. This should generally 
-        /// check whether the extension is activated, unless it supplies info to other 
-        /// extensions. This currently runs even if there is no runner/invocation.
-        /// Default behavior is to do nothing.
-        /// </summary>
-        /// <remarks>
-        /// Running this before any extension is to support supplying info to other extensions.
-        /// </remarks>
-        /// <param name="result">The parse result.</param>
-        /// <returns>Whether CLI execution has been handled. If this true, other extensions will not be run.</returns>
         public virtual bool TearDown(ParseResult result) => true;
+
     }
 
-    public class PipelineSupport<TSubSystem>(int category, bool runsEvenIfAlreadyHandled = false) : PipelineSupport (category, runsEvenIfAlreadyHandled)
+    public class PipelineSupport<TSubSystem>(int category, bool runsEvenIfAlreadyHandled = false) : PipelineSupport(category, runsEvenIfAlreadyHandled)
         where TSubSystem : CliSubsystem<TSubSystem>
     {
         protected internal TSubSystem Subsystem { get; set; }

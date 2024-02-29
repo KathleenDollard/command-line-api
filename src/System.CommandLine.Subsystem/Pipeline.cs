@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Input;
-using System.CommandLine;
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
 using System.CommandLine.Parsing;
 
 namespace System.CommandLine.Subsystem
@@ -16,11 +12,11 @@ namespace System.CommandLine.Subsystem
         public void AddExtension(CliSubsystem extension) => _extensions.Add(extension);
         public IEnumerable<CliSubsystem> Extensions => _extensions;
 
-        public void InitializeExtensions(CliConfiguration configuration, IReadOnlyList<string> arguments, string rawInput)
+        public void InitializeExtensions(CliConfiguration configuration)
         {
             foreach (var extension in _extensions)
             {
-                extension.PipelineSupport?.Initialization(configuration, arguments, rawInput);
+                extension.PipelineSupport?.Initialization(configuration);
             }
         }
 
@@ -38,7 +34,7 @@ namespace System.CommandLine.Subsystem
             {
                 if (!pipelineContext.AlreadyHandled || extension.PipelineSupport.RunsEvenIfAlreadyHandled)
                 {
-                 extension.PipelineSupport?.ExecuteIfNeeded(pipelineContext);
+                   extension.PipelineSupport?.ExecuteIfNeeded(pipelineContext);
                 }
             }
         }
@@ -48,21 +44,24 @@ namespace System.CommandLine.Subsystem
 
         public ParseResult Parse(CliConfiguration configuration, string[] args, string rawInput)
         {
-            InitializeExtensions(configuration, args, rawInput);
+            InitializeExtensions(configuration);
             var parseResult = CliParser.Parse(configuration.RootCommand, args, configuration);
             TearDownExtensions(parseResult);
             return parseResult;
         }
 
-        public PipelineContext Execute(CliConfiguration configuration, string rawInput)
-            => Execute(configuration, CliParser.SplitCommandLine(rawInput).ToArray(), rawInput);
+        public CliExit Execute(CliConfiguration configuration, string rawInput, ConsoleHack? consoleHack = null)
+            => Execute(configuration, CliParser.SplitCommandLine(rawInput).ToArray(), rawInput, consoleHack);
 
-        public PipelineContext Execute(CliConfiguration configuration, string[] args, string rawInput)
+        public CliExit Execute(CliConfiguration configuration, string[] args, string rawInput, ConsoleHack? consoleHack = null) 
+            => Execute(Parse(configuration, args, rawInput), consoleHack);
+
+        public CliExit Execute(ParseResult parseResult, ConsoleHack? consoleHack = null)
         {
-            ParseResult parseResult = Parse(configuration, args, rawInput);
-            var pipelineContext = new PipelineContext(parseResult, new ConsoleHack());
+            var pipelineContext = new PipelineContext(parseResult, consoleHack ?? new ConsoleHack());
             ExecuteRequestedExtensions(pipelineContext);
-            return pipelineContext;
+            return new CliExit(pipelineContext);
         }
+
     }
 }
