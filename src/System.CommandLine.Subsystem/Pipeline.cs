@@ -16,7 +16,7 @@ namespace System.CommandLine.Subsystem
         {
             foreach (var extension in _extensions)
             {
-                extension.PipelineSupport?.Initialization(configuration);
+                extension.PipelineSupport?.Initialize(configuration);
             }
         }
 

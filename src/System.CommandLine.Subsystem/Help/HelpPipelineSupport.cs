@@ -10,7 +10,7 @@ namespace System.CommandLine.Subsystem.Help
         { }
 
 
-        public override bool Initialization(CliConfiguration configuration)
+        public override bool Initialize(CliConfiguration configuration)
         {
             var option = new CliOption<bool>("--help", ["-h"])
             {

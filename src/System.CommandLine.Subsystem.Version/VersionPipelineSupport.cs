@@ -7,7 +7,7 @@ namespace System.CommandLine.Subsystem
     public class VersionPipelineSupport() : PipelineSupport<Version>(CategoryAfterValidation)
     {
 
-        public override bool Initialization(CliConfiguration configuration)
+        public override bool Initialize(CliConfiguration configuration)
         {
             var option = new CliOption<bool>("--version", ["-v"])
             {
@@ -18,6 +18,7 @@ namespace System.CommandLine.Subsystem
             return true;
         }
 
+        // TODO: Stash option rather than using string
         public override bool GetIsActivated(ParseResult parseResult)
             => parseResult.GetValue<bool>("--version");
 

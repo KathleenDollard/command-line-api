@@ -90,7 +90,7 @@ namespace System.CommandLine.Subsystem.Tests
             var configuration = new CliConfiguration(rootCommand);
             var versionSubsystem = new Version();
             var consoleHack = new ConsoleHack().RedirectToBuffer(true);
-            versionSubsystem.PipelineSupport.Initialization(configuration);
+            versionSubsystem.PipelineSupport.Initialize(configuration);
 
             var parseResult = CliParser.Parse(rootCommand, "-v", configuration);
             CliExit? exit = null;
@@ -115,7 +115,7 @@ namespace System.CommandLine.Subsystem.Tests
             var configuration = new CliConfiguration(rootCommand);
             var versionSubsystem = new Version();
             var consoleHack = new ConsoleHack().RedirectToBuffer(true);
-            versionSubsystem.PipelineSupport.Initialization(configuration);
+            versionSubsystem.PipelineSupport.Initialize(configuration);
 
             var parseResult = CliParser.Parse(rootCommand, "-v", configuration);
             var exit = versionSubsystem.PipelineSupport.ExecuteIfNeeded(parseResult, consoleHack);

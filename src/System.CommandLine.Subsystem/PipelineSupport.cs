@@ -68,7 +68,7 @@ namespace System.CommandLine.Subsystem
         /// <param name="configuration">The CLI configuration</param>
         /// <returns>True if parsing should continue</returns> // there might be a better design that supports a message
         // TODO: Because of this and similar usage, consider combining CLI declaration and config. ArgParse calls this the parser, which I like
-        public virtual bool Initialization(CliConfiguration configuration) => true;
+        public virtual bool Initialize(CliConfiguration configuration) => true;
 
         public virtual bool TearDown(ParseResult result) => true;
 
