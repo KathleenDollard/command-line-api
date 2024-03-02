@@ -130,7 +130,6 @@ namespace System.CommandLine.Subsystem.Tests
             consoleHack.GetBuffer().Trim().Should().Be(version);
         }
 
-
         [Fact]
         public void Extension_can_be_used_without_runner_style2()
         {
@@ -149,5 +148,6 @@ namespace System.CommandLine.Subsystem.Tests
             exit.Handled.Should().BeTrue();
             consoleHack.GetBuffer().Trim().Should().Be(version);
         }
+
     }
 }

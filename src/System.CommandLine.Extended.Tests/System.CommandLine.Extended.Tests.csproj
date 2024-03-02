@@ -22,7 +22,6 @@
     <Compile Include="..\System.CommandLine.Tests\Utility\**\*.cs" Link="Utility\%(RecursiveDir)%(Filename).%(Extension)" Exclude="..\System.CommandLine.Tests\Utility\ParseResultExtensions.cs" />
     <Compile Include="..\System.CommandLine.Suggest\DotnetMuxer.cs" Link="Utility\DotnetMuxer.cs" />
     <Compile Include="..\System.CommandLine\Properties\Resources.Designer.cs" Link="Properties\Resources.Designer.cs" />
-    <Compile Include="VersionOptionTests.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -42,8 +41,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="..\System.CommandLine\Properties\Resources.resx"
-                      LogicalName="System.CommandLine.Properties.Resources.resources" />
+    <EmbeddedResource Include="..\System.CommandLine\Properties\Resources.resx" LogicalName="System.CommandLine.Properties.Resources.resources" />
   </ItemGroup>
 
 </Project>
