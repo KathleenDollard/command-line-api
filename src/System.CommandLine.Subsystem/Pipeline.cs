@@ -8,33 +8,78 @@ namespace System.CommandLine
 {
     public class Pipeline
     {
-        //private readonly List<CliSubsystem> _otherExtensions = new();
-        //public IEnumerable<CliSubsystem> OtherExtensions => _otherExtensions;
-
         public HelpSubsystem? Help { get; set; }
         public VersionSubsystem? Version { get; set; }
         public ErrorReportingSubsystem? ErrorReporting { get; set; }
         public CompletionsSubsystem? Completions { get; set; }
 
-        //public void AddOtherExtension(CliSubsystem extension) => _otherExtensions.Add(extension);
+        protected virtual void InitializeHelp(CliConfiguration configuration)
+            => Help?.Initialize(configuration);
 
-        public virtual void InitializeExtensions(CliConfiguration configuration) 
-            => configuration.InitializeSubsystem(Help)
-                .InitializeSubsystem(Version)
-                .InitializeSubsystem(ErrorReporting)
-                .InitializeSubsystem(Completions);
+        protected virtual void InitializeVersion(CliConfiguration configuration)
+            => Version?.Initialize(configuration);
 
-        public void TearDownExtensions(PipelineContext pipelineContext)
-            => pipelineContext.TeardownSubsystem(Help)
-                .TeardownSubsystem(Version)
-                .TeardownSubsystem(ErrorReporting)
-                .TeardownSubsystem(Completions);
+        protected virtual void InitializeErrorReporting(CliConfiguration configuration)
+            => ErrorReporting?.Initialize(configuration);
 
-        protected virtual void ExecuteRequestedExtensions(PipelineContext pipelineContext) 
-            => pipelineContext.ExecuteSubSystemIfNeeded(Help)
-                .ExecuteSubSystemIfNeeded(Version)
-                .ExecuteSubSystemIfNeeded(ErrorReporting)
-                .ExecuteSubSystemIfNeeded(Completions);
+        protected virtual void InitializeCompletions(CliConfiguration configuration)
+            => Completions?.Initialize(configuration);
+
+        protected virtual void TearDownHelp(PipelineContext context)
+            => Help?.TearDown(context);
+
+        protected virtual void TearDownVersion(PipelineContext context)
+            => Version?.TearDown(context);
+
+        protected virtual void TearDownErrorReporting(PipelineContext context)
+            => ErrorReporting?.TearDown(context);
+
+        protected virtual void TearDownCompletions(PipelineContext context)
+            => Completions?.TearDown(context);
+
+        protected virtual void ExecuteHelp(PipelineContext context)
+            => ExecuteIfNeeded(Help, context);
+
+        protected virtual void ExecuteVersion(PipelineContext context)
+            => ExecuteIfNeeded(Version, context);
+
+        protected virtual void ExecuteErrorReporting(PipelineContext context)
+            => ExecuteIfNeeded(ErrorReporting, context);
+
+        protected virtual void ExecuteCompletions(PipelineContext context)
+            => ExecuteIfNeeded(Completions, context);
+
+        protected static void ExecuteIfNeeded(CliSubsystem? subsystem, PipelineContext pipelineContext)
+        {
+            if (subsystem is not null && (!pipelineContext.AlreadyHandled || subsystem.RunsEvenIfAlreadyHandled))
+            {
+                subsystem.ExecuteIfNeeded(pipelineContext);
+            }
+        }
+
+        public virtual void InitializeExtensions(CliConfiguration configuration)
+        {
+            InitializeHelp(configuration);
+            InitializeVersion(configuration);
+            InitializeErrorReporting(configuration);
+            InitializeCompletions(configuration);
+        }
+
+        public virtual void TearDownExtensions(PipelineContext pipelineContext)
+        {
+            TearDownHelp(pipelineContext);
+            TearDownVersion(pipelineContext);
+            TearDownErrorReporting(pipelineContext);
+            TearDownCompletions(pipelineContext);
+        }
+
+        protected virtual void ExecuteRequestedExtensions(PipelineContext pipelineContext)
+        {
+            ExecuteHelp(pipelineContext);
+            ExecuteVersion(pipelineContext);
+            ExecuteErrorReporting(pipelineContext);
+            ExecuteCompletions(pipelineContext);
+        }
 
         public ParseResult Parse(CliConfiguration configuration, string rawInput)
             => Parse(configuration, CliParser.SplitCommandLine(rawInput).ToArray());
