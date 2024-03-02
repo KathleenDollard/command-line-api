@@ -8,12 +8,10 @@ using System.CommandLine.Subsystem;
 
 namespace System.CommandLine.Subsystem.Tests
 {
-    public class VersionSubsystemTests
+    public class ErrorReportingSubsystemTests
     {
-        private static readonly string version = (Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly())
-                                                 .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
-                                                 .InformationalVersion;
 
+        /*
         [Fact]
         public void Outputs_assembly_version()
         {
@@ -54,6 +52,7 @@ namespace System.CommandLine.Subsystem.Tests
             Subsystem.Execute(versionSubsystem, new PipelineContext(null, consoleHack));
             consoleHack.GetBuffer().Trim().Should().Be(version);
         }
+        */
 
 
 

@@ -6,7 +6,9 @@ namespace System.CommandLine
     public enum SubsystemKind
     {
         Other = 0,
-        Help = 1,
-        Version = 2,
+        Help,
+        Version,
+        ErrorReporting ,
+        Completions,
     }
 }

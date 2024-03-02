@@ -24,6 +24,9 @@
     <Compile Include="..\System.CommandLine\Properties\Resources.Designer.cs" Link="Properties\Resources.Designer.cs" />
     <Compile Include="PipelineTests.cs" />
     <Compile Include="Samples.cs" />
+    <Compile Include="CompletionsSubsystemTests.cs" />
+    <Compile Include="HelpSubsystemTests.cs" />
+    <Compile Include="ErrorReportingSubsystemTests.cs" />
     <Compile Include="VersionSubsystemTests.cs" />
   </ItemGroup>
 

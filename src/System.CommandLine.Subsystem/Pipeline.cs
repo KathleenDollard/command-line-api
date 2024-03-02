@@ -7,14 +7,19 @@ namespace System.CommandLine.Subsystem
 {
     public class Pipeline
     {
-        private readonly List<CliSubsystem> _extensions = new();
-        public IEnumerable<CliSubsystem> Extensions => _extensions;
+        private readonly List<CliSubsystem> _otherExtensions = new();
+        public IEnumerable<CliSubsystem> OtherExtensions => _otherExtensions;
 
-        public void AddExtension(CliSubsystem extension) => _extensions.Add(extension);
+        public HelpSubsystem? Help { get; set; }
+        public VersionSubsystem? Version { get; set; }
+        public ErrorReportingSubsystem? ErrorReporting { get; set; }
+        public CompletionsSubsystem? Completions { get; set; }
+
+        public void AddOtherExtension(CliSubsystem extension) => _otherExtensions.Add(extension);
 
         public void InitializeExtensions(CliConfiguration configuration)
         {
-            foreach (var extension in _extensions)
+            foreach (var extension in _otherExtensions)
             {
                 extension.Initialize(configuration);
             }
@@ -22,7 +27,7 @@ namespace System.CommandLine.Subsystem
 
         public void TearDownExtensions(ParseResult parseResult)
         {
-            foreach (var extension in _extensions)
+            foreach (var extension in _otherExtensions)
             {
                 extension.TearDown(parseResult);
             }
@@ -30,7 +35,7 @@ namespace System.CommandLine.Subsystem
 
         public void ExecuteRequestedExtensions(PipelineContext pipelineContext)
         {
-            foreach (var extension in _extensions)
+            foreach (var extension in _otherExtensions)
             {
                 //if (!pipelineContext.AlreadyHandled || extension.RunsEvenIfAlreadyHandled)
                 if (!pipelineContext.AlreadyHandled )

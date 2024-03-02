@@ -24,10 +24,10 @@ namespace System.CommandLine.Subsystem.Tests
                 new CliOption<bool>("-x")
             };
             var configuration = new CliConfiguration(rootCommand);
-            var versionSubsystem = new Version();
+            var versionSubsystem = new VersionSubsystem();
             var pipeline = new Pipeline();
             var consoleHack = new ConsoleHack().RedirectToBuffer(true);
-            pipeline.AddExtension(versionSubsystem);
+            pipeline.AddOtherExtension(versionSubsystem);
 
             var exit = pipeline.Execute(configuration, "-v", consoleHack);
 
@@ -36,19 +36,40 @@ namespace System.CommandLine.Subsystem.Tests
             consoleHack.GetBuffer().Trim().Should().Be(version);
         }
 
-        // TODO: Does this test do what it says it does
         [Fact]
-        public void Extension_does_not_runs_with_explicit_parse_when_requested()
+        public void Extension_does_not_run_when_not_requested()
         {
             var rootCommand = new CliRootCommand
             {
                 new CliOption<bool>("-x")
             };
             var configuration = new CliConfiguration(rootCommand);
-            var versionSubsystem = new Version();
+            var versionSubsystem = new VersionSubsystem();
             var pipeline = new Pipeline();
             var consoleHack = new ConsoleHack().RedirectToBuffer(true);
-            pipeline.AddExtension(versionSubsystem);
+            pipeline.AddOtherExtension(versionSubsystem);
+
+            var result = pipeline.Parse(configuration, "-x");
+            var exit = pipeline.Execute(result, consoleHack);
+
+            exit.ExitCode.Should().Be(0);
+            exit.Handled.Should().BeFalse();
+            consoleHack.GetBuffer().Trim().Should().Be("");
+
+        }
+
+        [Fact]
+        public void Extension_does_runs_with_explicit_parse_when_requested()
+        {
+            var rootCommand = new CliRootCommand
+            {
+                new CliOption<bool>("-x")
+            };
+            var configuration = new CliConfiguration(rootCommand);
+            var versionSubsystem = new VersionSubsystem();
+            var pipeline = new Pipeline();
+            var consoleHack = new ConsoleHack().RedirectToBuffer(true);
+            pipeline.AddOtherExtension(versionSubsystem);
 
             var result = pipeline.Parse(configuration, "-v");
             var exit = pipeline.Execute(result, consoleHack);
@@ -59,26 +80,25 @@ namespace System.CommandLine.Subsystem.Tests
 
         }
 
-        // TODO: Does this test do what it says it does
         [Fact]
-        public void Extension_does_not_runs_when_not_requested()
+        public void Extension_does_not_run_with_explicit_parse_when_not_requested()
         {
             var rootCommand = new CliRootCommand
             {
                 new CliOption<bool>("-x")
             };
             var configuration = new CliConfiguration(rootCommand);
-            var versionSubsystem = new Version();
+            var versionSubsystem = new VersionSubsystem();
             var pipeline = new Pipeline();
             var consoleHack = new ConsoleHack().RedirectToBuffer(true);
-            pipeline.AddExtension(versionSubsystem);
+            pipeline.AddOtherExtension(versionSubsystem);
 
-            var result = pipeline.Parse(configuration, "-v");
+            var result = pipeline.Parse(configuration, "-x");
             var exit = pipeline.Execute(result, consoleHack);
 
             exit.ExitCode.Should().Be(0);
-            exit.Handled.Should().BeTrue();
-            consoleHack.GetBuffer().Trim().Should().Be(version);
+            exit.Handled.Should().BeFalse();
+            consoleHack.GetBuffer().Trim().Should().Be("");
 
         }
 
@@ -88,7 +108,7 @@ namespace System.CommandLine.Subsystem.Tests
             var rootCommand = new CliRootCommand
             { };
             var configuration = new CliConfiguration(rootCommand);
-            var versionSubsystem = new Version();
+            var versionSubsystem = new VersionSubsystem();
             var consoleHack = new ConsoleHack().RedirectToBuffer(true);
             Subsystem.Initialize(versionSubsystem,configuration);
 
@@ -113,7 +133,7 @@ namespace System.CommandLine.Subsystem.Tests
             var rootCommand = new CliRootCommand
             { };
             var configuration = new CliConfiguration(rootCommand);
-            var versionSubsystem = new Version();
+            var versionSubsystem = new VersionSubsystem();
             var consoleHack = new ConsoleHack().RedirectToBuffer(true);
             Subsystem.Initialize(versionSubsystem, configuration);
 

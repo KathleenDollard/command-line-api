@@ -30,9 +30,9 @@ namespace System.CommandLine.Subsystem.Tests
             var rootCommand = new CliRootCommand
             { };
             var configuration = new CliConfiguration(rootCommand);
-            var versionOption = new Version();
+            var versionOption = new VersionSubsystem();
             var pipeline = new Pipeline();
-            pipeline.AddExtension(new Version());
+            pipeline.AddOtherExtension(new VersionSubsystem());
 
             var parseResult = pipeline.Parse(configuration, "");
             if (Subsystem.GetIsActivated(versionOption,parseResult))

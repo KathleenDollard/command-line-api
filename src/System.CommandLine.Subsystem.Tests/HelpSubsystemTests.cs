@@ -8,55 +8,11 @@ using System.CommandLine.Subsystem;
 
 namespace System.CommandLine.Subsystem.Tests
 {
-    public class VersionSubsystemTests
+    public class HelpSubsystemTests
     {
-        private static readonly string version = (Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly())
-                                                 .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
-                                                 .InformationalVersion;
 
-        [Fact]
-        public void Outputs_assembly_version()
-        {
-            var consoleHack = new ConsoleHack().RedirectToBuffer(true);
-            var versionSubsystem = new VersionSubsystem();
-            Subsystem.Execute(versionSubsystem, new PipelineContext(null, consoleHack));
-            consoleHack.GetBuffer().Trim().Should().Be(version);
-        }
-
-        [Fact]
-        public void Outputs_specified_version()
-        {
-            var consoleHack = new ConsoleHack().RedirectToBuffer(true);
-            var versionSubsystem = new VersionSubsystem();
-            versionSubsystem.SpecificVersion = "42";
-            Subsystem.Execute(versionSubsystem, new PipelineContext(null, consoleHack));
-            consoleHack.GetBuffer().Trim().Should().Be("42");
-        }
-
-        [Fact]
-        public void Outputs_assembly_version_when_specified_version_set_to_null()
-        {
-            var consoleHack = new ConsoleHack().RedirectToBuffer(true);
-            var versionSubsystem = new VersionSubsystem();
-            versionSubsystem.SpecificVersion = null;
-            Subsystem.Execute(versionSubsystem, new PipelineContext(null, consoleHack));
-            consoleHack.GetBuffer().Trim().Should().Be(version);
-        }
-
-        [Fact]
-        public void Console_output_can_be_tested()
-        {
-            CliConfiguration configuration = new(new CliRootCommand())
-            { };
-
-            var consoleHack = new ConsoleHack().RedirectToBuffer(true);
-            var versionSubsystem = new VersionSubsystem();
-            Subsystem.Execute(versionSubsystem, new PipelineContext(null, consoleHack));
-            consoleHack.GetBuffer().Trim().Should().Be(version);
-        }
-
-
-
+        // TODO: Write tests for help specific output
+ 
 
         // TODO: invocation/output
         /*

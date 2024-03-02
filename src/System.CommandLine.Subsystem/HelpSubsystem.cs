@@ -19,7 +19,7 @@ namespace System.CommandLine;
 //        var command = new CliCommand("greet")
 //          .With(help.Description, "Greet the user");
 //
-public class Help(IAnnotationProvider? annotationProvider = null) 
+public class HelpSubsystem(IAnnotationProvider? annotationProvider = null) 
     : CliSubsystem(HelpAnnotations.Prefix, annotationProvider: annotationProvider, SubsystemKind.Help)
 {
     public void SetDescription(CliSymbol symbol, string description) => SetAnnotation(symbol, HelpAnnotations.Description, description);

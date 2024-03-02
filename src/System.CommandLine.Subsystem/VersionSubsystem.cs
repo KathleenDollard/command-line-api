@@ -6,11 +6,11 @@ using System.Reflection;
 
 namespace System.CommandLine.Subsystem
 {
-    public class Version : CliSubsystem
+    public class VersionSubsystem : CliSubsystem
     {
-        private string specificVersion = null;
+        private string? specificVersion = null;
 
-        public Version(IAnnotationProvider? annotationProvider = null)
+        public VersionSubsystem(IAnnotationProvider? annotationProvider = null)
             : base("Version", annotationProvider, SubsystemKind.Version)
         {
         }

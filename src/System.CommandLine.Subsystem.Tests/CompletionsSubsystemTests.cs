@@ -8,18 +8,15 @@ using System.CommandLine.Subsystem;
 
 namespace System.CommandLine.Subsystem.Tests
 {
-    public class VersionSubsystemTests
+    public class CompletionsSubsystemTests
     {
-        private static readonly string version = (Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly())
-                                                 .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
-                                                 .InformationalVersion;
-
+        /*
         [Fact]
         public void Outputs_assembly_version()
         {
             var consoleHack = new ConsoleHack().RedirectToBuffer(true);
-            var versionSubsystem = new Version();
-            versionSubsystem.PipelineSupport.Execute(new PipelineContext(null, consoleHack));
+            var versionSubsystem = new VersionSubsystem();
+            Subsystem.Execute(versionSubsystem, new PipelineContext(null, consoleHack));
             consoleHack.GetBuffer().Trim().Should().Be(version);
         }
 
@@ -27,9 +24,9 @@ namespace System.CommandLine.Subsystem.Tests
         public void Outputs_specified_version()
         {
             var consoleHack = new ConsoleHack().RedirectToBuffer(true);
-            var versionSubsystem = new Version();
+            var versionSubsystem = new VersionSubsystem();
             versionSubsystem.SpecificVersion = "42";
-            versionSubsystem.PipelineSupport.Execute(new PipelineContext(null, consoleHack));
+            Subsystem.Execute(versionSubsystem, new PipelineContext(null, consoleHack));
             consoleHack.GetBuffer().Trim().Should().Be("42");
         }
 
@@ -37,9 +34,9 @@ namespace System.CommandLine.Subsystem.Tests
         public void Outputs_assembly_version_when_specified_version_set_to_null()
         {
             var consoleHack = new ConsoleHack().RedirectToBuffer(true);
-            var versionSubsystem = new Version();
+            var versionSubsystem = new VersionSubsystem();
             versionSubsystem.SpecificVersion = null;
-            versionSubsystem.PipelineSupport.Execute(new PipelineContext(null, consoleHack));
+            Subsystem.Execute(versionSubsystem, new PipelineContext(null, consoleHack));
             consoleHack.GetBuffer().Trim().Should().Be(version);
         }
 
@@ -50,12 +47,12 @@ namespace System.CommandLine.Subsystem.Tests
             { };
 
             var consoleHack = new ConsoleHack().RedirectToBuffer(true);
-            var versionSubsystem = new Version();
-            versionSubsystem.PipelineSupport.Execute(new PipelineContext(null, consoleHack));
+            var versionSubsystem = new VersionSubsystem();
+            Subsystem.Execute(versionSubsystem, new PipelineContext(null, consoleHack));
             consoleHack.GetBuffer().Trim().Should().Be(version);
         }
 
-
+        */
 
 
         // TODO: invocation/output
