@@ -31,8 +31,10 @@ namespace System.CommandLine.Subsystem.Tests
             { };
             var configuration = new CliConfiguration(rootCommand);
             var versionOption = new VersionSubsystem();
-            var pipeline = new Pipeline();
-            pipeline.AddOtherExtension(new VersionSubsystem());
+            var pipeline = new Pipeline
+            {
+                Version = new()
+            };
 
             var parseResult = pipeline.Parse(configuration, "");
             if (Subsystem.GetIsActivated(versionOption,parseResult))
@@ -40,7 +42,6 @@ namespace System.CommandLine.Subsystem.Tests
                 Console.WriteLine("Version!!!!");
             }
 
-          //  versionOption.PipelineSupport.TempFlagForTest.Should().BeTrue();
         }
 
         //[Fact]

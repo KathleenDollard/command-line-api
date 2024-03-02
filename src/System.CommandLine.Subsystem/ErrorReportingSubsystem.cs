@@ -10,8 +10,8 @@ public class ErrorReportingSubsystem : CliSubsystem
     { }
 
     // TODO: Stash option rather than using string
-    protected internal override bool GetIsActivated(ParseResult parseResult)
-        => parseResult.Errors.Any();
+    protected internal override bool GetIsActivated(ParseResult? parseResult)
+        => parseResult is not null && parseResult.Errors.Any();
 
     protected internal override CliExit Execute(PipelineContext pipelineContext)
     {

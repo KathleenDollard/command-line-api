@@ -22,11 +22,13 @@ namespace System.CommandLine;
 public class HelpSubsystem(IAnnotationProvider? annotationProvider = null) 
     : CliSubsystem(HelpAnnotations.Prefix, annotationProvider: annotationProvider, SubsystemKind.Help)
 {
-    public void SetDescription(CliSymbol symbol, string description) => SetAnnotation(symbol, HelpAnnotations.Description, description);
+    public void SetDescription(CliSymbol symbol, string description) 
+        => SetAnnotation(symbol, HelpAnnotations.Description, description);
 
-    public AnnotationAccessor<string> Description => new(this, HelpAnnotations.Description);
+    public AnnotationAccessor<string> Description 
+        => new(this, HelpAnnotations.Description);
 
-    protected internal override bool Initialize(CliConfiguration configuration)
+    protected internal override CliConfiguration Initialize(CliConfiguration configuration)
     {
         var option = new CliOption<bool>("--help", ["-h"])
         {
@@ -34,11 +36,11 @@ public class HelpSubsystem(IAnnotationProvider? annotationProvider = null)
         };
         configuration.RootCommand.Add(option);
 
-        return true;
+        return configuration;
     }
 
-    protected internal override bool GetIsActivated(ParseResult parseResult)
-        => parseResult.GetValue<bool>("--help");
+    protected internal override bool GetIsActivated(ParseResult? parseResult)
+        => parseResult is not null && parseResult.GetValue<bool>("--help");
 
     protected internal override CliExit Execute(PipelineContext pipelineContext)
     {

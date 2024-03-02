@@ -4,27 +4,31 @@
 namespace System.CommandLine.Subsystem
 {
     // TODO: Consider what info is needed after invocation. If it's the whole pipeline context, consider collapsing this with that class.
-    public class CliExit(ParseResult parseResult)
+    public class CliExit
     {
-        public CliExit(PipelineContext pipelineContext) : this(pipelineContext.ParseResult, pipelineContext.AlreadyHandled, pipelineContext.ExitCode)
+        internal CliExit(PipelineContext pipelineContext) 
+            : this(pipelineContext.ParseResult, pipelineContext.AlreadyHandled, pipelineContext.ExitCode)
         { }
 
-        private CliExit(ParseResult parseResult, bool handled, int exitCode)
-            : this(parseResult)
+        private CliExit(ParseResult? parseResult, bool handled, int exitCode)
         {
             ExitCode = exitCode;
             Handled = handled;
+            ParseResult = parseResult;
         }
-        public ParseResult ParseResult { get; set; } = parseResult;
+        public ParseResult? ParseResult { get; set; } 
 
         public int ExitCode { get; }
 
         public static implicit operator int(CliExit cliExit) => cliExit.ExitCode;
 
+        public static implicit operator bool(CliExit cliExit) => !cliExit.Handled;
+
+
         public bool Handled { get; }
 
-        public static CliExit NotRun(ParseResult parseResult) => new CliExit(parseResult, false, 0);
+        public static CliExit NotRun(ParseResult? parseResult) => new(parseResult, false, 0);
 
-        public static CliExit SuccessfullyHandled(ParseResult parseResult) => new CliExit(parseResult, true, 0);
+        public static CliExit SuccessfullyHandled(ParseResult? parseResult) => new(parseResult, true, 0);
     }
 }

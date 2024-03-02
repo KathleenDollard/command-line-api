@@ -11,9 +11,9 @@ namespace System.CommandLine.Subsystem.Tests
     public class PipelineTests
     {
 
-        private static readonly string version = (Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly())
-                                                .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
-                                                .InformationalVersion;
+        private static readonly string? version = (Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly())
+                                                 ?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+                                                 ?.InformationalVersion;
 
 
         [Fact]
@@ -27,7 +27,7 @@ namespace System.CommandLine.Subsystem.Tests
             var versionSubsystem = new VersionSubsystem();
             var pipeline = new Pipeline();
             var consoleHack = new ConsoleHack().RedirectToBuffer(true);
-            pipeline.AddOtherExtension(versionSubsystem);
+            pipeline.Version = versionSubsystem;
 
             var exit = pipeline.Execute(configuration, "-v", consoleHack);
 
@@ -47,10 +47,11 @@ namespace System.CommandLine.Subsystem.Tests
             var versionSubsystem = new VersionSubsystem();
             var pipeline = new Pipeline();
             var consoleHack = new ConsoleHack().RedirectToBuffer(true);
-            pipeline.AddOtherExtension(versionSubsystem);
+            pipeline.Version = versionSubsystem;
+            var input = "-x";
 
-            var result = pipeline.Parse(configuration, "-x");
-            var exit = pipeline.Execute(result, consoleHack);
+            var result = pipeline.Parse(configuration, input);
+            var exit = pipeline.Execute(result, input,consoleHack);
 
             exit.ExitCode.Should().Be(0);
             exit.Handled.Should().BeFalse();
@@ -69,10 +70,11 @@ namespace System.CommandLine.Subsystem.Tests
             var versionSubsystem = new VersionSubsystem();
             var pipeline = new Pipeline();
             var consoleHack = new ConsoleHack().RedirectToBuffer(true);
-            pipeline.AddOtherExtension(versionSubsystem);
+            pipeline.Version = versionSubsystem;
+            var input = "-v";
 
-            var result = pipeline.Parse(configuration, "-v");
-            var exit = pipeline.Execute(result, consoleHack);
+            var result = pipeline.Parse(configuration, input);
+            var exit = pipeline.Execute(result, input, consoleHack);
 
             exit.ExitCode.Should().Be(0);
             exit.Handled.Should().BeTrue();
@@ -91,10 +93,11 @@ namespace System.CommandLine.Subsystem.Tests
             var versionSubsystem = new VersionSubsystem();
             var pipeline = new Pipeline();
             var consoleHack = new ConsoleHack().RedirectToBuffer(true);
-            pipeline.AddOtherExtension(versionSubsystem);
+            pipeline.Version = versionSubsystem;
+            var input = "-x";
 
-            var result = pipeline.Parse(configuration, "-x");
-            var exit = pipeline.Execute(result, consoleHack);
+            var result = pipeline.Parse(configuration, input);
+            var exit = pipeline.Execute(result, input, consoleHack);
 
             exit.ExitCode.Should().Be(0);
             exit.Handled.Should().BeFalse();
@@ -110,19 +113,20 @@ namespace System.CommandLine.Subsystem.Tests
             var configuration = new CliConfiguration(rootCommand);
             var versionSubsystem = new VersionSubsystem();
             var consoleHack = new ConsoleHack().RedirectToBuffer(true);
-            Subsystem.Initialize(versionSubsystem,configuration);
+            Subsystem.Initialize(versionSubsystem, configuration);
 
+            // TODO: I do not know why anyone would do this, but I do not see a reason to work to block it
             var parseResult = CliParser.Parse(rootCommand, "-v", configuration);
-            CliExit? exit = null;
-            if (parseResult.GetValue<bool>("--version"))
+            var input = "--version";
+            if (parseResult.GetValue<bool>(input))
             {
                 // TODO: Add an execute overload to avoid checking activated twice
-                exit = Subsystem.ExecuteIfNeeded(versionSubsystem, parseResult, consoleHack);
+                var exit = Subsystem.ExecuteIfNeeded(versionSubsystem, parseResult, input, consoleHack);
+                exit.Should().NotBeNull();
+                exit.ExitCode.Should().Be(0);
+                exit.Handled.Should().BeTrue();
             }
 
-            exit.Should().NotBeNull();
-            exit.ExitCode.Should().Be(0);
-            exit.Handled.Should().BeTrue();
             consoleHack.GetBuffer().Trim().Should().Be(version);
         }
 
@@ -136,9 +140,10 @@ namespace System.CommandLine.Subsystem.Tests
             var versionSubsystem = new VersionSubsystem();
             var consoleHack = new ConsoleHack().RedirectToBuffer(true);
             Subsystem.Initialize(versionSubsystem, configuration);
+            var input = "-v";
 
-            var parseResult = CliParser.Parse(rootCommand, "-v", configuration);
-            var exit = Subsystem.ExecuteIfNeeded(versionSubsystem, parseResult, consoleHack);
+            var parseResult = CliParser.Parse(rootCommand, input, configuration);
+            var exit = Subsystem.ExecuteIfNeeded(versionSubsystem, parseResult, input, consoleHack);
 
             exit.ExitCode.Should().Be(0);
             exit.Handled.Should().BeTrue();

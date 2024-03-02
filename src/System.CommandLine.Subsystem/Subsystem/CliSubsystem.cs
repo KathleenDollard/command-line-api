@@ -65,7 +65,7 @@ public abstract class CliSubsystem
         (_defaultProvider ??= new DefaultAnnotationProvider()).Set(symbol, id, value);
     }
 
-    //internal virtual bool RunsEvenIfAlreadyHandled { get; } = runsEvenIfAlreadyHandled;
+    protected internal virtual bool RunsEvenIfAlreadyHandled { get; protected set; }
 
     /// <summary>
     /// Executes the behavior of the subsystem. For example, help would write information to the console.
@@ -74,16 +74,17 @@ public abstract class CliSubsystem
     /// <returns>A CliExit object with information such as whether the CLI should terminate</returns>
     protected internal virtual CliExit Execute(PipelineContext pipelineContext) => CliExit.NotRun(pipelineContext.ParseResult);
 
-     internal CliExit ExecuteIfNeeded(PipelineContext pipelineContext)
-        => ExecuteIfNeeded(pipelineContext.ParseResult, pipelineContext.ConsoleHack, pipelineContext);
+     internal PipelineContext ExecuteIfNeeded(PipelineContext pipelineContext)
+        => ExecuteIfNeeded(pipelineContext.ParseResult,  pipelineContext);
 
-     internal CliExit ExecuteIfNeeded(ParseResult parseResult, ConsoleHack consoleHack)
-        => ExecuteIfNeeded(parseResult, consoleHack, null);
-
-     internal CliExit ExecuteIfNeeded(ParseResult parseResult, ConsoleHack consoleHack, PipelineContext? pipelineContext = null)
-        => GetIsActivated(parseResult)
-            ? Execute(pipelineContext ?? new PipelineContext(parseResult, consoleHack))
-            : CliExit.NotRun(parseResult);
+    internal PipelineContext ExecuteIfNeeded(ParseResult? parseResult, PipelineContext pipelineContext)
+    {
+        if( GetIsActivated(parseResult))
+        {
+            Execute(pipelineContext );
+        }
+        return pipelineContext;
+    }
 
 
     /// <summary>
@@ -94,7 +95,7 @@ public abstract class CliSubsystem
     /// </remarks>
     /// <param name="result">The parse result.</param>
     /// <returns></returns>
-    protected internal virtual bool GetIsActivated(ParseResult parseResult) => false;
+    protected internal virtual bool GetIsActivated(ParseResult? parseResult) => false;
 
     /// <summary>
     /// Runs before parsing to prepare the parser. Since it always runs, slow code that is only needed when the extension 
@@ -109,10 +110,10 @@ public abstract class CliSubsystem
     /// <param name="configuration">The CLI configuration, which contains the RootCommand for customization</param>
     /// <returns>True if parsing should continue</returns> // there might be a better design that supports a message
     // TODO: Because of this and similar usage, consider combining CLI declaration and config. ArgParse calls this the parser, which I like
-    protected internal virtual bool Initialize(CliConfiguration configuration) => true;
+    protected internal virtual CliConfiguration Initialize(CliConfiguration configuration) => configuration;
 
     // TODO: Determine if this is needed.
-    protected internal virtual bool TearDown(ParseResult result) => true;
+    protected internal virtual PipelineContext TearDown(PipelineContext pipelineContext) => pipelineContext;
 
 }
 

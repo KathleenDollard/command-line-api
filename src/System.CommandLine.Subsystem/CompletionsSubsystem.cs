@@ -9,9 +9,11 @@ public class CompletionsSubsystem : CliSubsystem
         : base("Completions", annotationProvider, SubsystemKind.Completions)
     { }
 
-    // TODO: Stash option rather than using string
-    protected internal override bool GetIsActivated(ParseResult parseResult)
-        => parseResult.Errors.Any();
+    // TODO: Figure out trigger for completions
+    protected internal override bool GetIsActivated(ParseResult? parseResult)
+        => parseResult is null
+            ? false
+            : false;
 
     protected internal override CliExit Execute(PipelineContext pipelineContext)
     {

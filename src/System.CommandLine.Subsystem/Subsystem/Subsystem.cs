@@ -14,14 +14,14 @@ namespace System.CommandLine.Subsystem
         public static bool GetIsActivated(CliSubsystem subsystem, ParseResult parseResult)
             => subsystem.GetIsActivated(parseResult);
 
-        public static CliExit ExecuteIfNeeded(CliSubsystem subsystem, PipelineContext pipelineContext)
+        public static CliExit ExecuteIfNeeded(CliSubsystem subsystem, ParseResult parseResult, string rawInput, ConsoleHack? consoleHack = null) 
+            => new(subsystem.ExecuteIfNeeded(new PipelineContext(parseResult,  rawInput, consoleHack)));
+
+        internal static PipelineContext ExecuteIfNeeded(CliSubsystem subsystem, ParseResult parseResult, string rawInput, ConsoleHack? consoleHack, PipelineContext? pipelineContext = null) 
+            => subsystem.ExecuteIfNeeded(pipelineContext ?? new PipelineContext(parseResult, rawInput, consoleHack));
+
+        internal static PipelineContext ExecuteIfNeeded(CliSubsystem subsystem, PipelineContext pipelineContext)
             => subsystem.ExecuteIfNeeded(pipelineContext);
-
-        public static CliExit ExecuteIfNeeded(CliSubsystem subsystem, ParseResult parseResult, ConsoleHack consoleHack)
-            => subsystem.ExecuteIfNeeded(parseResult, consoleHack);
-
-        public static CliExit ExecuteIfNeeded(CliSubsystem subsystem, ParseResult parseResult, ConsoleHack consoleHack, PipelineContext? pipelineContext = null)
-            => subsystem.ExecuteIfNeeded(parseResult, consoleHack, pipelineContext);
 
     }
 }

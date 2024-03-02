@@ -17,7 +17,7 @@ namespace System.CommandLine.Subsystem
 
 
         // TODO: Should we block adding version anywhere but root?
-        public string SpecificVersion
+        public string? SpecificVersion
         {
             get
             {
@@ -30,14 +30,12 @@ namespace System.CommandLine.Subsystem
         }
 
         public static string? AssemblyVersion(Assembly assembly) 
-            => assembly is null
-                ? null
-                : assembly
-                    .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
-                    ?.InformationalVersion;
+            => assembly
+                ?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+                ?.InformationalVersion;
 
 
-        protected internal override bool Initialize(CliConfiguration configuration)
+        protected internal override CliConfiguration Initialize(CliConfiguration configuration)
         {
             var option = new CliOption<bool>("--version", ["-v"])
             {
@@ -45,12 +43,12 @@ namespace System.CommandLine.Subsystem
             };
             configuration.RootCommand.Add(option);
 
-            return true;
+            return configuration;
         }
 
         // TODO: Stash option rather than using string
-        protected internal override bool GetIsActivated(ParseResult parseResult)
-            => parseResult.GetValue<bool>("--version");
+        protected internal override bool GetIsActivated(ParseResult? parseResult)
+            => parseResult is not null && parseResult.GetValue<bool>("--version");
 
         protected internal override CliExit Execute(PipelineContext pipelineContext)
         {

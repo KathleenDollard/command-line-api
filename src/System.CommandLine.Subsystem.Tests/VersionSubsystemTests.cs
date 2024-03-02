@@ -5,21 +5,24 @@ using System.Reflection;
 using FluentAssertions;
 using Xunit;
 using System.CommandLine.Subsystem;
+using System.Xml;
 
 namespace System.CommandLine.Subsystem.Tests
 {
     public class VersionSubsystemTests
     {
-        private static readonly string version = (Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly())
-                                                 .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
-                                                 .InformationalVersion;
+        private static readonly string? version = (Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly())
+                                                 ?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+                                                 ?.InformationalVersion;
+
+        private readonly string newLine = Environment.NewLine;
 
         [Fact]
         public void Outputs_assembly_version()
         {
             var consoleHack = new ConsoleHack().RedirectToBuffer(true);
             var versionSubsystem = new VersionSubsystem();
-            Subsystem.Execute(versionSubsystem, new PipelineContext(null, consoleHack));
+            Subsystem.Execute(versionSubsystem, new PipelineContext(null, "", consoleHack));
             consoleHack.GetBuffer().Trim().Should().Be(version);
         }
 
@@ -27,9 +30,11 @@ namespace System.CommandLine.Subsystem.Tests
         public void Outputs_specified_version()
         {
             var consoleHack = new ConsoleHack().RedirectToBuffer(true);
-            var versionSubsystem = new VersionSubsystem();
-            versionSubsystem.SpecificVersion = "42";
-            Subsystem.Execute(versionSubsystem, new PipelineContext(null, consoleHack));
+            var versionSubsystem = new VersionSubsystem
+            {
+                SpecificVersion = "42"
+            };
+            Subsystem.Execute(versionSubsystem, new PipelineContext(null, "", consoleHack));
             consoleHack.GetBuffer().Trim().Should().Be("42");
         }
 
@@ -37,9 +42,11 @@ namespace System.CommandLine.Subsystem.Tests
         public void Outputs_assembly_version_when_specified_version_set_to_null()
         {
             var consoleHack = new ConsoleHack().RedirectToBuffer(true);
-            var versionSubsystem = new VersionSubsystem();
-            versionSubsystem.SpecificVersion = null;
-            Subsystem.Execute(versionSubsystem, new PipelineContext(null, consoleHack));
+            var versionSubsystem = new VersionSubsystem
+            {
+                SpecificVersion = null
+            };
+            Subsystem.Execute(versionSubsystem, new PipelineContext(null, "", consoleHack));
             consoleHack.GetBuffer().Trim().Should().Be(version);
         }
 
@@ -51,28 +58,31 @@ namespace System.CommandLine.Subsystem.Tests
 
             var consoleHack = new ConsoleHack().RedirectToBuffer(true);
             var versionSubsystem = new VersionSubsystem();
-            Subsystem.Execute(versionSubsystem, new PipelineContext(null, consoleHack));
+            Subsystem.Execute(versionSubsystem, new PipelineContext(null, "",consoleHack));
             consoleHack.GetBuffer().Trim().Should().Be(version);
         }
 
 
+        [Fact]
+        public void When_the_version_option_is_specified_then_the_version_is_written_to_standard_out()
+        {
+            var configuration = new CliConfiguration(new CliRootCommand());
+            var pipeline = new Pipeline();
+            var consoleHack = new ConsoleHack().RedirectToBuffer(true);
+            pipeline.Version = new VersionSubsystem();
+
+            var exit = pipeline.Execute(configuration, "-v", consoleHack);
+
+            exit.ExitCode.Should().Be(0);
+            exit.Handled.Should().BeTrue();
+            consoleHack.GetBuffer().Should().Be($"{version}{newLine}");
+
+        }
 
 
-        // TODO: invocation/output
+        // TODO: Add functional tests from previous version
         /*
 
-                [Fact]
-                public async Task When_the_version_option_is_specified_then_the_version_is_written_to_standard_out()
-                {
-                    CliConfiguration configuration = new(new CliRootCommand())
-                    {
-                        Output = new StringWriter()
-                    };
-
-                    await configuration.InvokeAsync("--version");
-
-                    configuration.Output.ToString().Should().Be($"{version}{NewLine}");
-                }
 
                 [Fact]
                 public async Task When_the_version_option_is_specified_then_invocation_is_short_circuited()

@@ -3,10 +3,11 @@
 
 namespace System.CommandLine.Subsystem
 {
-    public class PipelineContext(ParseResult parseResult, ConsoleHack consoleHack)
+    public class PipelineContext(ParseResult? parseResult, string rawInput, ConsoleHack? consoleHack = null)
     {
-        public ParseResult ParseResult { get; } = parseResult;
-        public ConsoleHack ConsoleHack { get; } = consoleHack;
+        public ParseResult? ParseResult { get; } = parseResult;
+        public string RawInput { get; } = rawInput;
+        public ConsoleHack ConsoleHack { get; } = consoleHack ?? new ConsoleHack();
 
         public bool AlreadyHandled { get; set; }
         public int ExitCode { get; set; }

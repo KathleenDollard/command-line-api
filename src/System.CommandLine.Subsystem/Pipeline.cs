@@ -2,57 +2,47 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Parsing;
+using System.CommandLine.Subsystem;
 
-namespace System.CommandLine.Subsystem
+namespace System.CommandLine
 {
     public class Pipeline
     {
-        private readonly List<CliSubsystem> _otherExtensions = new();
-        public IEnumerable<CliSubsystem> OtherExtensions => _otherExtensions;
+        //private readonly List<CliSubsystem> _otherExtensions = new();
+        //public IEnumerable<CliSubsystem> OtherExtensions => _otherExtensions;
 
         public HelpSubsystem? Help { get; set; }
         public VersionSubsystem? Version { get; set; }
         public ErrorReportingSubsystem? ErrorReporting { get; set; }
         public CompletionsSubsystem? Completions { get; set; }
 
-        public void AddOtherExtension(CliSubsystem extension) => _otherExtensions.Add(extension);
+        //public void AddOtherExtension(CliSubsystem extension) => _otherExtensions.Add(extension);
 
-        public void InitializeExtensions(CliConfiguration configuration)
-        {
-            foreach (var extension in _otherExtensions)
-            {
-                extension.Initialize(configuration);
-            }
-        }
+        public virtual void InitializeExtensions(CliConfiguration configuration) 
+            => configuration.InitializeSubsystem(Help)
+                .InitializeSubsystem(Version)
+                .InitializeSubsystem(ErrorReporting)
+                .InitializeSubsystem(Completions);
 
-        public void TearDownExtensions(ParseResult parseResult)
-        {
-            foreach (var extension in _otherExtensions)
-            {
-                extension.TearDown(parseResult);
-            }
-        }
+        public void TearDownExtensions(PipelineContext pipelineContext)
+            => pipelineContext.TeardownSubsystem(Help)
+                .TeardownSubsystem(Version)
+                .TeardownSubsystem(ErrorReporting)
+                .TeardownSubsystem(Completions);
 
-        public void ExecuteRequestedExtensions(PipelineContext pipelineContext)
-        {
-            foreach (var extension in _otherExtensions)
-            {
-                //if (!pipelineContext.AlreadyHandled || extension.RunsEvenIfAlreadyHandled)
-                if (!pipelineContext.AlreadyHandled )
-                {
-                    extension.ExecuteIfNeeded(pipelineContext);
-                }
-            }
-        }
+        protected virtual void ExecuteRequestedExtensions(PipelineContext pipelineContext) 
+            => pipelineContext.ExecuteSubSystemIfNeeded(Help)
+                .ExecuteSubSystemIfNeeded(Version)
+                .ExecuteSubSystemIfNeeded(ErrorReporting)
+                .ExecuteSubSystemIfNeeded(Completions);
 
         public ParseResult Parse(CliConfiguration configuration, string rawInput)
-            => Parse(configuration, CliParser.SplitCommandLine(rawInput).ToArray(), rawInput);
+            => Parse(configuration, CliParser.SplitCommandLine(rawInput).ToArray());
 
-        public ParseResult Parse(CliConfiguration configuration, string[] args, string rawInput)
+        public ParseResult Parse(CliConfiguration configuration, string[] args)
         {
             InitializeExtensions(configuration);
             var parseResult = CliParser.Parse(configuration.RootCommand, args, configuration);
-            TearDownExtensions(parseResult);
             return parseResult;
         }
 
@@ -60,11 +50,11 @@ namespace System.CommandLine.Subsystem
             => Execute(configuration, CliParser.SplitCommandLine(rawInput).ToArray(), rawInput, consoleHack);
 
         public CliExit Execute(CliConfiguration configuration, string[] args, string rawInput, ConsoleHack? consoleHack = null)
-            => Execute(Parse(configuration, args, rawInput), consoleHack);
+            => Execute(Parse(configuration, args), rawInput, consoleHack);
 
-        public CliExit Execute(ParseResult parseResult, ConsoleHack? consoleHack = null)
+        public CliExit Execute(ParseResult parseResult, string rawInput, ConsoleHack? consoleHack = null)
         {
-            var pipelineContext = new PipelineContext(parseResult, consoleHack ?? new ConsoleHack());
+            var pipelineContext = new PipelineContext(parseResult, rawInput, consoleHack ?? new ConsoleHack());
             ExecuteRequestedExtensions(pipelineContext);
             return new CliExit(pipelineContext);
         }
