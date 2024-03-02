@@ -99,7 +99,7 @@ namespace System.CommandLine
 
         public CliExit Execute(ParseResult parseResult, string rawInput, ConsoleHack? consoleHack = null)
         {
-            var pipelineContext = new PipelineContext(parseResult, rawInput, consoleHack ?? new ConsoleHack());
+            var pipelineContext = new PipelineContext(parseResult, rawInput, this, consoleHack ?? new ConsoleHack());
             ExecuteRequestedExtensions(pipelineContext);
             return new CliExit(pipelineContext);
         }

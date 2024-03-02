@@ -66,7 +66,7 @@ namespace System.CommandLine.Subsystem.Tests
         {
             var consoleHack = new ConsoleHack().RedirectToBuffer(true);
             var versionSubsystem = new VersionSubsystem();
-            Subsystem.Execute(versionSubsystem, new PipelineContext(null, "", consoleHack));
+            Subsystem.Execute(versionSubsystem, new PipelineContext(null, "", null, consoleHack));
             consoleHack.GetBuffer().Trim().Should().Be(version);
         }
 
@@ -78,7 +78,7 @@ namespace System.CommandLine.Subsystem.Tests
             {
                 SpecificVersion = "42"
             };
-            Subsystem.Execute(versionSubsystem, new PipelineContext(null, "", consoleHack));
+            Subsystem.Execute(versionSubsystem, new PipelineContext(null, "", null, consoleHack));
             consoleHack.GetBuffer().Trim().Should().Be("42");
         }
 
@@ -90,7 +90,7 @@ namespace System.CommandLine.Subsystem.Tests
             {
                 SpecificVersion = null
             };
-            Subsystem.Execute(versionSubsystem, new PipelineContext(null, "", consoleHack));
+            Subsystem.Execute(versionSubsystem, new PipelineContext(null, "", null, consoleHack));
             consoleHack.GetBuffer().Trim().Should().Be(version);
         }
 
@@ -102,7 +102,7 @@ namespace System.CommandLine.Subsystem.Tests
 
             var consoleHack = new ConsoleHack().RedirectToBuffer(true);
             var versionSubsystem = new VersionSubsystem();
-            Subsystem.Execute(versionSubsystem, new PipelineContext(null, "", consoleHack));
+            Subsystem.Execute(versionSubsystem, new PipelineContext(null, "", null, consoleHack));
             consoleHack.GetBuffer().Trim().Should().Be(version);
         }
 
@@ -292,5 +292,31 @@ namespace System.CommandLine.Subsystem.Tests
             result.Errors.Should().ContainSingle(e => e.Message == "-v option cannot be combined with other arguments.");
         }
         */
+
+
+        [Fact]
+        public void Custom_version_subsystem_can_be_used()
+        {
+            var consoleHack = new ConsoleHack().RedirectToBuffer(true);
+            var pipeline = new Pipeline
+            {
+                Version = new AlternateSubsystems.Version()
+            };
+            pipeline.Execute(new CliConfiguration(new CliRootCommand()), "-v", consoleHack);
+            consoleHack.GetBuffer().Trim().Should().Be($"***{version}***");
+        }
+
+
+        [Fact]
+        public void Custom_version_subsystem_can_replace_standard()
+        {
+            var consoleHack = new ConsoleHack().RedirectToBuffer(true);
+            var pipeline = new StandardPipeline
+            {
+                Version = new AlternateSubsystems.Version()
+            };
+            pipeline.Execute(new CliConfiguration(new CliRootCommand()), "-v", consoleHack);
+            consoleHack.GetBuffer().Trim().Should().Be($"***{version}***");
+        }
     }
 }

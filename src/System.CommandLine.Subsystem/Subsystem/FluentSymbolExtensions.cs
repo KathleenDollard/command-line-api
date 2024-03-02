@@ -9,7 +9,7 @@ namespace System.CommandLine.Subsystem;
 /// <summary>
 /// Extensions for <see cref="CliSymbol"/> that allow fluent construction of <see cref="CliCommand"/> and fluent addition of annotations to <see cref="CliSymbol"/> objects.
 /// </summary>
-static class FluentSymbolExtensions
+public static class FluentSymbolExtensions
 {
     public static TSymbol With<TSymbol, TValue>(this TSymbol symbol, AnnotationAccessor<TValue> annotation, TValue value)
         where TSymbol : CliSymbol

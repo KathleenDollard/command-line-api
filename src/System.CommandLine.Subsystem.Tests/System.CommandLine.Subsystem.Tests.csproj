@@ -24,6 +24,8 @@
     <Compile Include="..\System.CommandLine.Tests\Utility\**\*.cs" Link="Utility\%(RecursiveDir)%(Filename).%(Extension)" Exclude="..\System.CommandLine.Tests\Utility\ParseResultExtensions.cs" />
     <Compile Include="..\System.CommandLine.Suggest\DotnetMuxer.cs" Link="Utility\DotnetMuxer.cs" />
     <Compile Include="..\System.CommandLine\Properties\Resources.Designer.cs" Link="Properties\Resources.Designer.cs" />
+    <Compile Include="AlternateSubsystems.cs" />
+    <Compile Include="StandardPipelineTests.cs" />
     <Compile Include="PipelineTests.cs" />
     <Compile Include="Samples.cs" />
     <Compile Include="CompletionsSubsystemTests.cs" />

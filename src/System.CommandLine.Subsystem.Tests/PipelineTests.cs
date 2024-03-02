@@ -51,7 +51,7 @@ namespace System.CommandLine.Subsystem.Tests
             var input = "-x";
 
             var result = pipeline.Parse(configuration, input);
-            var exit = pipeline.Execute(result, input,consoleHack);
+            var exit = pipeline.Execute(result, input, consoleHack);
 
             exit.ExitCode.Should().Be(0);
             exit.Handled.Should().BeFalse();
@@ -148,6 +148,27 @@ namespace System.CommandLine.Subsystem.Tests
             exit.Handled.Should().BeTrue();
             consoleHack.GetBuffer().Trim().Should().Be(version);
         }
+
+
+        [Fact]
+        public void Subsystems_can_access_each_other()
+        {
+            var consoleHack = new ConsoleHack().RedirectToBuffer(true);
+            var symbol = new CliOption<bool>("-x");
+
+            var pipeline = new StandardPipeline
+            {
+                Version = new AlternateSubsystems.VersionThatUsesHelpData(symbol)
+            };
+            if (pipeline.Help is null) throw new InvalidOperationException();
+            var rootCommand = new CliRootCommand
+            {
+                symbol.With(pipeline.Help.Description, "Testing")
+            };
+            pipeline.Execute(new CliConfiguration(rootCommand), "-v", consoleHack);
+            consoleHack.GetBuffer().Trim().Should().Be($"Testing");
+        }
+
 
     }
 }

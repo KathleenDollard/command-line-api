@@ -25,6 +25,11 @@ public class HelpSubsystem(IAnnotationProvider? annotationProvider = null)
     public void SetDescription(CliSymbol symbol, string description) 
         => SetAnnotation(symbol, HelpAnnotations.Description, description);
 
+    public string GetDescription(CliSymbol symbol) 
+        => TryGetAnnotation<string>(symbol, HelpAnnotations.Description, out var value)
+            ? value
+            : "";
+
     public AnnotationAccessor<string> Description 
         => new(this, HelpAnnotations.Description);
 
