@@ -24,10 +24,10 @@
     <Compile Include="..\System.CommandLine\Properties\Resources.Designer.cs" Link="Properties\Resources.Designer.cs" />
     <Compile Include="PipelineTests.cs" />
     <Compile Include="Samples.cs" />
+    <Compile Include="VersionSubsystemTests.cs" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\System.CommandLine.Subsystem.Version\System.CommandLine.Subsystem.Version.csproj" />
     <ProjectReference Include="..\System.CommandLine.Subsystem\System.CommandLine.Subsystem.csproj" />
     <ProjectReference Include="..\System.CommandLine\System.CommandLine.csproj" />
   </ItemGroup>

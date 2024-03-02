@@ -1,9 +1,10 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.CommandLine.Extended.Annotations;
 
-namespace System.CommandLine.Extended;
+using System.CommandLine.Subsystem.Annotations;
+
+namespace System.CommandLine.Subsystem;
 
 /// <summary>
 /// Extensions for <see cref="CliSymbol"/> that allow fluent construction of <see cref="CliCommand"/> and fluent addition of annotations to <see cref="CliSymbol"/> objects.

@@ -16,7 +16,7 @@ namespace System.CommandLine.Subsystem
         {
             foreach (var extension in _extensions)
             {
-                extension.PipelineSupport?.Initialize(configuration);
+                extension.Initialize(configuration);
             }
         }
 
@@ -24,7 +24,7 @@ namespace System.CommandLine.Subsystem
         {
             foreach (var extension in _extensions)
             {
-                extension.PipelineSupport?.TearDown(parseResult);
+                extension.TearDown(parseResult);
             }
         }
 
@@ -32,9 +32,10 @@ namespace System.CommandLine.Subsystem
         {
             foreach (var extension in _extensions)
             {
-                if (!pipelineContext.AlreadyHandled || extension.PipelineSupport.RunsEvenIfAlreadyHandled)
+                //if (!pipelineContext.AlreadyHandled || extension.RunsEvenIfAlreadyHandled)
+                if (!pipelineContext.AlreadyHandled )
                 {
-                   extension.PipelineSupport?.ExecuteIfNeeded(pipelineContext);
+                    extension.ExecuteIfNeeded(pipelineContext);
                 }
             }
         }
@@ -53,7 +54,7 @@ namespace System.CommandLine.Subsystem
         public CliExit Execute(CliConfiguration configuration, string rawInput, ConsoleHack? consoleHack = null)
             => Execute(configuration, CliParser.SplitCommandLine(rawInput).ToArray(), rawInput, consoleHack);
 
-        public CliExit Execute(CliConfiguration configuration, string[] args, string rawInput, ConsoleHack? consoleHack = null) 
+        public CliExit Execute(CliConfiguration configuration, string[] args, string rawInput, ConsoleHack? consoleHack = null)
             => Execute(Parse(configuration, args, rawInput), consoleHack);
 
         public CliExit Execute(ParseResult parseResult, ConsoleHack? consoleHack = null)

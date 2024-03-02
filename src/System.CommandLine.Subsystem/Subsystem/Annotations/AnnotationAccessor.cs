@@ -1,10 +1,9 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.CommandLine.Subsystem;
 using System.Diagnostics.CodeAnalysis;
 
-namespace System.CommandLine.Extended.Annotations;
+namespace System.CommandLine.Subsystem.Annotations;
 
 /// <summary>
 /// Allows associating an annotation with a <see cref="CliSymbol"/>. The annotation will be stored by the accessor's owner <see cref="CliSubsystem"/>.

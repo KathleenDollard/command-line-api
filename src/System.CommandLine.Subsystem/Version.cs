@@ -10,10 +10,11 @@ namespace System.CommandLine.Subsystem
     {
         private string specificVersion = null;
 
-        public Version(IAnnotationProvider? annotationProvider = null) 
-            : base( "Version",   annotationProvider,SubsystemKind.Version)
+        public Version(IAnnotationProvider? annotationProvider = null)
+            : base("Version", annotationProvider, SubsystemKind.Version)
         {
         }
+
 
         // TODO: Should we block adding version anywhere but root?
         public string SpecificVersion
@@ -36,7 +37,7 @@ namespace System.CommandLine.Subsystem
                     ?.InformationalVersion;
 
 
-        protected override bool Initialize(CliConfiguration configuration)
+        protected internal override bool Initialize(CliConfiguration configuration)
         {
             var option = new CliOption<bool>("--version", ["-v"])
             {
@@ -48,10 +49,10 @@ namespace System.CommandLine.Subsystem
         }
 
         // TODO: Stash option rather than using string
-        protected override bool GetIsActivated(ParseResult parseResult)
+        protected internal override bool GetIsActivated(ParseResult parseResult)
             => parseResult.GetValue<bool>("--version");
 
-        protected override CliExit Execute(PipelineContext pipelineContext)
+        protected internal override CliExit Execute(PipelineContext pipelineContext)
         {
             var subsystemVersion = SpecificVersion;
             var version = subsystemVersion is null

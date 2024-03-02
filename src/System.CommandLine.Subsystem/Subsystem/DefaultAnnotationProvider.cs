@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
-namespace System.CommandLine.Extended.Annotations;
+namespace System.CommandLine.Subsystem;
 
 /// <summary>
 /// Default storage for annotations

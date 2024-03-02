@@ -4,6 +4,7 @@
     <TargetFrameworks>$(TargetFrameworkForNETSDK)</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <RootNamespace>System.CommandLine</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

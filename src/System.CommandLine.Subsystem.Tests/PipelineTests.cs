@@ -90,14 +90,14 @@ namespace System.CommandLine.Subsystem.Tests
             var configuration = new CliConfiguration(rootCommand);
             var versionSubsystem = new Version();
             var consoleHack = new ConsoleHack().RedirectToBuffer(true);
-            versionSubsystem.PipelineSupport.Initialize(configuration);
+            Subsystem.Initialize(versionSubsystem,configuration);
 
             var parseResult = CliParser.Parse(rootCommand, "-v", configuration);
             CliExit? exit = null;
             if (parseResult.GetValue<bool>("--version"))
             {
                 // TODO: Add an execute overload to avoid checking activated twice
-                exit = versionSubsystem.PipelineSupport.ExecuteIfNeeded(parseResult, consoleHack);
+                exit = Subsystem.ExecuteIfNeeded(versionSubsystem, parseResult, consoleHack);
             }
 
             exit.Should().NotBeNull();
@@ -115,10 +115,10 @@ namespace System.CommandLine.Subsystem.Tests
             var configuration = new CliConfiguration(rootCommand);
             var versionSubsystem = new Version();
             var consoleHack = new ConsoleHack().RedirectToBuffer(true);
-            versionSubsystem.PipelineSupport.Initialize(configuration);
+            Subsystem.Initialize(versionSubsystem, configuration);
 
             var parseResult = CliParser.Parse(rootCommand, "-v", configuration);
-            var exit = versionSubsystem.PipelineSupport.ExecuteIfNeeded(parseResult, consoleHack);
+            var exit = Subsystem.ExecuteIfNeeded(versionSubsystem, parseResult, consoleHack);
 
             exit.ExitCode.Should().Be(0);
             exit.Handled.Should().BeTrue();

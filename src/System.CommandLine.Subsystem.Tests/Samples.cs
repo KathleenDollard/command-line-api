@@ -31,11 +31,11 @@ namespace System.CommandLine.Subsystem.Tests
             { };
             var configuration = new CliConfiguration(rootCommand);
             var versionOption = new Version();
-            var pipeline = new Subsystem.Pipeline();
+            var pipeline = new Pipeline();
             pipeline.AddExtension(new Version());
 
             var parseResult = pipeline.Parse(configuration, "");
-            if (versionOption.PipelineSupport.GetIsActivated(parseResult))
+            if (Subsystem.GetIsActivated(versionOption,parseResult))
             {
                 Console.WriteLine("Version!!!!");
             }
