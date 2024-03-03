@@ -151,7 +151,7 @@ namespace System.CommandLine.Subsystem.Tests
 
 
         [Fact]
-        public void Subsystems_can_access_each_other()
+        public void Subsystems_can_access_each_others_data()
         {
             var consoleHack = new ConsoleHack().RedirectToBuffer(true);
             var symbol = new CliOption<bool>("-x");
@@ -168,7 +168,6 @@ namespace System.CommandLine.Subsystem.Tests
             pipeline.Execute(new CliConfiguration(rootCommand), "-v", consoleHack);
             consoleHack.GetBuffer().Trim().Should().Be($"Testing");
         }
-
 
     }
 }

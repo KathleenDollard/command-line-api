@@ -10,6 +10,8 @@ namespace System.CommandLine.Subsystem.Tests
 {
     public class ErrorReportingSubsystemTests
     {
+        
+
 
         /*
         [Fact]
