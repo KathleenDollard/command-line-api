@@ -17,7 +17,7 @@ namespace System.CommandLine.Subsystems.Tests
 
 
         [Fact]
-        public void Extension_runs_in_pipeline_when_requested()
+        public void Subsystem_runs_in_pipeline_when_requested()
         {
             var rootCommand = new CliRootCommand
             {
@@ -37,7 +37,7 @@ namespace System.CommandLine.Subsystems.Tests
         }
 
         [Fact]
-        public void Extension_does_not_run_when_not_requested()
+        public void Subsystem_does_not_run_when_not_requested()
         {
             var rootCommand = new CliRootCommand
             {
@@ -60,7 +60,7 @@ namespace System.CommandLine.Subsystems.Tests
         }
 
         [Fact]
-        public void Extension_does_runs_with_explicit_parse_when_requested()
+        public void Subsystem_does_runs_with_explicit_parse_when_requested()
         {
             var rootCommand = new CliRootCommand
             {
@@ -83,7 +83,7 @@ namespace System.CommandLine.Subsystems.Tests
         }
 
         [Fact]
-        public void Extension_runs_initialize_and_teardown_when_requested()
+        public void Subsystem_runs_initialize_and_teardown_when_requested()
         {
             var configuration = new CliConfiguration(new CliRootCommand { });
             var versionSubsystem = new AlternateSubsystems.VersionWithInitializeAndTeardown();
@@ -104,7 +104,7 @@ namespace System.CommandLine.Subsystems.Tests
         }
 
         [Fact]
-        public void Extension_does_not_run_with_explicit_parse_when_not_requested()
+        public void Subsystem_does_not_run_with_explicit_parse_when_not_requested()
         {
             var rootCommand = new CliRootCommand
             {
@@ -127,7 +127,7 @@ namespace System.CommandLine.Subsystems.Tests
         }
 
         [Fact]
-        public void Extension_can_be_used_without_runner()
+        public void Subsystem_can_be_used_without_runner()
         {
             var rootCommand = new CliRootCommand
             { };
@@ -152,7 +152,7 @@ namespace System.CommandLine.Subsystems.Tests
         }
 
         [Fact]
-        public void Extension_can_be_used_without_runner_style2()
+        public void Subsystem_can_be_used_without_runner_style2()
         {
             var rootCommand = new CliRootCommand
             { };
