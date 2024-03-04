@@ -16,164 +16,161 @@ namespace System.CommandLine.Subsystems.Tests
                                                  ?.InformationalVersion;
 
 
-        [Fact]
-        public void Subsystem_runs_in_pipeline_when_requested()
-        {
-            var rootCommand = new CliRootCommand
-            {
-                new CliOption<bool>("-x")
-            };
-            var configuration = new CliConfiguration(rootCommand);
-            var versionSubsystem = new VersionSubsystem();
-            var pipeline = new Pipeline();
-            var consoleHack = new ConsoleHack().RedirectToBuffer(true);
-            pipeline.Version = versionSubsystem;
-
-            var exit = pipeline.Execute(configuration, "-v", consoleHack);
-
-            exit.ExitCode.Should().Be(0);
-            exit.Handled.Should().BeTrue();
-            consoleHack.GetBuffer().Trim().Should().Be(version);
-        }
-
-        [Fact]
-        public void Subsystem_does_not_run_when_not_requested()
-        {
-            var rootCommand = new CliRootCommand
-            {
-                new CliOption<bool>("-x")
-            };
-            var configuration = new CliConfiguration(rootCommand);
-            var versionSubsystem = new VersionSubsystem();
-            var pipeline = new Pipeline();
-            var consoleHack = new ConsoleHack().RedirectToBuffer(true);
-            pipeline.Version = versionSubsystem;
-            var input = "-x";
-
-            var result = pipeline.Parse(configuration, input);
-            var exit = pipeline.Execute(result, input, consoleHack);
-
-            exit.ExitCode.Should().Be(0);
-            exit.Handled.Should().BeFalse();
-            consoleHack.GetBuffer().Trim().Should().Be("");
-
-        }
-
-        [Fact]
-        public void Subsystem_does_runs_with_explicit_parse_when_requested()
-        {
-            var rootCommand = new CliRootCommand
-            {
-                new CliOption<bool>("-x")
-            };
-            var configuration = new CliConfiguration(rootCommand);
-            var versionSubsystem = new VersionSubsystem();
-            var pipeline = new Pipeline();
-            var consoleHack = new ConsoleHack().RedirectToBuffer(true);
-            pipeline.Version = versionSubsystem;
-            var input = "-v";
-
-            var result = pipeline.Parse(configuration, input);
-            var exit = pipeline.Execute(result, input, consoleHack);
-
-            exit.ExitCode.Should().Be(0);
-            exit.Handled.Should().BeTrue();
-            consoleHack.GetBuffer().Trim().Should().Be(version);
-
-        }
-
-        [Fact]
-        public void Subsystem_runs_initialize_and_teardown_when_requested()
+        [Theory]
+        [InlineData("-v", true)]
+        [InlineData("--version", true)]
+        [InlineData("-x", false)]
+        [InlineData("", false)]
+        [InlineData(null, false)]
+        public void Subsystem_runs_in_pipeline_only_when_requested(string input, bool shouldRun)
         {
             var configuration = new CliConfiguration(new CliRootCommand { });
-            var versionSubsystem = new AlternateSubsystems.VersionWithInitializeAndTeardown();
+            var pipeline = new Pipeline
+            {
+                Version = new VersionSubsystem()
+            };
+            var consoleHack = new ConsoleHack().RedirectToBuffer(true);
+
+            var exit = pipeline.Execute(configuration, input, consoleHack);
+
+            exit.ExitCode.Should().Be(0);
+            exit.Handled.Should().Be(shouldRun);
+            if (shouldRun)
+            {
+                consoleHack.GetBuffer().Trim().Should().Be(version);
+            }
+        }
+
+        [Theory]
+        [InlineData("-v", true)]
+        [InlineData("--version", true)]
+        [InlineData("-x", false)]
+        [InlineData("", false)]
+        [InlineData(null, false)]
+        public void Subsystem_runs_with_explicit_parse_only_when_requested(string input, bool shouldRun)
+        {
+            var configuration = new CliConfiguration(new CliRootCommand { });
+            var pipeline = new Pipeline
+            {
+                Version = new VersionSubsystem()
+            };
+            var consoleHack = new ConsoleHack().RedirectToBuffer(true);
+
+            var result = pipeline.Parse(configuration, input);
+            var exit = pipeline.Execute(result, input, consoleHack);
+
+            exit.ExitCode.Should().Be(0);
+            exit.Handled.Should().Be(shouldRun);
+            if (shouldRun)
+            {
+                consoleHack.GetBuffer().Trim().Should().Be(version);
+            }
+        }
+
+        [Theory]
+        [InlineData("-v", true)]
+        [InlineData("--version", true)]
+        [InlineData("-x", false)]
+        [InlineData("", false)]
+        [InlineData(null, false)]
+        public void Subsystem_runs_initialize_and_teardown_when_requested(string input, bool shouldRun)
+        {
+            var configuration = new CliConfiguration(new CliRootCommand { });
+            AlternateSubsystems.VersionWithInitializeAndTeardown versionSubsystem = new AlternateSubsystems.VersionWithInitializeAndTeardown();
             var pipeline = new Pipeline
             {
                 Version = versionSubsystem
             };
             var consoleHack = new ConsoleHack().RedirectToBuffer(true);
-            const string rawInput = "-v";
 
-            var exit = pipeline.Execute(configuration, rawInput, consoleHack);
+            var exit = pipeline.Execute(configuration, input, consoleHack);
 
             exit.ExitCode.Should().Be(0);
-            exit.Handled.Should().BeTrue();
+            exit.Handled.Should().Be(shouldRun);
             versionSubsystem.InitializationWasRun.Should().BeTrue();
-            versionSubsystem.ExecutionWasRun.Should().BeTrue();
+            versionSubsystem.ExecutionWasRun.Should().Be(shouldRun);
             versionSubsystem.TeardownWasRun.Should().BeTrue();
         }
 
-        [Fact]
-        public void Subsystem_does_not_run_with_explicit_parse_when_not_requested()
+
+        [Theory]
+        [InlineData("-v", true)]
+        [InlineData("--version", true)]
+        [InlineData("-x", false)]
+        [InlineData("", false)]
+        [InlineData(null, false)]
+        public void Subsystem_can_be_used_without_runner(string input, bool shouldRun)
         {
-            var rootCommand = new CliRootCommand
-            {
-                new CliOption<bool>("-x")
-            };
-            var configuration = new CliConfiguration(rootCommand);
-            var versionSubsystem = new VersionSubsystem();
-            var pipeline = new Pipeline();
-            var consoleHack = new ConsoleHack().RedirectToBuffer(true);
-            pipeline.Version = versionSubsystem;
-            var input = "-x";
-
-            var result = pipeline.Parse(configuration, input);
-            var exit = pipeline.Execute(result, input, consoleHack);
-
-            exit.ExitCode.Should().Be(0);
-            exit.Handled.Should().BeFalse();
-            consoleHack.GetBuffer().Trim().Should().Be("");
-
-        }
-
-        [Fact]
-        public void Subsystem_can_be_used_without_runner()
-        {
-            var rootCommand = new CliRootCommand
-            { };
-            var configuration = new CliConfiguration(rootCommand);
+            var configuration = new CliConfiguration(new CliRootCommand { });
             var versionSubsystem = new VersionSubsystem();
             var consoleHack = new ConsoleHack().RedirectToBuffer(true);
+
             Subsystem.Initialize(versionSubsystem, configuration);
+            // TODO: I do not know why anyone would do this, but I do not see a reason to work to block it. See style2 below
+            var parseResult = CliParser.Parse(configuration.RootCommand, input, configuration);
+            bool value = parseResult.GetValue<bool>("--version");
 
-            // TODO: I do not know why anyone would do this, but I do not see a reason to work to block it
-            var parseResult = CliParser.Parse(rootCommand, "-v", configuration);
-            var input = "--version";
-            if (parseResult.GetValue<bool>(input))
+            value.Should().Be(shouldRun);
+            if (shouldRun) 
             {
                 // TODO: Add an execute overload to avoid checking activated twice
-                var exit = Subsystem.ExecuteIfNeeded(versionSubsystem, parseResult, input, consoleHack);
+                var exit = Subsystem.Execute(versionSubsystem, parseResult, input, consoleHack);
                 exit.Should().NotBeNull();
                 exit.ExitCode.Should().Be(0);
                 exit.Handled.Should().BeTrue();
+                consoleHack.GetBuffer().Trim().Should().Be(version);
             }
-
-            consoleHack.GetBuffer().Trim().Should().Be(version);
         }
 
-        [Fact]
-        public void Subsystem_can_be_used_without_runner_style2()
+        [Theory]
+        [InlineData("-v", true)]
+        [InlineData("--version", true)]
+        [InlineData("-x", false)]
+        [InlineData("", false)]
+        [InlineData(null, false)]
+        public void Subsystem_can_be_used_without_runner_style2(string input, bool shouldRun)
         {
-            var rootCommand = new CliRootCommand
-            { };
-            var configuration = new CliConfiguration(rootCommand);
+            var configuration = new CliConfiguration(new CliRootCommand { });
             var versionSubsystem = new VersionSubsystem();
             var consoleHack = new ConsoleHack().RedirectToBuffer(true);
-            Subsystem.Initialize(versionSubsystem, configuration);
-            var input = "-v";
+            var expectedVersion = shouldRun
+                        ? version
+                        : "";
 
-            var parseResult = CliParser.Parse(rootCommand, input, configuration);
+            Subsystem.Initialize(versionSubsystem, configuration);
+            var parseResult = CliParser.Parse(configuration.RootCommand, input, configuration);
             var exit = Subsystem.ExecuteIfNeeded(versionSubsystem, parseResult, input, consoleHack);
 
             exit.ExitCode.Should().Be(0);
-            exit.Handled.Should().BeTrue();
-            consoleHack.GetBuffer().Trim().Should().Be(version);
+            exit.Handled.Should().Be(shouldRun);
+            consoleHack.GetBuffer().Trim().Should().Be(expectedVersion);
+        }
+
+        [Fact]
+        public void Standard_pipeline_contains_expected_subsystems()
+        {
+            var pipeline = new StandardPipeline();
+            pipeline.Version.Should().BeOfType<VersionSubsystem>();
+            pipeline.Help.Should().BeOfType<HelpSubsystem>();
+            pipeline.ErrorReporting.Should().BeOfType<ErrorReportingSubsystem>();
+            pipeline.Completions.Should().BeOfType<CompletionsSubsystem>();
+        }
+
+        [Fact]
+        public void Normal_pipeline_contains_no_subsystems()
+        {
+            var pipeline = new Pipeline();
+            pipeline.Version.Should().BeNull();
+            pipeline.Help.Should().BeNull();
+            pipeline.ErrorReporting.Should().BeNull();
+            pipeline.Completions.Should().BeNull();
         }
 
 
         [Fact]
         public void Subsystems_can_access_each_others_data()
         {
+            // TODO: Explore a mechanism that doesn't require the reference to retrieve data, this shows that it is awkward
             var consoleHack = new ConsoleHack().RedirectToBuffer(true);
             var symbol = new CliOption<bool>("-x");
 
