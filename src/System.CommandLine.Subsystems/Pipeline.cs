@@ -13,6 +13,29 @@ namespace System.CommandLine
         public ErrorReportingSubsystem? ErrorReporting { get; set; }
         public CompletionsSubsystem? Completions { get; set; }
 
+        public ParseResult Parse(CliConfiguration configuration, string rawInput)
+            => Parse(configuration, CliParser.SplitCommandLine(rawInput).ToArray());
+
+        public ParseResult Parse(CliConfiguration configuration, string[] args)
+        {
+            InitializeSubsystems(configuration);
+            var parseResult = CliParser.Parse(configuration.RootCommand, args, configuration);
+            return parseResult;
+        }
+
+        public CliExit Execute(CliConfiguration configuration, string rawInput, ConsoleHack? consoleHack = null)
+            => Execute(configuration, CliParser.SplitCommandLine(rawInput).ToArray(), rawInput, consoleHack);
+
+        public CliExit Execute(CliConfiguration configuration, string[] args, string rawInput, ConsoleHack? consoleHack = null)
+            => Execute(Parse(configuration, args), rawInput, consoleHack);
+
+        public CliExit Execute(ParseResult parseResult, string rawInput, ConsoleHack? consoleHack = null)
+        {
+            var pipelineContext = new PipelineContext(parseResult, rawInput, this, consoleHack ?? new ConsoleHack());
+            ExecuteSubsystems(pipelineContext);
+            return new CliExit(pipelineContext);
+        }
+
         protected virtual void InitializeHelp(CliConfiguration configuration)
             => Help?.Initialize(configuration);
 
@@ -49,15 +72,7 @@ namespace System.CommandLine
         protected virtual void ExecuteCompletions(PipelineContext context)
             => ExecuteIfNeeded(Completions, context);
 
-        protected static void ExecuteIfNeeded(CliSubsystem? subsystem, PipelineContext pipelineContext)
-        {
-            if (subsystem is not null && (!pipelineContext.AlreadyHandled || subsystem.RunsEvenIfAlreadyHandled))
-            {
-                subsystem.ExecuteIfNeeded(pipelineContext);
-            }
-        }
-
-        public virtual void InitializeExtensions(CliConfiguration configuration)
+        protected virtual void InitializeSubsystems(CliConfiguration configuration)
         {
             InitializeHelp(configuration);
             InitializeVersion(configuration);
@@ -65,7 +80,7 @@ namespace System.CommandLine
             InitializeCompletions(configuration);
         }
 
-        public virtual void TearDownExtensions(PipelineContext pipelineContext)
+        protected virtual void TearDownSubsystems(PipelineContext pipelineContext)
         {
             TearDownHelp(pipelineContext);
             TearDownVersion(pipelineContext);
@@ -73,7 +88,7 @@ namespace System.CommandLine
             TearDownCompletions(pipelineContext);
         }
 
-        protected virtual void ExecuteRequestedExtensions(PipelineContext pipelineContext)
+        protected virtual void ExecuteSubsystems(PipelineContext pipelineContext)
         {
             ExecuteHelp(pipelineContext);
             ExecuteVersion(pipelineContext);
@@ -81,27 +96,12 @@ namespace System.CommandLine
             ExecuteCompletions(pipelineContext);
         }
 
-        public ParseResult Parse(CliConfiguration configuration, string rawInput)
-            => Parse(configuration, CliParser.SplitCommandLine(rawInput).ToArray());
-
-        public ParseResult Parse(CliConfiguration configuration, string[] args)
+        protected static void ExecuteIfNeeded(CliSubsystem? subsystem, PipelineContext pipelineContext)
         {
-            InitializeExtensions(configuration);
-            var parseResult = CliParser.Parse(configuration.RootCommand, args, configuration);
-            return parseResult;
-        }
-
-        public CliExit Execute(CliConfiguration configuration, string rawInput, ConsoleHack? consoleHack = null)
-            => Execute(configuration, CliParser.SplitCommandLine(rawInput).ToArray(), rawInput, consoleHack);
-
-        public CliExit Execute(CliConfiguration configuration, string[] args, string rawInput, ConsoleHack? consoleHack = null)
-            => Execute(Parse(configuration, args), rawInput, consoleHack);
-
-        public CliExit Execute(ParseResult parseResult, string rawInput, ConsoleHack? consoleHack = null)
-        {
-            var pipelineContext = new PipelineContext(parseResult, rawInput, this, consoleHack ?? new ConsoleHack());
-            ExecuteRequestedExtensions(pipelineContext);
-            return new CliExit(pipelineContext);
+            if (subsystem is not null && (!pipelineContext.AlreadyHandled || subsystem.RunsEvenIfAlreadyHandled))
+            {
+                subsystem.ExecuteIfNeeded(pipelineContext);
+            }
         }
 
     }
