@@ -25,14 +25,14 @@
     <Compile Include="..\System.CommandLine.Suggest\DotnetMuxer.cs" Link="Utility\DotnetMuxer.cs" />
     <Compile Include="..\System.CommandLine\Properties\Resources.Designer.cs" Link="Properties\Resources.Designer.cs" />
     <Compile Include="AlternateSubsystems.cs" />
-    <Compile Include="VersionOptionTests.cs" />
+    <Compile Include="VersionFunctionalTests.cs" />
     <Compile Include="VersionSubsystemTests.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\System.CommandLine.Subsystems\System.CommandLine.Subsystems.csproj" />
     <ProjectReference Include="..\System.CommandLine\System.CommandLine.csproj" />
-    <ProjectReference Include="..\System.CommandLine.Extended\System.CommandLine.Extended.csproj" />
+    <!--<ProjectReference Include="..\System.CommandLine.Extended\System.CommandLine.Extended.csproj" />-->
   </ItemGroup>
 
   <ItemGroup>
