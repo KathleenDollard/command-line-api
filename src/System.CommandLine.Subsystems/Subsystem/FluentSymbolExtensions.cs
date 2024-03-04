@@ -2,9 +2,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 
-using System.CommandLine.Subsystem.Annotations;
+using System.CommandLine.Subsystems.Annotations;
 
-namespace System.CommandLine.Subsystem;
+namespace System.CommandLine.Subsystems;
 
 /// <summary>
 /// Extensions for <see cref="CliSymbol"/> that allow fluent construction of <see cref="CliCommand"/> and fluent addition of annotations to <see cref="CliSymbol"/> objects.

@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-namespace System.CommandLine.Subsystem.Tests
+using System.CommandLine.Subsystems;
+
+namespace System.CommandLine.Subsystems.Tests
 {
     internal class AlternateSubsystems
     {
-        internal class Version : VersionSubsystem
+        internal class AlternateVersion : VersionSubsystem
         {
             protected override CliExit Execute(PipelineContext pipelineContext)
             {
@@ -37,6 +36,34 @@ namespace System.CommandLine.Subsystem.Tests
                 pipelineContext.ConsoleHack.WriteLine(data);
                 pipelineContext.AlreadyHandled = true;
                 return CliExit.SuccessfullyHandled(pipelineContext.ParseResult);
+            }
+
+
+
+        }
+        internal class VersionWithInitializeAndTeardown : VersionSubsystem
+        {
+            internal bool InitializationWasRun;
+            internal bool ExecutionWasRun;
+            internal bool TeardownWasRun;
+
+            protected override CliConfiguration Initialize(CliConfiguration configuration)
+            {
+                // marker hack needed because ConsoleHack not available in initialization
+                InitializationWasRun = true;
+                return base.Initialize(configuration);
+            }
+
+            protected override CliExit Execute(PipelineContext pipelineContext)
+            {
+                ExecutionWasRun = true;
+                return base.Execute(pipelineContext);
+            }
+
+            protected override CliExit TearDown(CliExit cliExit)
+            {
+                TeardownWasRun = true;
+                return base.TearDown(cliExit);
             }
         }
 

@@ -5,8 +5,8 @@
 // Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.CommandLine.Subsystem.Annotations;
-using System.CommandLine.Subsystem;
+using System.CommandLine.Subsystems.Annotations;
+using System.CommandLine.Subsystems;
 
 namespace System.CommandLine;
 

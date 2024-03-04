@@ -3,7 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 
-namespace System.CommandLine.Subsystem.Annotations;
+namespace System.CommandLine.Subsystems.Annotations;
 
 /// <summary>
 /// Allows associating an annotation with a <see cref="CliSymbol"/>. The annotation will be stored by the accessor's owner <see cref="CliSubsystem"/>.

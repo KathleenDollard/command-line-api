@@ -3,7 +3,7 @@
 
 using System.Text;
 
-namespace System.CommandLine.Subsystem
+namespace System.CommandLine
 {
     public class ConsoleHack
     {

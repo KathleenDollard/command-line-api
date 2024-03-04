@@ -6,7 +6,7 @@ using FluentAssertions;
 using Xunit;
 using System.CommandLine.Parsing;
 
-namespace System.CommandLine.Subsystem.Tests
+namespace System.CommandLine.Subsystems.Tests
 {
     public class VersionFunctionalTests
     {

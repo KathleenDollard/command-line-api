@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Parsing;
-using System.CommandLine.Subsystem;
+using System.CommandLine.Subsystems;
 
 namespace System.CommandLine
 {
@@ -27,7 +27,10 @@ namespace System.CommandLine
             => Execute(configuration, CliParser.SplitCommandLine(rawInput).ToArray(), rawInput, consoleHack);
 
         public CliExit Execute(CliConfiguration configuration, string[] args, string rawInput, ConsoleHack? consoleHack = null)
-            => Execute(Parse(configuration, args), rawInput, consoleHack);
+        {
+            var cliExit = Execute(Parse(configuration, args), rawInput, consoleHack);
+            return TearDownSubsystems(cliExit);
+        }
 
         public CliExit Execute(ParseResult parseResult, string rawInput, ConsoleHack? consoleHack = null)
         {
@@ -48,17 +51,25 @@ namespace System.CommandLine
         protected virtual void InitializeCompletions(CliConfiguration configuration)
             => Completions?.Initialize(configuration);
 
-        protected virtual void TearDownHelp(PipelineContext context)
-            => Help?.TearDown(context);
+        protected virtual CliExit TearDownHelp(CliExit cliExit)
+            => Help is null
+                    ? cliExit
+                    : Help.TearDown(cliExit);
 
-        protected virtual void TearDownVersion(PipelineContext context)
-            => Version?.TearDown(context);
+        protected virtual CliExit? TearDownVersion(CliExit cliExit)
+            => Version is null
+                    ? cliExit
+                    : Version.TearDown(cliExit);
 
-        protected virtual void TearDownErrorReporting(PipelineContext context)
-            => ErrorReporting?.TearDown(context);
+        protected virtual CliExit TearDownErrorReporting(CliExit cliExit)
+            => ErrorReporting is null
+                    ? cliExit
+                    : ErrorReporting.TearDown(cliExit);
 
-        protected virtual void TearDownCompletions(PipelineContext context)
-            => Completions?.TearDown(context);
+        protected virtual CliExit TearDownCompletions(CliExit cliExit)
+            => Completions is null
+                    ? cliExit
+                    : Completions.TearDown(cliExit);
 
         protected virtual void ExecuteHelp(PipelineContext context)
             => ExecuteIfNeeded(Help, context);
@@ -72,6 +83,17 @@ namespace System.CommandLine
         protected virtual void ExecuteCompletions(PipelineContext context)
             => ExecuteIfNeeded(Completions, context);
 
+        // TODO: Consider whether this should be public. It would simplify testing, but would it do anything else
+        // TODO: Confirm that it is OK for ConsoleHack to be unavailable in Initialize
+        /// <summary>
+        /// Perform any setup for the subsystem. This may include adding to the CLI definition,
+        /// such as adding a help option. It is important that work only needed when the subsystem
+        /// 
+        /// </summary>
+        /// <param name="configuration"></param>
+        /// <remarks>
+        /// Note to inheritors: The ordering of initializing should normally be in the reverse order than tear down 
+        /// </remarks>
         protected virtual void InitializeSubsystems(CliConfiguration configuration)
         {
             InitializeHelp(configuration);
@@ -80,12 +102,22 @@ namespace System.CommandLine
             InitializeCompletions(configuration);
         }
 
-        protected virtual void TearDownSubsystems(PipelineContext pipelineContext)
+        // TODO: Consider whether this should be public
+        // TODO: Would Dispose be a better alternative? This may be non-dispose like things, such as removing options?
+        /// <summary>
+        /// Perform any cleanup operations
+        /// </summary>
+        /// <param name="pipelineContext">The context of the current execution</param>
+        /// <remarks>
+        /// Note to inheritors: The ordering of tear down should normally be in the reverse order than initializing
+        /// </remarks>
+        protected virtual CliExit TearDownSubsystems(CliExit cliExit)
         {
-            TearDownHelp(pipelineContext);
-            TearDownVersion(pipelineContext);
-            TearDownErrorReporting(pipelineContext);
-            TearDownCompletions(pipelineContext);
+            TearDownCompletions(cliExit);
+            TearDownErrorReporting(cliExit);
+            TearDownVersion(cliExit);
+            TearDownHelp(cliExit);
+            return cliExit;
         }
 
         protected virtual void ExecuteSubsystems(PipelineContext pipelineContext)

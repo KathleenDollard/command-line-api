@@ -3,7 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 
-namespace System.CommandLine.Subsystem;
+namespace System.CommandLine.Subsystems;
 
 /// <summary>
 /// Alternative storage of annotations, enabling lazy loading and dynamic annotations.
