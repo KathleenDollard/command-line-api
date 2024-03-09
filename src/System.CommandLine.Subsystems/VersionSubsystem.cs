@@ -15,7 +15,6 @@ namespace System.CommandLine
         {
         }
 
-
         // TODO: Should we block adding version anywhere but root?
         public string? SpecificVersion
         {
@@ -33,7 +32,6 @@ namespace System.CommandLine
             => assembly
                 ?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
                 ?.InformationalVersion;
-
 
         protected internal override CliConfiguration Initialize(CliConfiguration configuration)
         {

@@ -37,6 +37,7 @@ public abstract class CliSubsystem
     /// </remarks>
     protected internal bool TryGetAnnotation<TValue>(CliSymbol symbol, AnnotationId<TValue> id, [NotNullWhen(true)] out TValue? value)
     {
+        // TODO: Check the logic here and in SetAnnotation as it appears the custom provider will never be used.
         if (_defaultProvider is not null && _defaultProvider.TryGet(symbol, id, out value))
         {
             return true;
@@ -74,14 +75,14 @@ public abstract class CliSubsystem
     /// <returns>A CliExit object with information such as whether the CLI should terminate</returns>
     protected internal virtual CliExit Execute(PipelineContext pipelineContext) => CliExit.NotRun(pipelineContext.ParseResult);
 
-     internal PipelineContext ExecuteIfNeeded(PipelineContext pipelineContext)
-        => ExecuteIfNeeded(pipelineContext.ParseResult,  pipelineContext);
+    internal PipelineContext ExecuteIfNeeded(PipelineContext pipelineContext)
+       => ExecuteIfNeeded(pipelineContext.ParseResult, pipelineContext);
 
     internal PipelineContext ExecuteIfNeeded(ParseResult? parseResult, PipelineContext pipelineContext)
     {
-        if( GetIsActivated(parseResult))
+        if (GetIsActivated(parseResult))
         {
-            Execute(pipelineContext );
+            Execute(pipelineContext);
         }
         return pipelineContext;
     }
@@ -113,7 +114,7 @@ public abstract class CliSubsystem
     protected internal virtual CliConfiguration Initialize(CliConfiguration configuration) => configuration;
 
     // TODO: Determine if this is needed.
-    protected internal virtual CliExit TearDown(CliExit cliExit) 
+    protected internal virtual CliExit TearDown(CliExit cliExit)
         => cliExit;
 
 }
