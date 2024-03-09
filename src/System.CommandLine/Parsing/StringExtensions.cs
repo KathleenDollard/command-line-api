@@ -82,22 +82,30 @@ namespace System.CommandLine.Parsing
                 : FirstArgIsNotRootCommand;
             */
 
-            var startPosition = skipArgs - (firstArgIsRootCommand ? 1 : 0);
+
+            var arg = rootCommand.Name;
+            if (knownTokens.TryGetValue(arg, out var rootToken))
+            {
+                CliCommand cmd = (CliCommand)rootToken.Symbol!;
+                currentCommand = cmd;
+                tokenList.Add(Command(arg, cmd, firstArgIsRootCommand ? 0 : -1));
+            }
+            var startPosition = skipArgs + (firstArgIsRootCommand ? 1 : 0);
 
             for (var i = startPosition; i < args.Count; i++)
             {
                 // TODO: Review this logic, I found it very hard to infer what was happening. I think I just made it a bit more clear.
-                if (i == startPosition) 
 
                 /*
                 var arg = i == FirstArgIsNotRootCommand
                     ? rootCommand.Name
                     : args[i];
                 */
+                arg = args[i];
 
                 if (foundDoubleDash)
                 {
-                    tokenList.Add(CommandArgument(arg, currentCommand!));
+                    tokenList.Add(CommandArgument(arg, currentCommand!, i));
 
                     continue;
                 }
@@ -106,7 +114,7 @@ namespace System.CommandLine.Parsing
                 if (!foundDoubleDash &&
                     arg == "--")
                 {
-                    tokenList.Add(DoubleDash());
+                    tokenList.Add(DoubleDash( i));
                     foundDoubleDash = true;
                     continue;
                 }
@@ -177,14 +185,14 @@ namespace System.CommandLine.Parsing
                 {
                     if (PreviousTokenIsAnOptionExpectingAnArgument(out var option))
                     {
-                        tokenList.Add(OptionArgument(arg, option!));
+                        tokenList.Add(OptionArgument(arg, option!, i));
                     }
                     else
                     {
                         switch (token.Type)
                         {
                             case CliTokenType.Option:
-                                tokenList.Add(Option(arg, (CliOption)token.Symbol!));
+                                tokenList.Add(Option(arg, (CliOption)token.Symbol!, i));
                                 break;
 
                             case CliTokenType.Command:
@@ -196,11 +204,11 @@ namespace System.CommandLine.Parsing
                                         knownTokens = GetValidTokens(cmd); // config contains Directives, they are allowed only for RootCommand
                                     }
                                     currentCommand = cmd;
-                                    tokenList.Add(Command(arg, cmd));
+                                    tokenList.Add(Command(arg, cmd, i));
                                 }
                                 else
                                 {
-                                    tokenList.Add(Argument(arg));
+                                    tokenList.Add(Argument(arg, i));
                                 }
 
                                 break;
@@ -211,35 +219,35 @@ namespace System.CommandLine.Parsing
                          knownTokens.TryGetValue(first, out var subtoken) &&
                          subtoken.Type == CliTokenType.Option)
                 {
-                    tokenList.Add(Option(first, (CliOption)subtoken.Symbol!));
+                    tokenList.Add(Option(first, (CliOption)subtoken.Symbol!, i));
 
                     if (rest is not null)
                     {
-                        tokenList.Add(Argument(rest));
+                        tokenList.Add(Argument(rest, i));
                     }
                 }
                 else if (!enablePosixBundling ||
                          !CanBeUnbundled(arg) ||
                          !TryUnbundle(arg.AsSpan(1), i))
                 {
-                    tokenList.Add(Argument(arg));
+                    tokenList.Add(Argument(arg, i));
                 }
-
-                CliToken Argument(string value) => new(value, CliTokenType.Argument, default, i);
-
-                CliToken CommandArgument(string value, CliCommand command) => new(value, CliTokenType.Argument, command, i);
-
-                CliToken OptionArgument(string value, CliOption option) => new(value, CliTokenType.Argument, option, i);
-
-                CliToken Command(string value, CliCommand cmd) => new(value, CliTokenType.Command, cmd, i);
-
-                CliToken Option(string value, CliOption option) => new(value, CliTokenType.Option, option, i);
-
-                CliToken DoubleDash() => new("--", CliTokenType.DoubleDash, default, i);
-
- // TODO: Directives
- //             CliToken Directive(string value, CliDirective? directive) => new(value, CliTokenType.Directive, directive, i);
             }
+
+            static CliToken Argument(string value, int i) => new(value, CliTokenType.Argument, default, i);
+             
+            static CliToken CommandArgument(string value, CliCommand command, int i) => new(value, CliTokenType.Argument, command, i);
+             
+            static CliToken OptionArgument(string value, CliOption option, int i) => new(value, CliTokenType.Argument, option, i);
+             
+            static CliToken Command(string value, CliCommand cmd, int i) => new(value, CliTokenType.Command, cmd, i);
+             
+            static CliToken Option(string value, CliOption option, int i) => new(value, CliTokenType.Option, option, i);
+             
+            static CliToken DoubleDash(int i) => new("--", CliTokenType.DoubleDash, default, i);
+
+            // TODO: Directives
+            //             CliToken Directive(string value, CliDirective? directive) => new(value, CliTokenType.Directive, directive, i);
 
             tokens = tokenList;
             errors = errorList;
@@ -472,7 +480,7 @@ namespace System.CommandLine.Parsing
             if (command.HasOptions)
             {
                 var options = command.Options;
-                
+
                 for (int i = 0; i < options.Count; i++)
                 {
                     AddOptionTokens(tokens, options[i]);
