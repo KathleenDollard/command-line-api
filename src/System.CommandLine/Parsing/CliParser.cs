@@ -135,6 +135,7 @@ namespace System.CommandLine.Parsing
             bool IsAtEndOfInput() => pos == memory.Length;
         }
 
+        // TODO: I'd like a name change where all refs to the string args passed to main are "args" and arguments refers to CLI arguments
         private static ParseResult Parse(
             CliCommand rootCommand,
             IReadOnlyList<string> arguments,
@@ -151,8 +152,9 @@ namespace System.CommandLine.Parsing
             CliTokenizer.Tokenize(
                 arguments,
                 rootCommand,
-                inferRootCommand: rawInput is not null,
+                firstArgIsRootCommand: configuration.FirstArgumentIsRootCommand(arguments),
                 configuration.EnablePosixBundling,
+                configuration.SkipArgs,
                 out List<CliToken> tokens,
                 out List<string>? tokenizationErrors);
 

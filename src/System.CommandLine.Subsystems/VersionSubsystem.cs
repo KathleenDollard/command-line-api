@@ -35,7 +35,7 @@ public class VersionSubsystem : CliSubsystem
             ?.InformationalVersion;
 
 
-    protected internal override CliConfiguration Initialize(CliConfiguration configuration)
+    protected internal override CliConfiguration Initialize(CliConfiguration configuration, IReadOnlyList<string> args)
     {
         var option = new CliOption<bool>("--version", ["-v"])
         {

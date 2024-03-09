@@ -31,6 +31,7 @@ namespace System.CommandLine.Parsing
     {
         internal static (string? Prefix, string Alias) SplitPrefix(string rawAlias)
         {
+            // TODO: I believe this code would be faster and easier to understand with collection patterns
             if (rawAlias[0] == '/')
             {
                 return ("/", rawAlias.Substring(1));
@@ -52,33 +53,47 @@ namespace System.CommandLine.Parsing
         internal static void Tokenize(
             IReadOnlyList<string> args,
             CliCommand rootCommand,
-            bool inferRootCommand,
+            bool firstArgIsRootCommand,
             bool enablePosixBundling,
+            int skipArgs,
             out List<CliToken> tokens,
             out List<string>? errors)
         {
+            /*
             const int FirstArgIsNotRootCommand = -1;
+            */
 
             List<string>? errorList = null;
 
             var currentCommand = rootCommand;
             var foundDoubleDash = false;
             // TODO: Directives
+            /*
             var foundEndOfDirectives = false;
+            */
 
             var tokenList = new List<CliToken>(args.Count);
 
             var knownTokens = GetValidTokens(rootCommand);
 
+            /* Replaced with skipArgs
             int i = FirstArgumentIsRootCommand(args, rootCommand, inferRootCommand)
                 ? 0
                 : FirstArgIsNotRootCommand;
+            */
 
-            for (; i < args.Count; i++)
+            var startPosition = skipArgs - (firstArgIsRootCommand ? 1 : 0);
+
+            for (var i = startPosition; i < args.Count; i++)
             {
+                // TODO: Review this logic, I found it very hard to infer what was happening. I think I just made it a bit more clear.
+                if (i == startPosition) 
+
+                /*
                 var arg = i == FirstArgIsNotRootCommand
                     ? rootCommand.Name
                     : args[i];
+                */
 
                 if (foundDoubleDash)
                 {
@@ -87,6 +102,7 @@ namespace System.CommandLine.Parsing
                     continue;
                 }
 
+                // TODO: The check for `foundDoubleDash` seems superfluous. If it is for clarity, consider an `else` instead
                 if (!foundDoubleDash &&
                     arg == "--")
                 {

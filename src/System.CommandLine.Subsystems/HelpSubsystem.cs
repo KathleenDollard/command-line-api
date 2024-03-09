@@ -29,7 +29,7 @@ public class HelpSubsystem(IAnnotationProvider? annotationProvider = null)
     public AnnotationAccessor<string> Description 
         => new(this, HelpAnnotations.Description);
 
-    protected internal override CliConfiguration Initialize(CliConfiguration configuration)
+    protected internal override CliConfiguration Initialize(CliConfiguration configuration, IReadOnlyList<string> args)
     {
         var option = new CliOption<bool>("--help", ["-h"])
         {

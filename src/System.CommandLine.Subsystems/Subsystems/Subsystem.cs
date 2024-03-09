@@ -5,8 +5,8 @@ namespace System.CommandLine.Subsystems;
 
 public class Subsystem
 {
-    public static void Initialize(CliSubsystem subsystem, CliConfiguration configuration)
-        => subsystem.Initialize(configuration);
+    public static void Initialize(CliSubsystem subsystem, CliConfiguration configuration, IReadOnlyList<string> args)
+        => subsystem.Initialize(configuration, args);
 
     public static CliExit Execute(CliSubsystem subsystem, PipelineContext pipelineContext)
         => subsystem.Execute(pipelineContext);

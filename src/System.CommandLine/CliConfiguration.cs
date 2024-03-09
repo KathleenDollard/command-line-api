@@ -55,6 +55,43 @@ namespace System.CommandLine
         ///
         /// </remarks>
         public bool EnablePosixBundling { get; set; } = true;
+
+        /// <summary>
+        /// If there is an executable (previously in StringExtensions.Tokenize) skip 1. If there are directives, skip those .
+        /// </summary>
+        // TODO: If this is the right model, tuck this away because it should only be used by subsystems.
+        public int SkipArgs { get; private set; }
+
+        public void IncrementSkipArgs(int count) => SkipArgs += count;
+
+
+        /// <summary>
+        /// Indicates whether the first argument of the passed string is the exe name
+        /// </summary>
+        /// <param name="args">The args of a command line, such as those passed to Main(string[] args)</param>
+        /// <returns></returns>
+        // TODO: If this is the right model, tuck this away because it should only be used by subsystems.
+        public bool FirstArgumentIsRootCommand(IReadOnlyList<string> args)
+        {
+            // PowderHouse: This logic was previously that rawInput was null. Seems more sensible to look for an empty args array.From private static ParseResult Parse(CliCommand ,IReadOnlyList< string > ,string? ,CliConfiguration? )
+            return args.Any()
+                ? FirstArgLooksLikeRoot(args.First(), RootCommand)
+                : false;
+
+            static bool FirstArgLooksLikeRoot(string firstArg, CliCommand rootCommand)
+            {
+                try
+                {
+                    return firstArg == CliExecutable.ExecutablePath || rootCommand.EqualsNameOrAlias(Path.GetFileName(firstArg));
+                }
+                catch // possible exception for illegal characters in path on .NET Framework
+                {
+                    return false;
+                }
+
+            }
+        }
+
         /*
         /// <summary>
         /// Enables a default exception handler to catch any unhandled exceptions thrown during invocation. Enabled by default.

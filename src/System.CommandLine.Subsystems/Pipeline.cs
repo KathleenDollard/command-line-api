@@ -1,6 +1,7 @@
-﻿﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.CommandLine.Directives;
 using System.CommandLine.Parsing;
 using System.CommandLine.Subsystems;
 
@@ -8,17 +9,20 @@ namespace System.CommandLine;
 
 public class Pipeline
 {
+    protected SharedDirectiveSupport SharedDirectiveSupport { get; } = new();
+
     public HelpSubsystem? Help { get; set; }
     public VersionSubsystem? Version { get; set; }
-    public ErrorReportingSubsystem? ErrorReporting { get; set; }
     public CompletionSubsystem? Completion { get; set; }
+    public DiagramSubsystem? Diagram { get; set; }
+    public ErrorReportingSubsystem? ErrorReporting { get; set; }
 
     public ParseResult Parse(CliConfiguration configuration, string rawInput)
         => Parse(configuration, CliParser.SplitCommandLine(rawInput).ToArray());
 
-    public ParseResult Parse(CliConfiguration configuration, string[] args)
+    public ParseResult Parse(CliConfiguration configuration, IReadOnlyList<string> args)
     {
-        InitializeSubsystems(configuration);
+        InitializeSubsystems(configuration, args);
         var parseResult = CliParser.Parse(configuration.RootCommand, args, configuration);
         return parseResult;
     }
@@ -39,17 +43,20 @@ public class Pipeline
         return new CliExit(pipelineContext);
     }
 
-    protected virtual void InitializeHelp(CliConfiguration configuration)
-        => Help?.Initialize(configuration);
+    protected virtual void InitializeHelp(CliConfiguration configuration, IReadOnlyList<string> args)
+        => Help?.Initialize(configuration, args);
 
-    protected virtual void InitializeVersion(CliConfiguration configuration)
-        => Version?.Initialize(configuration);
+    protected virtual void InitializeVersion(CliConfiguration configuration, IReadOnlyList<string> args)
+        => Version?.Initialize(configuration, args);
 
-    protected virtual void InitializeErrorReporting(CliConfiguration configuration)
-        => ErrorReporting?.Initialize(configuration);
+    protected virtual void InitializeCompletion(CliConfiguration configuration, IReadOnlyList<string> args)
+        => Completion?.Initialize(configuration, args);
 
-    protected virtual void InitializeCompletion(CliConfiguration configuration)
-        => Completion?.Initialize(configuration);
+    protected virtual void InitializeDiagram(CliConfiguration configuration, IReadOnlyList<string> args)
+    => Diagram?.Initialize(configuration, args);
+
+    protected virtual void InitializeErrorReporting(CliConfiguration configuration, IReadOnlyList<string> args)
+        => ErrorReporting?.Initialize(configuration, args);
 
     protected virtual CliExit TearDownHelp(CliExit cliExit)
         => Help is null
@@ -61,15 +68,20 @@ public class Pipeline
                 ? cliExit
                 : Version.TearDown(cliExit);
 
+    protected virtual CliExit TearDownCompletion(CliExit cliExit)
+        => Completion is null
+                ? cliExit
+                : Completion.TearDown(cliExit);
+
+    protected virtual CliExit TearDownDiagram(CliExit cliExit)
+        => Diagram is null
+                ? cliExit
+                : Diagram.TearDown(cliExit);
+
     protected virtual CliExit TearDownErrorReporting(CliExit cliExit)
         => ErrorReporting is null
                 ? cliExit
                 : ErrorReporting.TearDown(cliExit);
-
-    protected virtual CliExit TearDownCompletions(CliExit cliExit)
-        => Completion is null
-                ? cliExit
-                : Completion.TearDown(cliExit);
 
     protected virtual void ExecuteHelp(PipelineContext context)
         => ExecuteIfNeeded(Help, context);
@@ -77,11 +89,14 @@ public class Pipeline
     protected virtual void ExecuteVersion(PipelineContext context)
         => ExecuteIfNeeded(Version, context);
 
+    protected virtual void ExecuteCompletion(PipelineContext context)
+        => ExecuteIfNeeded(Completion, context);
+
+    protected virtual void ExecuteDiagram(PipelineContext context)
+    => ExecuteIfNeeded(Diagram, context);
+
     protected virtual void ExecuteErrorReporting(PipelineContext context)
         => ExecuteIfNeeded(ErrorReporting, context);
-
-    protected virtual void ExecuteCompletions(PipelineContext context)
-        => ExecuteIfNeeded(Completion, context);
 
     // TODO: Consider whether this should be public. It would simplify testing, but would it do anything else
     // TODO: Confirm that it is OK for ConsoleHack to be unavailable in Initialize
@@ -94,12 +109,13 @@ public class Pipeline
     /// <remarks>
     /// Note to inheritors: The ordering of initializing should normally be in the reverse order than tear down 
     /// </remarks>
-    protected virtual void InitializeSubsystems(CliConfiguration configuration)
+    protected virtual void InitializeSubsystems(CliConfiguration configuration, IReadOnlyList<string> args)
     {
-        InitializeHelp(configuration);
-        InitializeVersion(configuration);
-        InitializeErrorReporting(configuration);
-        InitializeCompletion(configuration);
+        InitializeHelp(configuration, args);
+        InitializeVersion(configuration, args);
+        InitializeCompletion(configuration, args);
+        InitializeDiagram(configuration, args);
+        InitializeErrorReporting(configuration, args);
     }
 
     // TODO: Consider whether this should be public
@@ -113,8 +129,9 @@ public class Pipeline
     /// </remarks>
     protected virtual CliExit TearDownSubsystems(CliExit cliExit)
     {
-        TearDownCompletions(cliExit);
         TearDownErrorReporting(cliExit);
+        TearDownDiagram(cliExit);
+        TearDownCompletion(cliExit);
         TearDownVersion(cliExit);
         TearDownHelp(cliExit);
         return cliExit;
@@ -124,8 +141,9 @@ public class Pipeline
     {
         ExecuteHelp(pipelineContext);
         ExecuteVersion(pipelineContext);
+        ExecuteCompletion(pipelineContext);
+        ExecuteDiagram(pipelineContext);
         ExecuteErrorReporting(pipelineContext);
-        ExecuteCompletions(pipelineContext);
     }
 
     protected static void ExecuteIfNeeded(CliSubsystem? subsystem, PipelineContext pipelineContext)
