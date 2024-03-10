@@ -22,7 +22,7 @@ public class Pipeline
 
     public ParseResult Parse(CliConfiguration configuration, IReadOnlyList<string> args)
     {
-        InitializeSubsystems(configuration, args);
+        InitializeSubsystems(new InitializationContext( configuration, args));
         var parseResult = CliParser.Parse(configuration.RootCommand, args, configuration);
         return parseResult;
     }
@@ -43,20 +43,20 @@ public class Pipeline
         return new CliExit(pipelineContext);
     }
 
-    protected virtual void InitializeHelp(CliConfiguration configuration, IReadOnlyList<string> args)
-        => Help?.Initialize(configuration, args);
+    protected virtual void InitializeHelp(InitializationContext context)
+        => Help?.Initialize(context);
 
-    protected virtual void InitializeVersion(CliConfiguration configuration, IReadOnlyList<string> args)
-        => Version?.Initialize(configuration, args);
+    protected virtual void InitializeVersion(InitializationContext context)
+        => Version?.Initialize(context);
 
-    protected virtual void InitializeCompletion(CliConfiguration configuration, IReadOnlyList<string> args)
-        => Completion?.Initialize(configuration, args);
+    protected virtual void InitializeCompletion(InitializationContext context)
+        => Completion?.Initialize(context);
 
-    protected virtual void InitializeDiagram(CliConfiguration configuration, IReadOnlyList<string> args)
-    => Diagram?.Initialize(configuration, args);
+    protected virtual void InitializeDiagram(InitializationContext context)
+        => Diagram?.Initialize(context);
 
-    protected virtual void InitializeErrorReporting(CliConfiguration configuration, IReadOnlyList<string> args)
-        => ErrorReporting?.Initialize(configuration, args);
+    protected virtual void InitializeErrorReporting(InitializationContext context)
+        => ErrorReporting?.Initialize(context);
 
     protected virtual CliExit TearDownHelp(CliExit cliExit)
         => Help is null
@@ -109,13 +109,13 @@ public class Pipeline
     /// <remarks>
     /// Note to inheritors: The ordering of initializing should normally be in the reverse order than tear down 
     /// </remarks>
-    protected virtual void InitializeSubsystems(CliConfiguration configuration, IReadOnlyList<string> args)
+    protected virtual void InitializeSubsystems(InitializationContext context)
     {
-        InitializeHelp(configuration, args);
-        InitializeVersion(configuration, args);
-        InitializeCompletion(configuration, args);
-        InitializeDiagram(configuration, args);
-        InitializeErrorReporting(configuration, args);
+        InitializeHelp(context);
+        InitializeVersion(context);
+        InitializeCompletion(context);
+        InitializeDiagram(context);
+        InitializeErrorReporting(context);
     }
 
     // TODO: Consider whether this should be public

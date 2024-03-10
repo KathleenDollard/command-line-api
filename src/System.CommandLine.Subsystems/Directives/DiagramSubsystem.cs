@@ -14,10 +14,10 @@ public class DiagramSubsystem(SharedDirectiveSupport directiveSupport, IAnnotati
     private SharedDirectiveSupport DirectiveSupport { get; } = directiveSupport;
     private bool diagramRequested = false;
 
-    protected internal override CliConfiguration Initialize(CliConfiguration configuration, IReadOnlyList<string> args)
+    protected internal override CliConfiguration Initialize(InitializationContext context)
     {
-        diagramRequested = DirectiveSupport.FindDirective("Diagram", configuration, args).Any();
-        return configuration;
+        diagramRequested = DirectiveSupport.FindDirective("Diagram", context.Configuration, context.Args).Any();
+        return context.Configuration;
     }
 
     protected internal override bool GetIsActivated(ParseResult? parseResult)

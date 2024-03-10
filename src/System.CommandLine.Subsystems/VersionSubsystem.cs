@@ -35,15 +35,15 @@ public class VersionSubsystem : CliSubsystem
             ?.InformationalVersion;
 
 
-    protected internal override CliConfiguration Initialize(CliConfiguration configuration, IReadOnlyList<string> args)
+    protected internal override CliConfiguration Initialize(InitializationContext context)
     {
         var option = new CliOption<bool>("--version", ["-v"])
         {
             Arity = ArgumentArity.Zero
         };
-        configuration.RootCommand.Add(option);
+        context.Configuration.RootCommand.Add(option);
 
-        return configuration;
+        return context.Configuration;
     }
 
     // TODO: Stash option rather than using string

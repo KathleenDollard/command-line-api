@@ -45,11 +45,11 @@ namespace System.CommandLine.Subsystems.Tests
             internal bool ExecutionWasRun;
             internal bool TeardownWasRun;
 
-            protected override CliConfiguration Initialize(CliConfiguration configuration, IReadOnlyList<string> args)
+            protected override CliConfiguration Initialize(InitializationContext context)
             {
                 // marker hack needed because ConsoleHack not available in initialization
                 InitializationWasRun = true;
-                return base.Initialize(configuration, args);
+                return base.Initialize(context);
             }
 
             protected override CliExit Execute(PipelineContext pipelineContext)
