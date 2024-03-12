@@ -57,10 +57,13 @@ namespace System.CommandLine
         public bool EnablePosixBundling { get; set; } = true;
 
         /// <summary>
-        /// If there is an executable (previously in StringExtensions.Tokenize) skip 1. If there are directives, skip those .
+        /// If a preprocessor or Initialize method of a subsystem (directives) handles an arg, mark it. Also, mark the exe if it is a separate arg
         /// </summary>
-        // TODO: If this is the right model, tuck this away because it should only be used by subsystems.
-        public int SkipArgs { get; private set; }
+        // TODO: This might is used for preprocessing, prior to call or during initialization. Try to locate closer to args as it is not inherent to the parser.
+        public void MarkArgAsHandled(int argPos, string handledBy)
+        {
+
+        }
 
         public void IncrementSkipArgs(int count) => SkipArgs += count;
 

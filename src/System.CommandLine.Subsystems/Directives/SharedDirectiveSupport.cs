@@ -1,6 +1,8 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.CommandLine.Subsystems;
+
 namespace System.CommandLine.Directives;
 
 /// <summary>
@@ -78,8 +80,8 @@ public class SharedDirectiveSupport
         }
     }
 
-    public IEnumerable<DirectiveResult> FindDirective(string directiveName, CliConfiguration configuration, IReadOnlyList<string> args)
+    public IEnumerable<DirectiveResult> FindDirective(string directiveName, IReadOnlyList<string> args, InitializationContext initializationContext)
     {
-        return GetResults(configuration, args).Where(x => x.Name == directiveName);
+        return GetResults(initializationContext.Configuration, args).Where(x => x.Name == directiveName);
     }
 }
