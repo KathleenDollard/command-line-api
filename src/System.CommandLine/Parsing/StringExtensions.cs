@@ -404,7 +404,7 @@ namespace System.CommandLine.Parsing
                     }
                     else
                     {
-                        currentCommand = AddKnownToken(rootCommand, currentCommand, tokenList, knownTokens, arg, i, token);
+                        currentCommand = AddKnownToken(rootCommand, currentCommand, tokenList, ref knownTokens, arg, i, token);
                         previousOptionWasClosed = false;
                     }
                 }
@@ -526,7 +526,7 @@ namespace System.CommandLine.Parsing
                 return false;
             }
 
-            static CliCommand AddKnownToken(CliCommand rootCommand, CliCommand currentCommand, List<CliToken> tokenList, Dictionary<string, CliToken> knownTokens, string arg, int i, CliToken token)
+            static CliCommand AddKnownToken(CliCommand rootCommand, CliCommand currentCommand, List<CliToken> tokenList, ref Dictionary<string, CliToken> knownTokens, string arg, int i, CliToken token)
             {
                 switch (token.Type)
                 {
@@ -540,6 +540,10 @@ namespace System.CommandLine.Parsing
                         if (cmd != currentCommand)
                         {
                             currentCommand = cmd;
+                            if (cmd != rootCommand)
+                            {
+                                knownTokens = GetValidTokens(cmd); // config contains Directives, they are allowed only for RootCommand
+                            }
                             tokenList.Add(Command(arg, cmd, i));
                         }
                         else

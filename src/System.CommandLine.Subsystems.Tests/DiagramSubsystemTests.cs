@@ -13,6 +13,7 @@ namespace System.CommandLine.Subsystems.Tests
 
         [Theory]
         [ClassData(typeof(TestData.Diagram))]
+        // TODO: Not sure why these tests are passing
         public void Version_is_activated_only_when_requested(string input, bool expectedIsActive, int expectedSkipArgs)
         {
             CliRootCommand rootCommand = [new CliCommand("x")];
