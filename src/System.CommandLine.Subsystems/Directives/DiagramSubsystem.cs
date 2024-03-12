@@ -16,7 +16,7 @@ public class DiagramSubsystem(SharedDirectiveSupport directiveSupport, IAnnotati
 
     protected internal override CliConfiguration Initialize(InitializationContext context)
     {
-        diagramRequested = DirectiveSupport.FindDirective("Diagram", context.Configuration, context.Args).Any();
+        diagramRequested = DirectiveSupport.FindDirective("Diagram", context).Any();
         return context.Configuration;
     }
 

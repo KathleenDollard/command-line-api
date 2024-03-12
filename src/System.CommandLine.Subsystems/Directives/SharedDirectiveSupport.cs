@@ -48,7 +48,6 @@ public class SharedDirectiveSupport
                     }
                 }
             }
-            configuration.IncrementSkipArgs(localResults.Count); 
             return localResults;
         }
 
@@ -80,8 +79,8 @@ public class SharedDirectiveSupport
         }
     }
 
-    public IEnumerable<DirectiveResult> FindDirective(string directiveName, IReadOnlyList<string> args, InitializationContext initializationContext)
+    public IEnumerable<DirectiveResult> FindDirective(string directiveName, InitializationContext initializationContext)
     {
-        return GetResults(initializationContext.Configuration, args).Where(x => x.Name == directiveName);
+        return GetResults(initializationContext.Configuration, initializationContext.Args).Where(x => x.Name == directiveName);
     }
 }

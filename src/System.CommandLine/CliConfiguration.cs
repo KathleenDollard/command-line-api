@@ -65,9 +65,6 @@ namespace System.CommandLine
 
         }
 
-        public void IncrementSkipArgs(int count) => SkipArgs += count;
-
-
         /// <summary>
         /// Indicates whether the first argument of the passed string is the exe name
         /// </summary>

@@ -27,7 +27,6 @@ namespace System.CommandLine.Subsystems.Tests
             var isActive = Subsystem.GetIsActivated(subsystem, parseResult);
 
             isActive.Should().Be(expectedIsActive);
-            configuration.SkipArgs.Should().Be(expectedSkipArgs);
         }
     }
 }

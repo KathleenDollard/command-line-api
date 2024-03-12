@@ -152,9 +152,8 @@ namespace System.CommandLine.Parsing
             CliTokenizer.Tokenize(
                 arguments,
                 rootCommand,
-                firstArgIsRootCommand: configuration.FirstArgumentIsRootCommand(arguments),
+                inferRootCommand: rawInput is not null,
                 configuration.EnablePosixBundling,
-                configuration.SkipArgs,
                 out List<CliToken> tokens,
                 out List<string>? tokenizationErrors);
 
