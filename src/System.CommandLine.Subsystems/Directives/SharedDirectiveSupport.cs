@@ -1,6 +1,6 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
-
+/*
 using System.CommandLine.Subsystems;
 
 namespace System.CommandLine.Directives;
@@ -84,3 +84,4 @@ public class SharedDirectiveSupport
         return GetResults(initializationContext.Configuration, initializationContext.Args).Where(x => x.Name == directiveName);
     }
 }
+*/

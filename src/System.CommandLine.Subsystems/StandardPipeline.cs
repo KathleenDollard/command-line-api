@@ -11,7 +11,7 @@ public class StandardPipeline : Pipeline
         Help = new HelpSubsystem();
         Version = new VersionSubsystem();
         Completion = new CompletionSubsystem();
-        Diagram = new DiagramSubsystem(SharedDirectiveSupport);
+        Diagram = new DiagramSubsystem();
         ErrorReporting = new ErrorReportingSubsystem();
     }
 }

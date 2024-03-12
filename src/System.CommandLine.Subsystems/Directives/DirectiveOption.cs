@@ -5,9 +5,15 @@ namespace System.CommandLine.Directives
 {
     public class DirectiveOption<T> : CliOption<T>
     {
-        public DirectiveOption(string name) : base("[" + name)
+        public static DirectiveOption<T> Create(string name)
         {
-            ClosedBy = "]"; 
+            name = name.Replace("[", "")
+                       .Replace("]", "");
+            return new DirectiveOption<T>(name);
+        }
+        private DirectiveOption(string name) : base("[" + name, "[" + name + "]")
+        {
+                ClosedBy = "]";
         }
     }
 }

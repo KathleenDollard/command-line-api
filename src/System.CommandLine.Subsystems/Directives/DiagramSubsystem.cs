@@ -8,20 +8,20 @@ using System.CommandLine.Parsing;
 
 namespace System.CommandLine.Directives;
 
-public class DiagramSubsystem(SharedDirectiveSupport directiveSupport, IAnnotationProvider? annotationProvider = null)
+public class DiagramSubsystem( IAnnotationProvider? annotationProvider = null)
     : CliSubsystem(DiagramAnnotations.Prefix, annotationProvider: annotationProvider, SubsystemKind.Diagram)
 {
-    private SharedDirectiveSupport DirectiveSupport { get; } = directiveSupport;
-    private bool diagramRequested = false;
-
+    private CliOption<bool>? option = null;
     protected internal override CliConfiguration Initialize(InitializationContext context)
     {
-        diagramRequested = DirectiveSupport.FindDirective("Diagram", context).Any();
-        return context.Configuration;
+        option = DirectiveOption<bool>.Create("diagram");
+        context.Configuration.RootCommand.Add(option);
+
+        return context.Configuration; 
     }
 
     protected internal override bool GetIsActivated(ParseResult? parseResult)
-        => diagramRequested;
+       => parseResult is not null && option is not null && parseResult.GetValue(option);
 
     protected internal override CliExit Execute(PipelineContext pipelineContext)
     {

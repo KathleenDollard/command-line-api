@@ -9,8 +9,6 @@ namespace System.CommandLine;
 
 public class Pipeline
 {
-    protected SharedDirectiveSupport SharedDirectiveSupport { get; } = new();
-
     public HelpSubsystem? Help { get; set; }
     public VersionSubsystem? Version { get; set; }
     public CompletionSubsystem? Completion { get; set; }

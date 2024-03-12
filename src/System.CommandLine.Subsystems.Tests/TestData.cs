@@ -34,20 +34,20 @@ internal class TestData
     {
         private readonly List<object[]> _data =
         [
-            ["[Diagram]", true, 1],
-            ["[Diagram:hello]", true, 1],
-            ["[Diagram] x", true, 1],
-            ["[Diagram] -o", true, 1],
-            ["[Diagram] -v", true, 1],
-            ["[Diagram] x -v", true,1 ],
-            ["[DiagramX]", false, 1],
-            ["[Diagram] [Other]", true, 2],
-            ["[Diagram:hello] [Other] [AndAlso]", true, 3],
-            ["x", false,0],
-            ["-o", false,0],
-            ["x -x", false,0],
-            [null, false,0],
-            ["", false, 0]
+            ["[diagram]", true],
+            ["[diagram:hello]", true],
+            ["[diagram] x", true],
+            ["[diagram] -o", true],
+            ["[diagram] -v", true],
+            ["[diagram] x -v", true ],
+            ["[diagramX]", false],
+            ["[diagram] [other]", true],
+            ["[diagram:hello] [other] [and-also]", true],
+            ["x", false],
+            ["-o", false],
+            ["x -x", false],
+            [null, false],
+            ["", false]
         ];
 
         public IEnumerator<object[]> GetEnumerator() => _data.GetEnumerator();

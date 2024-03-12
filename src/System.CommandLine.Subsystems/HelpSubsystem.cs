@@ -33,6 +33,7 @@ public class HelpSubsystem(IAnnotationProvider? annotationProvider = null)
     {
         var option = new CliOption<bool>("--help", ["-h"])
         {
+            // TODO: Why don't we accept bool like any other bool option?
             Arity = ArgumentArity.Zero
         };
         context.Configuration.RootCommand.Add(option);

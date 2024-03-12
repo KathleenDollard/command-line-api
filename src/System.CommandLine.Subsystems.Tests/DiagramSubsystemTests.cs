@@ -14,12 +14,11 @@ namespace System.CommandLine.Subsystems.Tests
         [Theory]
         [ClassData(typeof(TestData.Diagram))]
         // TODO: Not sure why these tests are passing
-        public void Version_is_activated_only_when_requested(string input, bool expectedIsActive, int expectedSkipArgs)
+        public void Diagram_is_activated_only_when_requested(string input, bool expectedIsActive)
         {
             CliRootCommand rootCommand = [new CliCommand("x")];
             var configuration = new CliConfiguration(rootCommand);
-            var directiveSupport = new SharedDirectiveSupport();
-            var subsystem = new DiagramSubsystem(directiveSupport);
+            var subsystem = new DiagramSubsystem();
             var args = CliParser.SplitCommandLine(input).ToList().AsReadOnly();
 
             Subsystem.Initialize(subsystem, configuration, args);
