@@ -26,6 +26,7 @@
     <Compile Include="..\System.CommandLine\Properties\Resources.Designer.cs" Link="Properties\Resources.Designer.cs" />
     <Compile Include="AlternateSubsystems.cs" />
     <Compile Include="Constants.cs" />
+    <Compile Include="DirectiveSubsystemTests.cs" />
     <Compile Include="DiagramSubsystemTests.cs" />
     <Compile Include="PipelineTests.cs" />
     <Compile Include="TestData.cs" />

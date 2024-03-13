@@ -1,7 +1,9 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.CommandLine.Directives;
 using System.CommandLine.Subsystems;
+using System.CommandLine.Subsystems.Annotations;
 
 namespace System.CommandLine.Subsystems.Tests
 {
@@ -62,6 +64,66 @@ namespace System.CommandLine.Subsystems.Tests
             {
                 TeardownWasRun = true;
                 return base.TearDown(cliExit);
+            }
+        }
+
+        internal class StringDirectiveSubsystem(IAnnotationProvider? annotationProvider = null)
+           : CliSubsystem(DiagramAnnotations.Prefix, annotationProvider: annotationProvider, SubsystemKind.Diagram)
+        {
+            private CliOption<string>? option = null;
+            public string? Value { get; private set; } 
+            protected  override CliConfiguration Initialize(InitializationContext context)
+            {
+                option = DirectiveOption<string>.Create("diagram");
+                context.Configuration.RootCommand.Add(option);
+
+                return context.Configuration;
+            }
+
+            protected override bool GetIsActivated(ParseResult? parseResult)
+            {
+                if (parseResult is not null && option is not null)
+                {
+                    Value = parseResult.GetValue(option);
+                }
+                return Value is not null;
+            }
+
+            protected  override CliExit Execute(PipelineContext pipelineContext)
+            {
+                // TODO: Match testable output pattern
+                pipelineContext.ConsoleHack.WriteLine($"String is {Value}");
+                return CliExit.SuccessfullyHandled(pipelineContext.ParseResult);
+            }
+        }
+
+        internal class BooleanDirectiveSubsystem(IAnnotationProvider? annotationProvider = null)
+            : CliSubsystem(DiagramAnnotations.Prefix, annotationProvider: annotationProvider, SubsystemKind.Diagram)
+        {
+            private CliOption<string>? option = null;
+            public string? Value { get; private set; }
+            protected override CliConfiguration Initialize(InitializationContext context)
+            {
+                option = DirectiveOption<string>.Create("diagram");
+                context.Configuration.RootCommand.Add(option);
+
+                return context.Configuration;
+            }
+
+            protected override bool GetIsActivated(ParseResult? parseResult)
+            {
+                if (parseResult is not null && option is not null)
+                {
+                    Value = parseResult.GetValue(option);
+                }
+                return Value is not null;
+            }
+
+            protected override CliExit Execute(PipelineContext pipelineContext)
+            {
+                // TODO: Match testable output pattern
+                pipelineContext.ConsoleHack.WriteLine($"String is {Value}");
+                return CliExit.SuccessfullyHandled(pipelineContext.ParseResult);
             }
         }
 

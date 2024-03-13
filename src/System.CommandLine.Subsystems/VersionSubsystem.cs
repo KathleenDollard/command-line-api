@@ -34,7 +34,6 @@ public class VersionSubsystem : CliSubsystem
             ?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
             ?.InformationalVersion;
 
-
     protected internal override CliConfiguration Initialize(InitializationContext context)
     {
         var option = new CliOption<bool>("--version", ["-v"])

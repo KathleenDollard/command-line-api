@@ -9,7 +9,9 @@ namespace System.CommandLine.Directives
         {
             name = name.Replace("[", "")
                        .Replace("]", "");
-            return new DirectiveOption<T>(name);
+            var option = new DirectiveOption<T>(name);
+            option.Required = false;
+            return option;
         }
         private DirectiveOption(string name) : base("[" + name, "[" + name + "]")
         {

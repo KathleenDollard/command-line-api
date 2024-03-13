@@ -394,12 +394,12 @@ namespace System.CommandLine.Parsing
                 {
                     if (PreviousTokenIsAnOptionExpectingAnArgument(out var option, tokenList, previousOptionWasClosed))
                     {
-                        // TODO: It is not obvious to me how arity > 0 is handled here
-                        tokenList.Add(OptionArgument(arg, option!, i));
                         if (option is not null && !string.IsNullOrWhiteSpace(option.ClosedBy) && arg.EndsWith(option.ClosedBy))
                         {
                             previousOptionWasClosed = true;
+                            arg = arg.Substring(0, arg.Length - option.ClosedBy.Length);
                         }
+                        tokenList.Add(OptionArgument(arg, option!, i));
                         continue;
                     }
                     else
@@ -415,10 +415,14 @@ namespace System.CommandLine.Parsing
                          knownTokens.TryGetValue(first, out var subToken) &&
                          subToken.Type == CliTokenType.Option)
                     {
-                        tokenList.Add(Option(first, (CliOption)subToken.Symbol!, i));
+                        CliOption option = (CliOption)subToken.Symbol!;
+                        tokenList.Add(Option(first, option, i));
 
                         if (rest is not null)
                         {
+                            rest = option.ClosedBy is not null
+                                ? rest.Substring(0, rest.Length - option.ClosedBy.Length) 
+                                : rest;
                             tokenList.Add(Argument(rest, i));
                         }
                     }
