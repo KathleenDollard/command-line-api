@@ -12,7 +12,7 @@ public class VersionSubsystem : CliSubsystem
     private string? specificVersion = null;
 
     public VersionSubsystem(IAnnotationProvider? annotationProvider = null)
-        : base(VersionAnnotations.Prefix, annotationProvider, SubsystemKind.Version)
+        : base(VersionAnnotations.Prefix, SubsystemKind.Version, annotationProvider)
     {
     }
 

@@ -8,10 +8,10 @@ using System.CommandLine.Parsing;
 
 namespace System.CommandLine.Directives;
 
-public abstract class DirectiveSubsystem<T>(string name, string prefix, SubsystemKind kind, IAnnotationProvider? annotationProvider = null)
-    : CliSubsystem(prefix, annotationProvider: annotationProvider, kind)
+public abstract class DirectiveSubsystem<T>(string Name, SubsystemKind Kind, IAnnotationProvider? AnnotationProvider = null)
+    : CliSubsystem(Name, Kind, annotationProvider: AnnotationProvider)
 {
-    protected CliOption<T> option = DirectiveOption<T>.Create(name);
+    protected CliOption<T> option = DirectiveOption<T>.Create(Name);
     public T? Value { get; private set; }
     protected internal override CliConfiguration Initialize(InitializationContext context)
     {
@@ -31,7 +31,7 @@ public abstract class DirectiveSubsystem<T>(string name, string prefix, Subsyste
     protected internal override CliExit Execute(PipelineContext pipelineContext)
     {
         // TODO: Match testable output pattern
-        pipelineContext.ConsoleHack.WriteLine("Output name");
+        pipelineContext.ConsoleHack.WriteLine($"Directive: {Name}, Output: {Value}");
         return CliExit.SuccessfullyHandled(pipelineContext.ParseResult);
     }
 }

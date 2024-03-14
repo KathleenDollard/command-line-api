@@ -68,64 +68,12 @@ namespace System.CommandLine.Subsystems.Tests
         }
 
         internal class StringDirectiveSubsystem(IAnnotationProvider? annotationProvider = null)
-           : CliSubsystem(DiagramAnnotations.Prefix, annotationProvider: annotationProvider, SubsystemKind.Diagram)
-        {
-            private CliOption<string>? option = null;
-            public string? Value { get; private set; } 
-            protected  override CliConfiguration Initialize(InitializationContext context)
-            {
-                option = DirectiveOption<string>.Create("diagram");
-                context.Configuration.RootCommand.Add(option);
-
-                return context.Configuration;
-            }
-
-            protected override bool GetIsActivated(ParseResult? parseResult)
-            {
-                if (parseResult is not null && option is not null)
-                {
-                    Value = parseResult.GetValue(option);
-                }
-                return Value is not null;
-            }
-
-            protected  override CliExit Execute(PipelineContext pipelineContext)
-            {
-                // TODO: Match testable output pattern
-                pipelineContext.ConsoleHack.WriteLine($"String is {Value}");
-                return CliExit.SuccessfullyHandled(pipelineContext.ParseResult);
-            }
-        }
+           : DirectiveSubsystem<string>("other",SubsystemKind.Diagram, annotationProvider)
+        { }
 
         internal class BooleanDirectiveSubsystem(IAnnotationProvider? annotationProvider = null)
-            : CliSubsystem(DiagramAnnotations.Prefix, annotationProvider: annotationProvider, SubsystemKind.Diagram)
-        {
-            private CliOption<string>? option = null;
-            public string? Value { get; private set; }
-            protected override CliConfiguration Initialize(InitializationContext context)
-            {
-                option = DirectiveOption<string>.Create("diagram");
-                context.Configuration.RootCommand.Add(option);
-
-                return context.Configuration;
-            }
-
-            protected override bool GetIsActivated(ParseResult? parseResult)
-            {
-                if (parseResult is not null && option is not null)
-                {
-                    Value = parseResult.GetValue(option);
-                }
-                return Value is not null;
-            }
-
-            protected override CliExit Execute(PipelineContext pipelineContext)
-            {
-                // TODO: Match testable output pattern
-                pipelineContext.ConsoleHack.WriteLine($"String is {Value}");
-                return CliExit.SuccessfullyHandled(pipelineContext.ParseResult);
-            }
-        }
+           : DirectiveSubsystem<bool>("diagram", SubsystemKind.Diagram,  annotationProvider)
+        { }
 
     }
 }

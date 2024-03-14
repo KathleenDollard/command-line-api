@@ -34,20 +34,18 @@ internal class TestData
     {
         private readonly List<object[]> _data =
         [
-            ["[diagram]", true, "My Value"],
-            ["[diagram:Hello]", true, "Hello"],
-            ["[diagram] x", true, "My Value"],
-            ["[diagram] -o", true, "My Value"],
-            ["[diagram] -v", true, "My Value"],
-            ["[diagram] x -v", true , "My Value"],
-            ["[diagramX]", false, null],
-            ["[diagram] [other]", true, null],
-            ["[diagram:Hello] [other] [and-also]", true, "Hello"],
-            ["x", false, null],
-            ["-o", false, null],
-            ["x -x", false, null],
-            [null, false, null],
-            ["", false, null]
+            ["[diagram]", true],
+            ["[diagram] x", true],
+            ["[diagram] -o", true],
+            ["[diagram] -v", true],
+            ["[diagram] x -v", true],
+            ["[diagramX]", false],
+            ["[diagram] [other]", true],
+            ["x", false],
+            ["-o", false],
+            ["x -x", false],
+            [null, false],
+            ["", false]
         ];
 
         public IEnumerator<object[]> GetEnumerator() => _data.GetEnumerator();
@@ -55,5 +53,28 @@ internal class TestData
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
+    internal class Directive : IEnumerable<object[]>
+    {
+        private readonly List<object[]> _data =
+        [
+            ["[diagram]", true, false, null],
+            ["[other:Hello]", false, true, "Hello"],
+            ["[diagram] x", true, false, null],
+            ["[diagram] -o", true, false, null],
+            ["[diagram] -v", true, false, null],
+            ["[diagram] x -v", true, false, null],
+            ["[diagramX]", false, false, null],
+            ["[diagram] [other:Hello]", true, true, "Hello"],
+            ["x", false, false, null],
+            ["-o", false, false, null],
+            ["x -x", false, false, null],
+            [null, false, false, null],
+            ["", false, false, null],
+            //["[diagram] [other Goodbye]", true, true, "Goodbye"],This is a new test that demos new feature, but is also broken
+        ];
 
+        public IEnumerator<object[]> GetEnumerator() => _data.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    }
 }

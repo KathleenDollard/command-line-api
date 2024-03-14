@@ -325,6 +325,7 @@ namespace System.CommandLine.Parsing
             List<string>? errorList = null;
 
             var currentCommand = rootCommand;
+            CliOption? currentOption = null;
             var foundDoubleDash = false;
             var tokenList = new List<CliToken>(args.Count);
 
@@ -392,25 +393,25 @@ namespace System.CommandLine.Parsing
 
                 if (knownTokens.TryGetValue(arg, out var token))
                 {
+                    // This test and block is to handle the case `-x -x` where -x takes a string arg and "-x" is the value. Normal 
+                    // option argument parsing is handled as all other arguments, because it is not a known token.
+                    // KAD: I am concerned about this code. It is not obvious that it solves the problem as a arity > 1 string
+                    //      option does not appear to work ("-x Hello -x" and it confused me so might confuse someone else. It
+                    //      seems tracking the curren option, which is needed anyway for ClosedBy, would allow this scenario
+                    //      to be handled where the tokens are usually added.
                     if (PreviousTokenIsAnOptionExpectingAnArgument(out var option, tokenList, previousOptionWasClosed))
                     {
-                        if (option is not null && !string.IsNullOrWhiteSpace(option.ClosedBy) && arg.EndsWith(option.ClosedBy))
-                        {
-                            previousOptionWasClosed = true;
-                            arg = arg.Substring(0, arg.Length - option.ClosedBy.Length);
-                        }
                         tokenList.Add(OptionArgument(arg, option!, i));
                         continue;
                     }
                     else
                     {
-                        currentCommand = AddKnownToken(rootCommand, currentCommand, tokenList, ref knownTokens, arg, i, token);
+                        (currentCommand, currentOption) = AddKnownToken(rootCommand, currentCommand,currentOption, tokenList, ref knownTokens, arg, i, token);
                         previousOptionWasClosed = false;
                     }
                 }
                 else
                 {
-                    previousOptionWasClosed = false;
                     if (TrySplitIntoSubtokens(arg, out var first, out var rest) &&
                          knownTokens.TryGetValue(first, out var subToken) &&
                          subToken.Type == CliTokenType.Option)
@@ -430,6 +431,11 @@ namespace System.CommandLine.Parsing
                              !CanBeUnbundled(arg, tokenList) ||
                              !TryUnbundle(arg.AsSpan(1), i))
                     {
+                        //if (option is not null && !string.IsNullOrWhiteSpace(option.ClosedBy) && arg.EndsWith(option.ClosedBy))
+                        //{
+                        //    previousOptionWasClosed = true;
+                        //    arg = arg.Substring(0, arg.Length - option.ClosedBy.Length);
+                        //}
                         tokenList.Add(Argument(arg, i));
                     }
                 }
@@ -530,12 +536,14 @@ namespace System.CommandLine.Parsing
                 return false;
             }
 
-            static CliCommand AddKnownToken(CliCommand rootCommand, CliCommand currentCommand, List<CliToken> tokenList, ref Dictionary<string, CliToken> knownTokens, string arg, int i, CliToken token)
+            static (CliCommand, CliOption) AddKnownToken(CliCommand rootCommand, CliCommand currentCommand, CliOption currentOption, List<CliToken> tokenList, ref Dictionary<string, CliToken> knownTokens, string arg, int i, CliToken token)
             {
                 switch (token.Type)
                 {
                     case CliTokenType.Option:
-                        tokenList.Add(Option(arg, (CliOption)token.Symbol!, i));
+                        var option = (CliOption)token.Symbol!;
+                        tokenList.Add(Option(arg, option, i));
+                        currentOption = option;
                         break;
 
                     case CliTokenType.Command:
@@ -544,6 +552,7 @@ namespace System.CommandLine.Parsing
                         if (cmd != currentCommand)
                         {
                             currentCommand = cmd;
+                            currentOption = null;
                             if (cmd != rootCommand)
                             {
                                 knownTokens = GetValidTokens(cmd); // config contains Directives, they are allowed only for RootCommand
@@ -557,7 +566,7 @@ namespace System.CommandLine.Parsing
 
                         break;
                 }
-                return currentCommand;
+                return (currentCommand, currentOption);
             }
         }
 
