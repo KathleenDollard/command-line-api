@@ -149,7 +149,7 @@ namespace System.CommandLine.Parsing
 
             configuration ??= new CliConfiguration(rootCommand);
 
-            CliTokenizer.Tokenize(
+            Tokenizer.Tokenize(
                 arguments,
                 rootCommand,
                 inferRootCommand: rawInput is not null,
