@@ -10,7 +10,9 @@ namespace System.CommandLine.Parsing
     /// </summary>
     internal sealed class CliToken : IEquatable<CliToken>
     {
-        internal const int ImplicitPosition = -1;
+        public static CliToken CreateFromOtherToken(CliToken otherToken, string? arg, string source, int startPosition, int offset = 0) 
+            => new CliToken(arg, otherToken.Type, otherToken.Symbol,
+                    new(source, startPosition, arg is null ? 0 : arg.Length, offset));
 
         /// <param name="value">The string value of the token.</param>
         /// <param name="type">The type of the token.</param>
@@ -20,25 +22,25 @@ namespace System.CommandLine.Parsing
             Value = value ?? "";
             Type = type;
             Symbol = symbol;
-            Position = ImplicitPosition;
+            Location = Location.CreateImplicit(value is null ? 0 : value.Length);
         }
-       
-        internal CliToken(string? value, CliTokenType type, CliSymbol? symbol, int position)
+
+        internal CliToken(string? value, CliTokenType type, CliSymbol? symbol, Location location)
         {
             Value = value ?? "";
             Type = type;
             Symbol = symbol;
-            Position = position;
+            Location = location;
         }
 
-        internal int Position { get; }
+        internal Location Location { get; }
 
         /// <summary>
         /// The string value of the token.
         /// </summary>
         public string Value { get; }
 
-        internal bool Implicit => Position == ImplicitPosition;
+        internal bool Implicit => Location.IsImplicit;
 
         /// <summary>
         /// The type of the token.
