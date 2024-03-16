@@ -354,17 +354,18 @@ namespace System.CommandLine.Parsing
             out List<string>? errors)
         {
             tokens = new List<CliToken>(args.Count);
-            var locations = Location.CreateList("User", args);
+            //var locations = Location.CreateList("User", args);
+            var locationSource = Location.User;
 
             // Handle exe not being in args here?
             if (!FirstArgIsRootCommand(args, rootCommand, inferRootCommand))
             {
-                tokens.Add(Command(rootCommand.Name, rootCommand, -1));
+                tokens.Add(Command(rootCommand.Name, rootCommand, new Location(locationSource, -1, rootCommand.Name.Length)));
             }
 
             var knownTokens = GetValidTokens(rootCommand);
             var newErrors = MapTokens(args,
-                      locations,
+                      locationSource,
                       rootCommand,
                       null,
                       knownTokens,
@@ -421,32 +422,6 @@ namespace System.CommandLine.Parsing
                         }
                         continue;
                     }
-
-                    // TODO: ResponseFileTokenReplacer
-                    /*
-                    if (configuration.ResponseFileTokenReplacer is { } replacer &&
-                        arg.GetReplaceableTokenValue() is { } value)
-                    {
-                        if (replacer(
-                                value,
-                                out var newTokens,
-                                out var error))
-                        {
-                            if (newTokens is not null && newTokens.Count > 0)
-                            {
-                                List<string> listWithReplacedTokens = args.ToList();
-                                listWithReplacedTokens.InsertRange(i + 1, newTokens);
-                                args = listWithReplacedTokens;
-                            }
-                            continue;
-                        }
-                        else if (!string.IsNullOrWhiteSpace(error))
-                        {
-                            (errorList ??= new()).Add(error!);
-                            continue;
-                        }
-                    }
-                    */
 
                     if (knownTokens.TryGetValue(arg, out var token))
                     {
