@@ -354,17 +354,18 @@ namespace System.CommandLine.Parsing
             out List<string>? errors)
         {
             tokens = new List<CliToken>(args.Count);
-            var locations = Location.CreateList("User", args);
+            //var locations = Location.CreateList("User", args);
+            var locationSource = Location.User;
 
             // Handle exe not being in args here?
             if (!FirstArgIsRootCommand(args, rootCommand, inferRootCommand))
             {
-                tokens.Add(Command(rootCommand.Name, rootCommand, -1));
+                tokens.Add(Command(rootCommand.Name, rootCommand, new Location(locationSource, -1, rootCommand.Name.Length)));
             }
 
             var knownTokens = GetValidTokens(rootCommand);
             var newErrors = MapTokens(args,
-                      locations,
+                      locationSource,
                       rootCommand,
                       null,
                       knownTokens,
@@ -376,7 +377,7 @@ namespace System.CommandLine.Parsing
             errors = newErrors;
 
             static List<string>? MapTokens(IReadOnlyList<string> args,
-                                           IEnumerable<Location> locations,
+                                           string locationSource,
                                            CliCommand currentCommand,
                                            CliOption? currentOption,
                                            Dictionary<string, CliToken> knownTokens,
@@ -385,7 +386,6 @@ namespace System.CommandLine.Parsing
                                            bool foundDoubleDash,
                                            List<CliToken> tokens)
             {
-                Debug.Assert(args.Count == locations.Count());
                 List<string>? errors = null;
                 var previousOptionWasClosed = false;
 
@@ -396,13 +396,13 @@ namespace System.CommandLine.Parsing
                     if (foundDoubleDash)
                     {
                         // everything after the double dash is added as an argument
-                        tokens.Add(CommandArgument(arg, currentCommand!, i));
+                        tokens.Add(CommandArgument(arg, currentCommand!, new Location(locationSource, i, arg.Length)));
                         continue;
                     }
 
                     if (arg == doubleDash)
                     {
-                        tokens.Add(DoubleDash(i));
+                        tokens.Add(DoubleDash(i, new Location(locationSource, i, doubleDash.Length)));
                         foundDoubleDash = true;
                         continue;
                     }
@@ -416,38 +416,12 @@ namespace System.CommandLine.Parsing
                         // TODO: Handle errors
                         if (insertArgs is not null && insertArgs.Any())
                         {
-                            var insertLocations = Location.CreateList($"Response:{responseName}", insertArgs);
-                            var newErrors = MapTokens(insertArgs, insertLocations, currentCommand,
+                            var innerLocationSource = $"Response:{responseName}";
+                            var newErrors = MapTokens(insertArgs, innerLocationSource, currentCommand,
                                 currentOption, knownTokens, configuration, enablePosixBundling, foundDoubleDash, tokens);
                         }
                         continue;
                     }
-
-                    // TODO: ResponseFileTokenReplacer
-                    /*
-                    if (configuration.ResponseFileTokenReplacer is { } replacer &&
-                        arg.GetReplaceableTokenValue() is { } value)
-                    {
-                        if (replacer(
-                                value,
-                                out var newTokens,
-                                out var error))
-                        {
-                            if (newTokens is not null && newTokens.Count > 0)
-                            {
-                                List<string> listWithReplacedTokens = args.ToList();
-                                listWithReplacedTokens.InsertRange(i + 1, newTokens);
-                                args = listWithReplacedTokens;
-                            }
-                            continue;
-                        }
-                        else if (!string.IsNullOrWhiteSpace(error))
-                        {
-                            (errorList ??= new()).Add(error!);
-                            continue;
-                        }
-                    }
-                    */
 
                     if (knownTokens.TryGetValue(arg, out var token))
                     {
@@ -459,12 +433,12 @@ namespace System.CommandLine.Parsing
                         //      to be handled where the tokens are usually added.
                         if (PreviousTokenIsAnOptionExpectingAnArgument(out var option, tokens, previousOptionWasClosed))
                         {
-                            tokens.Add(OptionArgument(arg, option!, i, 0));
+                            tokens.Add(OptionArgument(arg, option!, new Location(locationSource, i, arg.Length)));
                             continue;
                         }
                         else
                         {
-                            (currentCommand, currentOption) = AddKnownToken(currentCommand, currentCommand, currentOption, tokens, ref knownTokens, arg, i, token);
+                            (currentCommand, currentOption) = AddKnownToken(currentCommand, currentCommand, currentOption, tokens, ref knownTokens, arg, new Location(locationSource, i, arg.Length), token);
                             previousOptionWasClosed = false;
                         }
                     }
@@ -475,30 +449,27 @@ namespace System.CommandLine.Parsing
                              subToken.Type == CliTokenType.Option)
                         {
                             CliOption option = (CliOption)subToken.Symbol!;
-                            tokens.Add(Option(first, option, i));
+                            tokens.Add(Option(first, option, new Location(locationSource, i, first.Length)));
 
                             if (rest is not null)
                             {
                                 rest = option.ClosedBy is not null
                                     ? rest.Substring(0, rest.Length - option.ClosedBy.Length)
                                     : rest;
-                                tokens.Add(Argument(rest, i));
+                                tokens.Add(Argument(rest, new Location(locationSource, i, rest.Length, first.Length + 1)));
                             }
                         }
                         else if (!enablePosixBundling ||
                                  !CanBeUnbundled(arg, tokens) ||
                                  !TryUnbundle(arg.AsSpan(1), i, knownTokens, tokens))
                         {
-                            tokens.Add(Argument(arg, i));
+                            tokens.Add(Argument(arg, new Location(locationSource, i, arg.Length)));
                         }
                     }
                 }
 
                 return errors;
             }
-
-            // TODO: Directives
-            //             CliToken Directive(string value, CliDirective? directive) => new(value, CliTokenType.Directive, directive, i);
 
             static bool CanBeUnbundled(string arg, List<CliToken> tokenList)
                 => arg.Length > 2
@@ -507,7 +478,11 @@ namespace System.CommandLine.Parsing
                     && arg[2] != ':' && arg[2] != '=' // handled by TrySplitIntoSubtokens
                     && !PreviousTokenIsAnOptionExpectingAnArgument(out _, tokenList, false);
 
-            static bool TryUnbundle(ReadOnlySpan<char> alias, int argumentIndex, Dictionary<string, CliToken> knownTokens, List<CliToken> tokenList)
+            static bool TryUnbundle(ReadOnlySpan<char> alias,
+                                    Location outerLocation,
+                                    int argPosition,
+                                    Dictionary<string, CliToken> knownTokens,
+                                    List<CliToken> tokenList)
             {
                 int tokensBefore = tokenList.Count;
 
@@ -520,7 +495,9 @@ namespace System.CommandLine.Parsing
                         {
                             if (alias[i] == ':' || alias[i] == '=')
                             {
-                                tokenList.Add(Argument(alias.Slice(i + 1).ToString(), argumentIndex, i + 1));
+                                string value = alias.Slice(i + 1).ToString();
+                                tokenList.Add(Argument(value,
+                                    Location.FromOuterLocation(outerLocation, argPosition, value.Length, i + 1)));
                                 return true;
                             }
 
@@ -530,7 +507,9 @@ namespace System.CommandLine.Parsing
                                 if (tokensBefore != tokenList.Count && tokenList[tokenList.Count - 1].Type == CliTokenType.Option)
                                 {
                                     // Invalid_char_in_bundle_causes_rest_to_be_interpreted_as_value
-                                    tokenList.Add(Argument(alias.Slice(i).ToString(), argumentIndex, i));
+                                    string value = alias.Slice(i).ToString();
+                                    tokenList.Add(Argument(value,
+                                        Location.FromOuterLocation(outerLocation, argPosition, value.Length, i)));
                                     return true;
                                 }
 
@@ -538,7 +517,7 @@ namespace System.CommandLine.Parsing
                             }
 
                             tokenList.Add(CliToken.CreateFromOtherToken(found, found.Value,
-                                Location.User, argumentIndex, i));
+                                Location.FromOuterLocation(outerLocation, argPosition, found.Value.Length, i)));
 
                             if (i != alias.Length - 1 && ((CliOption)found.Symbol!).Greedy)
                             {
@@ -547,7 +526,9 @@ namespace System.CommandLine.Parsing
                                 {
                                     index++; // Last_bundled_option_can_accept_argument_with_colon_separator
                                 }
-                                tokenList.Add(Argument(alias.Slice(index).ToString(), argumentIndex, index));
+
+                                string value = alias.Slice(index).ToString();
+                                tokenList.Add(Argument(value, Location.FromOuterLocation(outerLocation, argPosition, value.Length, index)));
                                 return true;
                             }
                         }
@@ -577,13 +558,22 @@ namespace System.CommandLine.Parsing
                 return false;
             }
 
-            static (CliCommand, CliOption) AddKnownToken(CliCommand rootCommand, CliCommand currentCommand, CliOption currentOption, List<CliToken> tokenList, ref Dictionary<string, CliToken> knownTokens, string arg, int i, CliToken token)
+            static (CliCommand, CliOption) AddKnownToken(CliCommand rootCommand,
+                                                         CliCommand currentCommand,
+                                                         CliOption currentOption,
+                                                         List<CliToken> tokenList,
+                                                         ref Dictionary<string, CliToken> knownTokens,
+                                                         string arg,
+                                                         Location outerLocation,
+                                                         int argPosition,
+                                                         CliToken token)
             {
+                var location = Location.FromOuterLocation(outerLocation, argPosition, arg.Length);
                 switch (token.Type)
                 {
                     case CliTokenType.Option:
                         var option = (CliOption)token.Symbol!;
-                        tokenList.Add(Option(arg, option, i));
+                        tokenList.Add(Option(arg, option, location));
                         currentOption = option;
                         break;
 
@@ -598,11 +588,11 @@ namespace System.CommandLine.Parsing
                             {
                                 knownTokens = GetValidTokens(cmd); // config contains Directives, they are allowed only for RootCommand
                             }
-                            tokenList.Add(Command(arg, cmd, i));
+                            tokenList.Add(Command(arg, cmd, location));
                         }
                         else
                         {
-                            tokenList.Add(Argument(arg, i));
+                            tokenList.Add(Argument(arg, location));
                         }
 
                         break;
@@ -643,6 +633,7 @@ namespace System.CommandLine.Parsing
                 ? arg.Substring(1)
                 : null;
 
+        // TODO: Naming rules - sub-tokens has a dash and thus should be SubToken
         private static bool TrySplitIntoSubtokens(
             string arg,
             out string first,
@@ -667,7 +658,7 @@ namespace System.CommandLine.Parsing
             return false;
         }
 
-        // TODO: rename to TryTokenizeResponseFile
+        // TODO: rename to TryTokenizeResponseFile or TryTokenizeAdditionalResponse
         internal static bool TryReadResponseFile(
             string filePath,
             out IReadOnlyList<string>? newTokens,
@@ -736,19 +727,6 @@ namespace System.CommandLine.Parsing
         {
             Dictionary<string, CliToken> tokens = new(StringComparer.Ordinal);
 
-            // TODO: Directives
-            /*
-            if (command is CliRootCommand { Directives: IList<CliDirective> directives })
-            {
-                for (int i = 0; i < directives.Count; i++)
-                {
-                    var directive = directives[i];
-                    var tokenString = $"[{directive.Name}]";
-                    tokens[tokenString] = new CliToken(tokenString, CliTokenType.Directive, directive, CliToken.ImplicitPosition);
-                }
-            }
-            */
-
             AddCommandTokens(tokens, command);
 
             if (command.HasSubcommands)
@@ -770,48 +748,18 @@ namespace System.CommandLine.Parsing
                 }
             }
 
-            CliCommand? current = command;
-            while (current is not null)
-            {
-                CliCommand? parentCommand = null;
-                SymbolNode? parent = current.FirstParent;
-                while (parent is not null)
-                {
-                    if ((parentCommand = parent.Symbol as CliCommand) is not null)
-                    {
-                        if (parentCommand.HasOptions)
-                        {
-                            for (var i = 0; i < parentCommand.Options.Count; i++)
-                            {
-                                CliOption option = parentCommand.Options[i];
-                                // TODO: recursive options
-                                /*
-                                if (option.Recursive)
-                                {
-                                    AddOptionTokens(tokens, option);
-                                }
-                                */
-                            }
-                        }
-
-                        break;
-                    }
-                    parent = parent.Next;
-                }
-                current = parentCommand;
-            }
-
+            // TODO: Be sure recursive/global options are handled in the Initialize of Help (add to all)
             return tokens;
 
             static void AddCommandTokens(Dictionary<string, CliToken> tokens, CliCommand cmd)
             {
-                tokens.Add(cmd.Name, Command(cmd.Name, cmd, -1));
+                tokens.Add(cmd.Name, Command(cmd.Name, cmd, Location.CreateInternal(cmd.Name.Length)));
 
                 if (cmd._aliases is not null)
                 {
                     foreach (string childAlias in cmd._aliases)
                     {
-                        tokens.Add(childAlias, Command(childAlias, cmd, -1));
+                        tokens.Add(childAlias, Command(childAlias, cmd, Location.CreateInternal(childAlias.Length)));
                     }
                 }
             }
@@ -820,7 +768,7 @@ namespace System.CommandLine.Parsing
             {
                 if (!tokens.ContainsKey(option.Name))
                 {
-                    tokens.Add(option.Name, Option(option.Name, option, -1));
+                    tokens.Add(option.Name, Option(option.Name, option, Location.CreateInternal(option.Name.Length)));
                 }
 
                 if (option._aliases is not null)
@@ -829,38 +777,38 @@ namespace System.CommandLine.Parsing
                     {
                         if (!tokens.ContainsKey(childAlias))
                         {
-                            tokens.Add(childAlias, Option(childAlias, option, -1));
+                            tokens.Add(childAlias, Option(childAlias, option, Location.CreateInternal(childAlias.Length)));
                         }
                     }
                 }
             }
         }
 
-        private static CliToken GetToken(string? value, CliTokenType tokenType, CliSymbol? symbol, int argPosition, int offset = 0)
-            => new(value, tokenType, symbol,
-                new Location(argPosition == -1 ? Location.Internal : Location.User,
-                                     argPosition,
-                                     value is null ? 0 : value.Length,
-                                     offset));
+        private static CliToken GetToken(string? value, CliTokenType tokenType, CliSymbol? symbol, Location location)
+            => new(value, tokenType, symbol, location);
+                //new Location(argPosition == -1 ? Location.Internal : Location.User,
+                //                     argPosition,
+                //                     value is null ? 0 : value.Length,
+                //                     offset));
 
-        private static CliToken Argument(string arg, int i, int offset = 0)
-            => GetToken(arg, CliTokenType.Argument, default, i);
+        private static CliToken Argument(string arg, Location location)
+            => GetToken(arg, CliTokenType.Argument, default, location);
 
-        private static CliToken CommandArgument(string arg, CliCommand command, int i)
-            => GetToken(arg, CliTokenType.Argument, command, i);
+        private static CliToken CommandArgument(string arg, CliCommand command, Location location)
+            => GetToken(arg, CliTokenType.Argument, command, location);
 
-        private static CliToken OptionArgument(string arg, CliOption option, int i, int offset)
-            => GetToken(arg, CliTokenType.Argument, option, i, offset);
+        private static CliToken OptionArgument(string arg, CliOption option, Location location)
+            => GetToken(arg, CliTokenType.Argument, option, location);
 
-        private static CliToken Command(string arg, CliCommand cmd, int i)
-            => GetToken(arg, CliTokenType.Command, cmd, i);
+        private static CliToken Command(string arg, CliCommand cmd, Location location)
+            => GetToken(arg, CliTokenType.Command, cmd, location);
 
-        private static CliToken Option(string arg, CliOption option, int i)
-            => GetToken(arg, CliTokenType.Option, option, i);
+        private static CliToken Option(string arg, CliOption option, Location location)
+            => GetToken(arg, CliTokenType.Option, option, location);
 
         // TODO: Explore whether double dash should track its command
-        private static CliToken DoubleDash(int i)
-            => GetToken(doubleDash, CliTokenType.DoubleDash, default, i);
+        private static CliToken DoubleDash(int i, Location location)
+            => GetToken(doubleDash, CliTokenType.DoubleDash, default, location);
 
     }
 
