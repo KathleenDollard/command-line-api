@@ -376,7 +376,7 @@ namespace System.CommandLine.Parsing
             errors = newErrors;
 
             static List<string>? MapTokens(IReadOnlyList<string> args,
-                                           IEnumerable<Location> locations,
+                                           string locationSource,
                                            CliCommand currentCommand,
                                            CliOption? currentOption,
                                            Dictionary<string, CliToken> knownTokens,
@@ -385,7 +385,6 @@ namespace System.CommandLine.Parsing
                                            bool foundDoubleDash,
                                            List<CliToken> tokens)
             {
-                Debug.Assert(args.Count == locations.Count());
                 List<string>? errors = null;
                 var previousOptionWasClosed = false;
 
@@ -396,13 +395,13 @@ namespace System.CommandLine.Parsing
                     if (foundDoubleDash)
                     {
                         // everything after the double dash is added as an argument
-                        tokens.Add(CommandArgument(arg, currentCommand!, i));
+                        tokens.Add(CommandArgument(arg, currentCommand!, new Location(locationSource, i, arg.Length)));
                         continue;
                     }
 
                     if (arg == doubleDash)
                     {
-                        tokens.Add(DoubleDash(i));
+                        tokens.Add(DoubleDash(i, new Location(locationSource, i, doubleDash.Length)));
                         foundDoubleDash = true;
                         continue;
                     }
@@ -416,8 +415,8 @@ namespace System.CommandLine.Parsing
                         // TODO: Handle errors
                         if (insertArgs is not null && insertArgs.Any())
                         {
-                            var insertLocations = Location.CreateList($"Response:{responseName}", insertArgs);
-                            var newErrors = MapTokens(insertArgs, insertLocations, currentCommand,
+                            var innerLocationSource = $"Response:{responseName}";
+                            var newErrors = MapTokens(insertArgs, innerLocationSource, currentCommand,
                                 currentOption, knownTokens, configuration, enablePosixBundling, foundDoubleDash, tokens);
                         }
                         continue;
@@ -459,12 +458,12 @@ namespace System.CommandLine.Parsing
                         //      to be handled where the tokens are usually added.
                         if (PreviousTokenIsAnOptionExpectingAnArgument(out var option, tokens, previousOptionWasClosed))
                         {
-                            tokens.Add(OptionArgument(arg, option!, i, 0));
+                            tokens.Add(OptionArgument(arg, option!, new Location(locationSource, i, arg.Length)));
                             continue;
                         }
                         else
                         {
-                            (currentCommand, currentOption) = AddKnownToken(currentCommand, currentCommand, currentOption, tokens, ref knownTokens, arg, i, token);
+                            (currentCommand, currentOption) = AddKnownToken(currentCommand, currentCommand, currentOption, tokens, ref knownTokens, arg, new Location(locationSource, i, arg.Length), token);
                             previousOptionWasClosed = false;
                         }
                     }
@@ -475,30 +474,27 @@ namespace System.CommandLine.Parsing
                              subToken.Type == CliTokenType.Option)
                         {
                             CliOption option = (CliOption)subToken.Symbol!;
-                            tokens.Add(Option(first, option, i));
+                            tokens.Add(Option(first, option, new Location(locationSource, i, first.Length)));
 
                             if (rest is not null)
                             {
                                 rest = option.ClosedBy is not null
                                     ? rest.Substring(0, rest.Length - option.ClosedBy.Length)
                                     : rest;
-                                tokens.Add(Argument(rest, i));
+                                tokens.Add(Argument(rest, new Location(locationSource, i, rest.Length, first.Length + 1)));
                             }
                         }
                         else if (!enablePosixBundling ||
                                  !CanBeUnbundled(arg, tokens) ||
                                  !TryUnbundle(arg.AsSpan(1), i, knownTokens, tokens))
                         {
-                            tokens.Add(Argument(arg, i));
+                            tokens.Add(Argument(arg, new Location(locationSource, i, arg.Length)));
                         }
                     }
                 }
 
                 return errors;
             }
-
-            // TODO: Directives
-            //             CliToken Directive(string value, CliDirective? directive) => new(value, CliTokenType.Directive, directive, i);
 
             static bool CanBeUnbundled(string arg, List<CliToken> tokenList)
                 => arg.Length > 2
