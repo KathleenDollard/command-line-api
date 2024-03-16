@@ -643,6 +643,7 @@ namespace System.CommandLine.Parsing
                 ? arg.Substring(1)
                 : null;
 
+        // TODO: Naming rules - sub-tokens has a dash and thus should be SubToken
         private static bool TrySplitIntoSubtokens(
             string arg,
             out string first,
@@ -667,7 +668,7 @@ namespace System.CommandLine.Parsing
             return false;
         }
 
-        // TODO: rename to TryTokenizeResponseFile
+        // TODO: rename to TryTokenizeResponseFile or TryTokenizeAdditionalResponse
         internal static bool TryReadResponseFile(
             string filePath,
             out IReadOnlyList<string>? newTokens,
@@ -736,19 +737,6 @@ namespace System.CommandLine.Parsing
         {
             Dictionary<string, CliToken> tokens = new(StringComparer.Ordinal);
 
-            // TODO: Directives
-            /*
-            if (command is CliRootCommand { Directives: IList<CliDirective> directives })
-            {
-                for (int i = 0; i < directives.Count; i++)
-                {
-                    var directive = directives[i];
-                    var tokenString = $"[{directive.Name}]";
-                    tokens[tokenString] = new CliToken(tokenString, CliTokenType.Directive, directive, CliToken.ImplicitPosition);
-                }
-            }
-            */
-
             AddCommandTokens(tokens, command);
 
             if (command.HasSubcommands)
@@ -770,48 +758,18 @@ namespace System.CommandLine.Parsing
                 }
             }
 
-            CliCommand? current = command;
-            while (current is not null)
-            {
-                CliCommand? parentCommand = null;
-                SymbolNode? parent = current.FirstParent;
-                while (parent is not null)
-                {
-                    if ((parentCommand = parent.Symbol as CliCommand) is not null)
-                    {
-                        if (parentCommand.HasOptions)
-                        {
-                            for (var i = 0; i < parentCommand.Options.Count; i++)
-                            {
-                                CliOption option = parentCommand.Options[i];
-                                // TODO: recursive options
-                                /*
-                                if (option.Recursive)
-                                {
-                                    AddOptionTokens(tokens, option);
-                                }
-                                */
-                            }
-                        }
-
-                        break;
-                    }
-                    parent = parent.Next;
-                }
-                current = parentCommand;
-            }
-
+            // TODO: Be sure recursive/global options are handled in the Initialize of Help (add to all)
             return tokens;
 
             static void AddCommandTokens(Dictionary<string, CliToken> tokens, CliCommand cmd)
             {
-                tokens.Add(cmd.Name, Command(cmd.Name, cmd, -1));
+                tokens.Add(cmd.Name, Command(cmd.Name, cmd, Location.CreateInternal(cmd.Name.Length)));
 
                 if (cmd._aliases is not null)
                 {
                     foreach (string childAlias in cmd._aliases)
                     {
-                        tokens.Add(childAlias, Command(childAlias, cmd, -1));
+                        tokens.Add(childAlias, Command(childAlias, cmd, Location.CreateInternal(childAlias.Length)));
                     }
                 }
             }
@@ -820,7 +778,7 @@ namespace System.CommandLine.Parsing
             {
                 if (!tokens.ContainsKey(option.Name))
                 {
-                    tokens.Add(option.Name, Option(option.Name, option, -1));
+                    tokens.Add(option.Name, Option(option.Name, option, Location.CreateInternal(option.Name.Length)));
                 }
 
                 if (option._aliases is not null)
@@ -829,38 +787,38 @@ namespace System.CommandLine.Parsing
                     {
                         if (!tokens.ContainsKey(childAlias))
                         {
-                            tokens.Add(childAlias, Option(childAlias, option, -1));
+                            tokens.Add(childAlias, Option(childAlias, option, Location.CreateInternal(childAlias.Length)));
                         }
                     }
                 }
             }
         }
 
-        private static CliToken GetToken(string? value, CliTokenType tokenType, CliSymbol? symbol, int argPosition, int offset = 0)
-            => new(value, tokenType, symbol,
-                new Location(argPosition == -1 ? Location.Internal : Location.User,
-                                     argPosition,
-                                     value is null ? 0 : value.Length,
-                                     offset));
+        private static CliToken GetToken(string? value, CliTokenType tokenType, CliSymbol? symbol, Location location)
+            => new(value, tokenType, symbol, location);
+                //new Location(argPosition == -1 ? Location.Internal : Location.User,
+                //                     argPosition,
+                //                     value is null ? 0 : value.Length,
+                //                     offset));
 
-        private static CliToken Argument(string arg, int i, int offset = 0)
-            => GetToken(arg, CliTokenType.Argument, default, i);
+        private static CliToken Argument(string arg, Location location)
+            => GetToken(arg, CliTokenType.Argument, default, location);
 
-        private static CliToken CommandArgument(string arg, CliCommand command, int i)
-            => GetToken(arg, CliTokenType.Argument, command, i);
+        private static CliToken CommandArgument(string arg, CliCommand command, Location location)
+            => GetToken(arg, CliTokenType.Argument, command, location);
 
-        private static CliToken OptionArgument(string arg, CliOption option, int i, int offset)
-            => GetToken(arg, CliTokenType.Argument, option, i, offset);
+        private static CliToken OptionArgument(string arg, CliOption option, Location location)
+            => GetToken(arg, CliTokenType.Argument, option, location);
 
-        private static CliToken Command(string arg, CliCommand cmd, int i)
-            => GetToken(arg, CliTokenType.Command, cmd, i);
+        private static CliToken Command(string arg, CliCommand cmd, Location location)
+            => GetToken(arg, CliTokenType.Command, cmd, location);
 
-        private static CliToken Option(string arg, CliOption option, int i)
-            => GetToken(arg, CliTokenType.Option, option, i);
+        private static CliToken Option(string arg, CliOption option, Location location)
+            => GetToken(arg, CliTokenType.Option, option, location);
 
         // TODO: Explore whether double dash should track its command
-        private static CliToken DoubleDash(int i)
-            => GetToken(doubleDash, CliTokenType.DoubleDash, default, i);
+        private static CliToken DoubleDash(int i, Location location)
+            => GetToken(doubleDash, CliTokenType.DoubleDash, default, location);
 
     }
 
