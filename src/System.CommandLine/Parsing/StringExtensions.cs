@@ -507,7 +507,11 @@ namespace System.CommandLine.Parsing
                     && arg[2] != ':' && arg[2] != '=' // handled by TrySplitIntoSubtokens
                     && !PreviousTokenIsAnOptionExpectingAnArgument(out _, tokenList, false);
 
-            static bool TryUnbundle(ReadOnlySpan<char> alias, int argumentIndex, Dictionary<string, CliToken> knownTokens, List<CliToken> tokenList)
+            static bool TryUnbundle(ReadOnlySpan<char> alias,
+                                    Location outerLocation,
+                                    int argPosition,
+                                    Dictionary<string, CliToken> knownTokens,
+                                    List<CliToken> tokenList)
             {
                 int tokensBefore = tokenList.Count;
 
@@ -520,7 +524,9 @@ namespace System.CommandLine.Parsing
                         {
                             if (alias[i] == ':' || alias[i] == '=')
                             {
-                                tokenList.Add(Argument(alias.Slice(i + 1).ToString(), argumentIndex, i + 1));
+                                string value = alias.Slice(i + 1).ToString();
+                                tokenList.Add(Argument(value,
+                                    Location.FromOuterLocation(outerLocation, argPosition, value.Length, i + 1)));
                                 return true;
                             }
 
@@ -530,7 +536,9 @@ namespace System.CommandLine.Parsing
                                 if (tokensBefore != tokenList.Count && tokenList[tokenList.Count - 1].Type == CliTokenType.Option)
                                 {
                                     // Invalid_char_in_bundle_causes_rest_to_be_interpreted_as_value
-                                    tokenList.Add(Argument(alias.Slice(i).ToString(), argumentIndex, i));
+                                    string value = alias.Slice(i).ToString();
+                                    tokenList.Add(Argument(value,
+                                        Location.FromOuterLocation(outerLocation, argPosition, value.Length, i)));
                                     return true;
                                 }
 
@@ -538,7 +546,7 @@ namespace System.CommandLine.Parsing
                             }
 
                             tokenList.Add(CliToken.CreateFromOtherToken(found, found.Value,
-                                Location.User, argumentIndex, i));
+                                Location.FromOuterLocation(outerLocation, argPosition, found.Value.Length, i)));
 
                             if (i != alias.Length - 1 && ((CliOption)found.Symbol!).Greedy)
                             {
@@ -547,7 +555,9 @@ namespace System.CommandLine.Parsing
                                 {
                                     index++; // Last_bundled_option_can_accept_argument_with_colon_separator
                                 }
-                                tokenList.Add(Argument(alias.Slice(index).ToString(), argumentIndex, index));
+
+                                string value = alias.Slice(index).ToString();
+                                tokenList.Add(Argument(value, Location.FromOuterLocation(outerLocation, argPosition, value.Length, index)));
                                 return true;
                             }
                         }

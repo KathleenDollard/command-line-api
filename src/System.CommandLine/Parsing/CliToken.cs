@@ -10,9 +10,8 @@ namespace System.CommandLine.Parsing
     /// </summary>
     internal sealed class CliToken : IEquatable<CliToken>
     {
-        public static CliToken CreateFromOtherToken(CliToken otherToken, string? arg, string source, int startPosition, int offset = 0) 
-            => new CliToken(arg, otherToken.Type, otherToken.Symbol,
-                    new(source, startPosition, arg is null ? 0 : arg.Length, offset));
+        public static CliToken CreateFromOtherToken(CliToken otherToken, string? arg, Location location)
+            => new(arg, otherToken.Type, otherToken.Symbol, location);
 
         /// <param name="value">The string value of the token.</param>
         /// <param name="type">The type of the token.</param>
