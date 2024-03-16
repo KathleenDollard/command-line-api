@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections;
 using System.Collections.Generic;
 
 namespace System.CommandLine.Parsing
@@ -42,7 +43,8 @@ namespace System.CommandLine.Parsing
             return ret;
         }
 
-
+        internal static Location FromOuterLocation(Location location, int argPosition, int length, int offset = 0) 
+            => new(location.Source, argPosition, length, offset);
 
         public string Source { get; }
         public int Start {  get; }

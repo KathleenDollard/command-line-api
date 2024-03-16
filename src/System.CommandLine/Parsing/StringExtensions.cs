@@ -577,13 +577,22 @@ namespace System.CommandLine.Parsing
                 return false;
             }
 
-            static (CliCommand, CliOption) AddKnownToken(CliCommand rootCommand, CliCommand currentCommand, CliOption currentOption, List<CliToken> tokenList, ref Dictionary<string, CliToken> knownTokens, string arg, int i, CliToken token)
+            static (CliCommand, CliOption) AddKnownToken(CliCommand rootCommand,
+                                                         CliCommand currentCommand,
+                                                         CliOption currentOption,
+                                                         List<CliToken> tokenList,
+                                                         ref Dictionary<string, CliToken> knownTokens,
+                                                         string arg,
+                                                         Location outerLocation,
+                                                         int argPosition,
+                                                         CliToken token)
             {
+                var location = Location.FromOuterLocation(outerLocation, argPosition, arg.Length);
                 switch (token.Type)
                 {
                     case CliTokenType.Option:
                         var option = (CliOption)token.Symbol!;
-                        tokenList.Add(Option(arg, option, i));
+                        tokenList.Add(Option(arg, option, location));
                         currentOption = option;
                         break;
 
@@ -598,11 +607,11 @@ namespace System.CommandLine.Parsing
                             {
                                 knownTokens = GetValidTokens(cmd); // config contains Directives, they are allowed only for RootCommand
                             }
-                            tokenList.Add(Command(arg, cmd, i));
+                            tokenList.Add(Command(arg, cmd, location));
                         }
                         else
                         {
-                            tokenList.Add(Argument(arg, i));
+                            tokenList.Add(Argument(arg, location));
                         }
 
                         break;
