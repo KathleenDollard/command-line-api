@@ -152,6 +152,7 @@ namespace System.CommandLine.Parsing
             Tokenizer.Tokenize(
                 arguments,
                 rootCommand,
+                configuration,
                 inferRootCommand: rawInput is not null,
                 configuration.EnablePosixBundling,
                 out List<CliToken> tokens,

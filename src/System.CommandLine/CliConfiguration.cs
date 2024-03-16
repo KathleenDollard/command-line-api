@@ -60,6 +60,7 @@ namespace System.CommandLine
         /// If a preprocessor or Initialize method of a subsystem (directives) handles an arg, mark it. Also, mark the exe if it is a separate arg
         /// </summary>
         // TODO: This might is used for preprocessing, prior to call or during initialization. Try to locate closer to args as it is not inherent to the parser.
+        // TODO: Probably remove this. It was part of an earlier approach to directives and I'm not sure we want it when directives are just a kind of option - their values need to be retrievable
         public void MarkArgAsHandled(int argPos, string handledBy)
         {
 
@@ -104,6 +105,7 @@ namespace System.CommandLine
         /// If not provided, a default timeout of 2 seconds is enforced.
         /// </summary>
         public TimeSpan? ProcessTerminationTimeout { get; set; } = TimeSpan.FromSeconds(2);
+        */
 
         /// <summary>
         /// Response file token replacer, enabled by default.
@@ -112,8 +114,8 @@ namespace System.CommandLine
         /// <remarks>
         /// When enabled, any token prefixed with <code>@</code> can be replaced with zero or more other tokens. This is mostly commonly used to expand tokens from response files and interpolate them into a command line prior to parsing.
         /// </remarks>
-        public TryReplaceToken? ResponseFileTokenReplacer { get; set; } = StringExtensions.TryReadResponseFile;
-        */
+        public Func<string, (List<string>? tokens, List<string>? errors)>? ResponseFileTokenReplacer { get; set; } 
+   
         /// <summary>
         /// Gets the root command.
         /// </summary>
