@@ -13,6 +13,7 @@
   <ItemGroup>
     <Content Include="TestApps/**/*.csproj" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="TestApps/**/*.cs" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="Response_1.rsp" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>
@@ -26,6 +27,7 @@
     <Compile Include="..\System.CommandLine\Properties\Resources.Designer.cs" Link="Properties\Resources.Designer.cs" />
     <Compile Include="AlternateSubsystems.cs" />
     <Compile Include="Constants.cs" />
+    <Compile Include="ResponseSubsystemTests.cs" />
     <Compile Include="DirectiveSubsystemTests.cs" />
     <Compile Include="DiagramSubsystemTests.cs" />
     <Compile Include="PipelineTests.cs" />
