@@ -356,11 +356,9 @@ namespace System.CommandLine.Parsing
             tokens = new List<CliToken>(args.Count);
 
             // Handle exe not being in args here?
-            var exeNamePosition = FirstArgIsRootCommand(args, rootCommand, inferRootCommand)
-                                    ? 0
-                                    : -1;
-            var rootLocation = Location.CreateUser(-1, rootCommand.Name.Length);
-            if (exeNamePosition == -1)
+            var rootIsExplicit = FirstArgIsRootCommand(args, rootCommand, inferRootCommand);
+            var rootLocation = Location.CreateRoot(rootCommand.Name, rootIsExplicit, rootIsExplicit ? 0 : -1);
+            if (!rootIsExplicit) // If it is explicit it will be added in the normal handling loop
             {
                 tokens.Add(Command(rootCommand.Name, rootCommand, rootLocation));
             }
@@ -398,13 +396,13 @@ namespace System.CommandLine.Parsing
                     if (foundDoubleDash)
                     {
                         // everything after the double dash is added as an argument
-                        tokens.Add(CommandArgument(arg, currentCommand!, Location.FromOuterLocation( i, arg.Length, location)));
+                        tokens.Add(CommandArgument(arg, currentCommand!, Location.FromOuterLocation(arg, i, location)));
                         continue;
                     }
 
                     if (arg == doubleDash)
                     {
-                        tokens.Add(DoubleDash(i, Location.FromOuterLocation( i, doubleDash.Length,location)));
+                        tokens.Add(DoubleDash(i, Location.FromOuterLocation(arg, i, location)));
                         foundDoubleDash = true;
                         continue;
                     }
@@ -418,7 +416,7 @@ namespace System.CommandLine.Parsing
                         // TODO: Handle errors
                         if (insertArgs is not null && insertArgs.Any())
                         {
-                            var innerLocation = Location.CreateResponse(responseName, i, arg.Length, location); 
+                            var innerLocation = Location.CreateResponse(responseName, i, location);
                             var newErrors = MapTokens(insertArgs, innerLocation, currentCommand,
                                 currentOption, knownTokens, configuration, enablePosixBundling, foundDoubleDash, tokens);
                         }
@@ -431,13 +429,13 @@ namespace System.CommandLine.Parsing
                         // option argument parsing is handled as all other arguments, because it is not a known token.
                         if (PreviousTokenIsAnOptionExpectingAnArgument(out var option, tokens, previousOptionWasClosed))
                         {
-                            tokens.Add(OptionArgument(arg, option!, Location.FromOuterLocation( i, arg.Length, location)));
+                            tokens.Add(OptionArgument(arg, option!, Location.FromOuterLocation(arg, i, location)));
                             continue;
                         }
                         else
                         {
                             currentCommand = AddKnownToken(currentCommand, tokens, ref knownTokens, arg,
-                                Location.FromOuterLocation( i, arg.Length, location), token);
+                                Location.FromOuterLocation(arg, i, location), token);
                             previousOptionWasClosed = false;
                         }
                     }
@@ -448,21 +446,21 @@ namespace System.CommandLine.Parsing
                              subToken.Type == CliTokenType.Option)
                         {
                             CliOption option = (CliOption)subToken.Symbol!;
-                            tokens.Add(Option(first, option, Location.FromOuterLocation(i, first.Length, location)));
+                            tokens.Add(Option(first, option, Location.FromOuterLocation(first, i, location)));
 
                             if (rest is not null)
                             {
                                 rest = option.ClosedBy is not null
                                     ? rest.Substring(0, rest.Length - option.ClosedBy.Length)
                                     : rest;
-                                tokens.Add(Argument(rest,  Location.FromOuterLocation( i, rest.Length, location, first.Length + 1)));
+                                tokens.Add(Argument(rest, Location.FromOuterLocation(rest, i, location, first.Length + 1)));
                             }
                         }
                         else if (!enablePosixBundling ||
                                  !CanBeUnbundled(arg, tokens) ||
-                                 !TryUnbundle(arg.AsSpan(1), Location.FromOuterLocation(i, arg.Length, location), knownTokens, tokens))
+                                 !TryUnbundle(arg.AsSpan(1), Location.FromOuterLocation(arg, i, location), knownTokens, tokens))
                         {
-                            tokens.Add(Argument(arg, Location.FromOuterLocation(i, arg.Length, location)));
+                            tokens.Add(Argument(arg, Location.FromOuterLocation(arg, i, location)));
                         }
                     }
                 }
@@ -495,7 +493,7 @@ namespace System.CommandLine.Parsing
                             {
                                 string value = alias.Slice(i + 1).ToString();
                                 tokenList.Add(Argument(value,
-                                    Location.FromOuterLocation( outerLocation.Start, value.Length, outerLocation, i + 1)));
+                                    Location.FromOuterLocation(value, outerLocation.Start, outerLocation, i + 1)));
                                 return true;
                             }
 
@@ -507,7 +505,7 @@ namespace System.CommandLine.Parsing
                                     // Invalid_char_in_bundle_causes_rest_to_be_interpreted_as_value
                                     string value = alias.Slice(i).ToString();
                                     tokenList.Add(Argument(value,
-                                        Location.FromOuterLocation(outerLocation.Start, value.Length, outerLocation, i)));
+                                        Location.FromOuterLocation(value, outerLocation.Start, outerLocation, i)));
                                     return true;
                                 }
 
@@ -515,7 +513,7 @@ namespace System.CommandLine.Parsing
                             }
 
                             tokenList.Add(CliToken.CreateFromOtherToken(found, found.Value,
-                                Location.FromOuterLocation(outerLocation.Start, found.Value.Length, outerLocation, i + 1)));
+                                Location.FromOuterLocation(found.Value, outerLocation.Start, outerLocation, i + 1)));
 
                             if (i != alias.Length - 1 && ((CliOption)found.Symbol!).Greedy)
                             {
@@ -526,7 +524,7 @@ namespace System.CommandLine.Parsing
                                 }
 
                                 string value = alias.Slice(index).ToString();
-                                tokenList.Add(Argument(value, Location.FromOuterLocation(outerLocation.Start, value.Length, outerLocation, index)));
+                                tokenList.Add(Argument(value, Location.FromOuterLocation(value,outerLocation.Start, outerLocation, index)));
                                 return true;
                             }
                         }
@@ -747,13 +745,13 @@ namespace System.CommandLine.Parsing
 
             static void AddCommandTokens(Dictionary<string, CliToken> tokens, CliCommand cmd)
             {
-                tokens.Add(cmd.Name, Command(cmd.Name, cmd, Location.CreateInternal(cmd.Name.Length)));
+                tokens.Add(cmd.Name, Command(cmd.Name, cmd, Location.CreateInternal(cmd.Name)));
 
                 if (cmd._aliases is not null)
                 {
                     foreach (string childAlias in cmd._aliases)
                     {
-                        tokens.Add(childAlias, Command(childAlias, cmd, Location.CreateInternal(childAlias.Length)));
+                        tokens.Add(childAlias, Command(childAlias, cmd, Location.CreateInternal(childAlias)));
                     }
                 }
             }
@@ -762,7 +760,7 @@ namespace System.CommandLine.Parsing
             {
                 if (!tokens.ContainsKey(option.Name))
                 {
-                    tokens.Add(option.Name, Option(option.Name, option, Location.CreateInternal(option.Name.Length)));
+                    tokens.Add(option.Name, Option(option.Name, option, Location.CreateInternal(option.Name)));
                 }
 
                 if (option._aliases is not null)
@@ -771,7 +769,7 @@ namespace System.CommandLine.Parsing
                     {
                         if (!tokens.ContainsKey(childAlias))
                         {
-                            tokens.Add(childAlias, Option(childAlias, option, Location.CreateInternal(childAlias.Length)));
+                            tokens.Add(childAlias, Option(childAlias, option, Location.CreateInternal(childAlias)));
                         }
                     }
                 }
@@ -780,10 +778,6 @@ namespace System.CommandLine.Parsing
 
         private static CliToken GetToken(string? value, CliTokenType tokenType, CliSymbol? symbol, Location location)
             => new(value, tokenType, symbol, location);
-        //new Location(argPosition == -1 ? Location.Internal : Location.User,
-        //                     argPosition,
-        //                     value is null ? 0 : value.Length,
-        //                     offset));
 
         private static CliToken Argument(string arg, Location location)
             => GetToken(arg, CliTokenType.Argument, default, location);
