@@ -367,7 +367,6 @@ namespace System.CommandLine.Parsing
             var newErrors = MapTokens(args,
                       rootLocation,
                       rootCommand,
-                      null,
                       knownTokens,
                       configuration,
                       enablePosixBundling,
@@ -379,7 +378,6 @@ namespace System.CommandLine.Parsing
             static List<string>? MapTokens(IReadOnlyList<string> args,
                                            Location location,
                                            CliCommand currentCommand,
-                                           CliOption? currentOption,
                                            Dictionary<string, CliToken> knownTokens,
                                            CliConfiguration configuration,
                                            bool enablePosixBundling,
@@ -418,7 +416,7 @@ namespace System.CommandLine.Parsing
                         {
                             var innerLocation = Location.CreateResponse(responseName, i, location);
                             var newErrors = MapTokens(insertArgs, innerLocation, currentCommand,
-                                currentOption, knownTokens, configuration, enablePosixBundling, foundDoubleDash, tokens);
+                                knownTokens, configuration, enablePosixBundling, foundDoubleDash, tokens);
                         }
                         continue;
                     }
