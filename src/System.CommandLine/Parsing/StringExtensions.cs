@@ -618,11 +618,6 @@ namespace System.CommandLine.Parsing
             return false;
         }
 
-        private static string? GetReplaceableTokenValue(string arg) =>
-            arg.Length > 1 && arg[0] == '@'
-                ? arg.Substring(1)
-                : null;
-
         // TODO: Naming rules - sub-tokens has a dash and thus should be SubToken
         private static bool TrySplitIntoSubtokens(
             string arg,
@@ -648,8 +643,8 @@ namespace System.CommandLine.Parsing
             return false;
         }
 
-        // TODO: rename to TryTokenizeResponseFile or TryTokenizeAdditionalResponse
-        internal static bool TryReadResponseFile(
+        // TODO: Move to response file subsystem and ensure these checks are done there
+       /* internal static bool TryReadResponseFile(
             string filePath,
             out IReadOnlyList<string>? newTokens,
             out string? error)
@@ -712,6 +707,7 @@ namespace System.CommandLine.Parsing
                 }
             }
         }
+       */
 
         private static Dictionary<string, CliToken> GetValidTokens(CliCommand command)
         {

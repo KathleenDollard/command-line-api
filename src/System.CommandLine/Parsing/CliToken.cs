@@ -3,6 +3,8 @@
 
 namespace System.CommandLine.Parsing
 {
+    // TODO: Include location in equality
+
     // FIXME: should CliToken be public or internal? made internal for now
     // FIXME: should CliToken be a struct?
     /// <summary>
