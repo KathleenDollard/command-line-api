@@ -427,10 +427,6 @@ namespace System.CommandLine.Parsing
                     {
                         // This test and block is to handle the case `-x -x` where -x takes a string arg and "-x" is the value. Normal 
                         // option argument parsing is handled as all other arguments, because it is not a known token.
-                        // KAD: I am concerned about this code. It is not obvious that it solves the problem as a arity > 1 string
-                        //      option does not appear to work ("-x Hello -x" and it confused me so might confuse someone else. It
-                        //      seems tracking the curren option, which is needed anyway for ClosedBy, would allow this scenario
-                        //      to be handled where the tokens are usually added.
                         if (PreviousTokenIsAnOptionExpectingAnArgument(out var option, tokens, previousOptionWasClosed))
                         {
                             tokens.Add(OptionArgument(arg, option!, new Location(locationSource, i, arg.Length)));
@@ -438,7 +434,8 @@ namespace System.CommandLine.Parsing
                         }
                         else
                         {
-                            (currentCommand, currentOption) = AddKnownToken(currentCommand, currentCommand, currentOption, tokens, ref knownTokens, arg, new Location(locationSource, i, arg.Length), token);
+                            currentCommand = AddKnownToken( currentCommand, tokens, ref knownTokens, arg, 
+                                new Location(locationSource, i, arg.Length), token);
                             previousOptionWasClosed = false;
                         }
                     }
@@ -461,7 +458,7 @@ namespace System.CommandLine.Parsing
                         }
                         else if (!enablePosixBundling ||
                                  !CanBeUnbundled(arg, tokens) ||
-                                 !TryUnbundle(arg.AsSpan(1), i, knownTokens, tokens))
+                                 !TryUnbundle(arg.AsSpan(1), new Location(locationSource, i, arg.Length), knownTokens, tokens))
                         {
                             tokens.Add(Argument(arg, new Location(locationSource, i, arg.Length)));
                         }
@@ -480,12 +477,11 @@ namespace System.CommandLine.Parsing
 
             static bool TryUnbundle(ReadOnlySpan<char> alias,
                                     Location outerLocation,
-                                    int argPosition,
                                     Dictionary<string, CliToken> knownTokens,
                                     List<CliToken> tokenList)
             {
                 int tokensBefore = tokenList.Count;
-
+                // TODO: Determine if these pointers are helping us enough for complexity
                 string candidate = new('-', 2); // mutable string used to avoid allocations
                 unsafe
                 {
@@ -497,7 +493,7 @@ namespace System.CommandLine.Parsing
                             {
                                 string value = alias.Slice(i + 1).ToString();
                                 tokenList.Add(Argument(value,
-                                    Location.FromOuterLocation(outerLocation, argPosition, value.Length, i + 1)));
+                                    Location.FromOuterLocation(outerLocation, outerLocation.Start, value.Length, i + 1)));
                                 return true;
                             }
 
@@ -509,7 +505,7 @@ namespace System.CommandLine.Parsing
                                     // Invalid_char_in_bundle_causes_rest_to_be_interpreted_as_value
                                     string value = alias.Slice(i).ToString();
                                     tokenList.Add(Argument(value,
-                                        Location.FromOuterLocation(outerLocation, argPosition, value.Length, i)));
+                                        Location.FromOuterLocation(outerLocation, outerLocation.Start, value.Length, i)));
                                     return true;
                                 }
 
@@ -517,7 +513,7 @@ namespace System.CommandLine.Parsing
                             }
 
                             tokenList.Add(CliToken.CreateFromOtherToken(found, found.Value,
-                                Location.FromOuterLocation(outerLocation, argPosition, found.Value.Length, i)));
+                                Location.FromOuterLocation(outerLocation, outerLocation.Start, found.Value.Length, i)));
 
                             if (i != alias.Length - 1 && ((CliOption)found.Symbol!).Greedy)
                             {
@@ -528,7 +524,7 @@ namespace System.CommandLine.Parsing
                                 }
 
                                 string value = alias.Slice(index).ToString();
-                                tokenList.Add(Argument(value, Location.FromOuterLocation(outerLocation, argPosition, value.Length, index)));
+                                tokenList.Add(Argument(value, Location.FromOuterLocation(outerLocation, outerLocation.Start, value.Length, index)));
                                 return true;
                             }
                         }
@@ -558,23 +554,19 @@ namespace System.CommandLine.Parsing
                 return false;
             }
 
-            static (CliCommand, CliOption) AddKnownToken(CliCommand rootCommand,
-                                                         CliCommand currentCommand,
-                                                         CliOption currentOption,
-                                                         List<CliToken> tokenList,
-                                                         ref Dictionary<string, CliToken> knownTokens,
-                                                         string arg,
-                                                         Location outerLocation,
-                                                         int argPosition,
-                                                         CliToken token)
+            static CliCommand AddKnownToken(CliCommand currentCommand,
+                                            List<CliToken> tokenList,
+                                            ref Dictionary<string, CliToken> knownTokens,
+                                            string arg,
+                                            Location location,
+                                            CliToken token)
             {
-                var location = Location.FromOuterLocation(outerLocation, argPosition, arg.Length);
+                //var location = Location.FromOuterLocation(outerLocation, argPosition, arg.Length);
                 switch (token.Type)
                 {
                     case CliTokenType.Option:
                         var option = (CliOption)token.Symbol!;
                         tokenList.Add(Option(arg, option, location));
-                        currentOption = option;
                         break;
 
                     case CliTokenType.Command:
@@ -583,8 +575,8 @@ namespace System.CommandLine.Parsing
                         if (cmd != currentCommand)
                         {
                             currentCommand = cmd;
-                            currentOption = null;
-                            if (cmd != rootCommand)
+                            // TODO: In the following determine how the cmd could be RootCommand AND the cmd not equal currentCmd. This looks like it would always be true.. If it is a massive side case, is it important not to double the ValidTokens call?
+                            if (true)  // cmd != rootCommand)
                             {
                                 knownTokens = GetValidTokens(cmd); // config contains Directives, they are allowed only for RootCommand
                             }
@@ -597,7 +589,7 @@ namespace System.CommandLine.Parsing
 
                         break;
                 }
-                return (currentCommand, currentOption);
+                return currentCommand;
             }
         }
 
