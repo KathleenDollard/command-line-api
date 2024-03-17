@@ -16,6 +16,7 @@ namespace System.CommandLine.Tests
 {
     public partial class ParserTests
     {
+        // TODO: Update testing strategy if we use Location in equality. Some will break
         private readonly Location dummyLocation = new("", Location.Internal, -1, null);
 
         private T GetValue<T>(ParseResult parseResult, CliOption<T> option)
