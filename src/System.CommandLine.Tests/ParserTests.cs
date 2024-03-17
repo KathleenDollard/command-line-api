@@ -22,6 +22,12 @@ namespace System.CommandLine.Tests
         private T GetValue<T>(ParseResult parseResult, CliArgument<T> argument)
             => parseResult.GetValue(argument);
 
+        //[Fact]
+        //public void FailureTest()
+        //{
+        //    Assert.True(false);
+        //}
+
         [Fact]
         public void An_option_can_be_checked_by_object_instance()
         {
