@@ -55,16 +55,8 @@ namespace System.CommandLine
         ///
         /// </remarks>
         public bool EnablePosixBundling { get; set; } = true;
-
-        /// <summary>
-        /// If a preprocessor or Initialize method of a subsystem (directives) handles an arg, mark it. Also, mark the exe if it is a separate arg
-        /// </summary>
-        // TODO: This might is used for preprocessing, prior to call or during initialization. Try to locate closer to args as it is not inherent to the parser.
-        // TODO: Probably remove this. It was part of an earlier approach to directives and I'm not sure we want it when directives are just a kind of option - their values need to be retrievable
-        public void MarkArgAsHandled(int argPos, string handledBy)
-        {
-
-        }
+        // TODO: Review whether to have a dial for this. The expectations is that these are sometimes essential, but generally just a useless push to possible gen 2 GC because local strings are passed out of the parser.
+        public bool IncludeTextInLocation {  get; set; } = false; 
 
         /// <summary>
         /// Indicates whether the first argument of the passed string is the exe name
