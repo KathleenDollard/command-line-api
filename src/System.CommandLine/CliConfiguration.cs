@@ -85,6 +85,11 @@ namespace System.CommandLine
             }
         }
 
+        private List<Location> preprocessedLocations = new List<Location>();
+        public IEnumerable<Location>? PreProcessedLocations => preprocessedLocations;
+        public void AddPreprocessedLocation(Location location)
+            => preprocessedLocations.Add(location);
+
         /*
         /// <summary>
         /// Enables a default exception handler to catch any unhandled exceptions thrown during invocation. Enabled by default.
