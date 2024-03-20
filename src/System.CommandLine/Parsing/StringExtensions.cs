@@ -81,12 +81,12 @@ namespace System.CommandLine.Parsing
                                         : configuration.PreProcessedLocations.Max(x => x.Start);
 
 
-            var knownTokens = GetValidTokens(rootCommand);
+            var validTokens = GetValidTokens(rootCommand);
             var newErrors = MapTokens(args,
                       rootLocation,
                       maxSkippedPositions,
                       rootCommand,
-                      knownTokens,
+                      validTokens,
                       configuration,
                       false,
                       tokens);
@@ -97,7 +97,7 @@ namespace System.CommandLine.Parsing
                                            Location location,
                                            int maxSkippedPositions,
                                            CliCommand currentCommand,
-                                           Dictionary<string, (CliSymbol symbol, CliTokenType tokenType)> knownTokens,
+                                           Dictionary<string, (CliSymbol symbol, CliTokenType tokenType)> validTokens,
                                            CliConfiguration configuration,
                                            bool foundDoubleDash,
                                            List<CliToken> tokens)
@@ -141,15 +141,15 @@ namespace System.CommandLine.Parsing
                         {
                             var innerLocation = Location.CreateResponse(responseName, i, location);
                             var newErrors = MapTokens(insertArgs, innerLocation, 0, currentCommand,
-                                knownTokens, configuration, foundDoubleDash, tokens);
+                                validTokens, configuration, foundDoubleDash, tokens);
                         }
                         continue;
                     }
 
-                    if (TryGetSymbolAndTokenType(knownTokens,arg, out var symbol, out var tokenType))
+                    if (TryGetSymbolAndTokenType(validTokens,arg, out var symbol, out var tokenType))
                     {
                         // This test and block is to handle the case `-x -x` where -x takes a string arg and "-x" is the value. Normal 
-                        // option argument parsing is handled as all other arguments, because it is not a known token.
+                        // option argument parsing is handled as all other arguments, because it is not a found token.
                         if (PreviousTokenIsAnOptionExpectingAnArgument(out var option, tokens, previousOptionWasClosed))
                         {
                             tokens.Add(OptionArgument(arg, option!, Location.FromOuterLocation(arg, i, location)));
@@ -157,7 +157,7 @@ namespace System.CommandLine.Parsing
                         }
                         else
                         {
-                            currentCommand = AddKnownToken(currentCommand, tokens, ref knownTokens, arg,
+                            currentCommand = AddToken(currentCommand, tokens, ref validTokens, arg,
                                 Location.FromOuterLocation(arg, i, location), tokenType, symbol);
                             previousOptionWasClosed = false;
                         }
@@ -165,7 +165,7 @@ namespace System.CommandLine.Parsing
                     else
                     {
                         if (TrySplitIntoSubtokens(arg, out var first, out var rest) &&
-                            TryGetSymbolAndTokenType(knownTokens, first, out var subSymbol, out var subTokenType) &&
+                            TryGetSymbolAndTokenType(validTokens, first, out var subSymbol, out var subTokenType) &&
                              subTokenType == CliTokenType.Option)
                         {
                             CliOption option = (CliOption)subSymbol!;
@@ -181,7 +181,7 @@ namespace System.CommandLine.Parsing
                         }
                         else if (!configuration.EnablePosixBundling ||
                                  !CanBeUnbundled(arg, tokens) ||
-                                 !TryUnbundle(arg.AsSpan(1), Location.FromOuterLocation(arg, i, location), knownTokens, tokens))
+                                 !TryUnbundle(arg.AsSpan(1), Location.FromOuterLocation(arg, i, location), validTokens, tokens))
                         {
                             tokens.Add(Argument(arg, Location.FromOuterLocation(arg, i, location)));
                         }
@@ -192,12 +192,12 @@ namespace System.CommandLine.Parsing
             }
 
             
-            static bool TryGetSymbolAndTokenType(Dictionary<string, (CliSymbol symbol, CliTokenType tokenType)> knownTokens,
+            static bool TryGetSymbolAndTokenType(Dictionary<string, (CliSymbol symbol, CliTokenType tokenType)> validTokens,
                                                  string arg,
                                                  [NotNullWhen(true)] out CliSymbol? symbol,
                                                  out CliTokenType tokenType)
             {
-                if (knownTokens.TryGetValue(arg, out var t))
+                if (validTokens.TryGetValue(arg, out var t))
                 {
                     symbol = t.symbol;
                     tokenType = t.tokenType;
@@ -217,7 +217,7 @@ namespace System.CommandLine.Parsing
 
             static bool TryUnbundle(ReadOnlySpan<char> alias,
                                     Location outerLocation,
-                                    Dictionary<string, (CliSymbol symbol, CliTokenType tokenType)> knownTokens,
+                                    Dictionary<string, (CliSymbol symbol, CliTokenType tokenType)> validTokens,
                                     List<CliToken> tokenList)
             {
                 int tokensBefore = tokenList.Count;
@@ -238,7 +238,7 @@ namespace System.CommandLine.Parsing
                             }
 
                             pCandidate[1] = alias[i];
-                            if (!knownTokens.TryGetValue(candidate, out var found))
+                            if (!validTokens.TryGetValue(candidate, out var found))
                             {
                                 if (tokensBefore != tokenList.Count && tokenList[tokenList.Count - 1].Type == CliTokenType.Option)
                                 {
@@ -294,9 +294,9 @@ namespace System.CommandLine.Parsing
                 return false;
             }
 
-            static CliCommand AddKnownToken(CliCommand currentCommand,
+            static CliCommand AddToken(CliCommand currentCommand,
                                             List<CliToken> tokenList,
-                                            ref Dictionary<string, (CliSymbol symbol, CliTokenType tokenType)> knownTokens,
+                                            ref Dictionary<string, (CliSymbol symbol, CliTokenType tokenType)> validTokens,
                                             string arg,
                                             Location location,
                                             CliTokenType tokenType,
@@ -319,7 +319,7 @@ namespace System.CommandLine.Parsing
                             // TODO: In the following determine how the cmd could be RootCommand AND the cmd not equal currentCmd. This looks like it would always be true.. If it is a massive side case, is it important not to double the ValidTokens call?
                             if (true)  // cmd != rootCommand)
                             {
-                                knownTokens = GetValidTokens(cmd); // config contains Directives, they are allowed only for RootCommand
+                                validTokens = GetValidTokens(cmd); // config contains Directives, they are allowed only for RootCommand
                             }
                             tokenList.Add(Command(arg, cmd, location));
                         }
