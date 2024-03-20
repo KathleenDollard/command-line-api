@@ -67,7 +67,7 @@ namespace System.CommandLine.Parsing
         {
             tokens = new List<CliToken>(args.Count);
 
-            // Handle exe not being in args here?
+            // Handle exe not being in args
             var rootIsExplicit = FirstArgIsRootCommand(args, rootCommand, inferRootCommand);
             var rootLocation = Location.CreateRoot(rootCommand.Name, rootIsExplicit, rootIsExplicit ? 0 : -1);
             if (!rootIsExplicit) // If it is explicit it will be added in the normal handling loop
@@ -97,7 +97,7 @@ namespace System.CommandLine.Parsing
                                            Location location,
                                            int maxSkippedPositions,
                                            CliCommand currentCommand,
-                                           Dictionary<string, (CliSymbol symbol, CliTokenType tokenType)> validTokens,
+                                           Dictionary<string, (CliSymbol Symbol, CliTokenType TokenType)> validTokens,
                                            CliConfiguration configuration,
                                            bool foundDoubleDash,
                                            List<CliToken> tokens)
@@ -189,15 +189,15 @@ namespace System.CommandLine.Parsing
             }
 
             
-            static bool TryGetSymbolAndTokenType(Dictionary<string, (CliSymbol symbol, CliTokenType tokenType)> validTokens,
+            static bool TryGetSymbolAndTokenType(Dictionary<string, (CliSymbol Symbol, CliTokenType TokenType)> validTokens,
                                                  string arg,
                                                  [NotNullWhen(true)] out CliSymbol? symbol,
                                                  out CliTokenType tokenType)
             {
                 if (validTokens.TryGetValue(arg, out var t))
                 {
-                    symbol = t.symbol;
-                    tokenType = t.tokenType;
+                    symbol = t.Symbol;
+                    tokenType = t.TokenType;
                     return true;
                 }
                 symbol = null;
@@ -214,7 +214,7 @@ namespace System.CommandLine.Parsing
 
             static bool TryUnbundle(ReadOnlySpan<char> alias,
                                     Location outerLocation,
-                                    Dictionary<string, (CliSymbol symbol, CliTokenType tokenType)> validTokens,
+                                    Dictionary<string, (CliSymbol Symbol, CliTokenType TokenType)> validTokens,
                                     List<CliToken> tokenList)
             {
                 int tokensBefore = tokenList.Count;
@@ -249,10 +249,10 @@ namespace System.CommandLine.Parsing
                                 return false;
                             }
 
-                            tokenList.Add(new CliToken(candidate, found.tokenType, found.symbol,
+                            tokenList.Add(new CliToken(candidate, found.TokenType, found.Symbol,
                                 Location.FromOuterLocation(candidate, outerLocation.Start, outerLocation, i + 1)));
 
-                            if (i != alias.Length - 1 && ((CliOption)found.symbol).Greedy)
+                            if (i != alias.Length - 1 && ((CliOption)found.Symbol).Greedy)
                             {
                                 int index = i + 1;
                                 if (alias[index] == ':' || alias[index] == '=')
@@ -293,7 +293,7 @@ namespace System.CommandLine.Parsing
 
             static CliCommand AddToken(CliCommand currentCommand,
                                             List<CliToken> tokenList,
-                                            ref Dictionary<string, (CliSymbol symbol, CliTokenType tokenType)> validTokens,
+                                            ref Dictionary<string, (CliSymbol Symbol, CliTokenType TokenType)> validTokens,
                                             string arg,
                                             Location location,
                                             CliTokenType tokenType,
@@ -383,9 +383,9 @@ namespace System.CommandLine.Parsing
             return false;
         }
 
-        private static Dictionary<string, (CliSymbol symbol, CliTokenType tokenType)> GetValidTokens(CliCommand command)
+        private static Dictionary<string, (CliSymbol Symbol, CliTokenType TokenType)> GetValidTokens(CliCommand command)
         {
-            Dictionary<string, (CliSymbol symbol, CliTokenType tokenType)> tokens = new(StringComparer.Ordinal);
+            Dictionary<string, (CliSymbol Symbol, CliTokenType TokenType)> tokens = new(StringComparer.Ordinal);
 
             AddCommandTokens(tokens, command);
 
@@ -411,7 +411,7 @@ namespace System.CommandLine.Parsing
             // TODO: Be sure recursive/global options are handled in the Initialize of Help (add to all)
             return tokens;
 
-            static void AddCommandTokens(Dictionary<string, (CliSymbol symbol, CliTokenType tokenType)> tokens, CliCommand cmd)
+            static void AddCommandTokens(Dictionary<string, (CliSymbol Symbol, CliTokenType TokenType)> tokens, CliCommand cmd)
             {
                 tokens.Add(cmd.Name, (cmd, CliTokenType.Command));
 
@@ -424,7 +424,7 @@ namespace System.CommandLine.Parsing
                 }
             }
 
-            static void AddOptionTokens(Dictionary<string, (CliSymbol symbol, CliTokenType tokenType)> tokens, CliOption option)
+            static void AddOptionTokens(Dictionary<string, (CliSymbol Symbol, CliTokenType TokenType)> tokens, CliOption option)
             {
                 if (!tokens.ContainsKey(option.Name))
                 {
