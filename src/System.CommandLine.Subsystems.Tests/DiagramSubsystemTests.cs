@@ -6,43 +6,40 @@ using System.CommandLine.Directives;
 using System.CommandLine.Parsing;
 using Xunit;
 
-namespace System.CommandLine.Subsystems.Tests
+namespace System.CommandLine.Subsystems.Tests;
+
+public class DiagramSubsystemTests
 {
-    public class DiagramSubsystemTests
+
+    [Theory]
+    [ClassData(typeof(TestData.Diagram))]
+    public void Diagram_is_activated_only_when_requested(string input, bool expectedIsActive)
     {
+        CliRootCommand rootCommand = [new CliCommand("x")];
+        var configuration = new CliConfiguration(rootCommand);
+        var subsystem = new DiagramSubsystem();
+        var args = CliParser.SplitCommandLine(input).ToList().AsReadOnly();
 
-        [Theory]
-        [ClassData(typeof(TestData.Diagram))]
-        // TODO: Not sure why these tests are passing
-        public void Diagram_is_activated_only_when_requested(string input, bool expectedIsActive)
-        {
-            CliRootCommand rootCommand = [new CliCommand("x")];
-            var configuration = new CliConfiguration(rootCommand);
-            var subsystem = new DiagramSubsystem();
-            var args = CliParser.SplitCommandLine(input).ToList().AsReadOnly();
+        Subsystem.Initialize(subsystem, configuration, args);
+        var parseResult = CliParser.Parse(rootCommand, input, configuration);
+        var isActive = Subsystem.GetIsActivated(subsystem, parseResult);
 
-            Subsystem.Initialize(subsystem, configuration, args);
+        isActive.Should().Be(expectedIsActive);
+    }
 
-            var parseResult = CliParser.Parse(rootCommand, input, configuration);
-            var isActive = Subsystem.GetIsActivated(subsystem, parseResult);
+    [Theory]
+    [ClassData(typeof(TestData.Diagram))]
+    public void String_directive_supplies_string_or_default_and_is_activated_only_when_requested(string input, bool expectedIsActive)
+    {
+        CliRootCommand rootCommand = [new CliCommand("x")];
+        var configuration = new CliConfiguration(rootCommand);
+        var subsystem = new DiagramSubsystem();
+        var args = CliParser.SplitCommandLine(input).ToList().AsReadOnly();
 
-            isActive.Should().Be(expectedIsActive);
-        }
+        Subsystem.Initialize(subsystem, configuration, args);
+        var parseResult = CliParser.Parse(rootCommand, input, configuration);
+        var isActive = Subsystem.GetIsActivated(subsystem, parseResult);
 
-        [Theory]
-        [ClassData(typeof(TestData.Diagram))]
-        public void String_directive_supplies_string_or_default_and_is_activated_only_when_requested(string input, bool expectedIsActive)
-        {
-            CliRootCommand rootCommand = [new CliCommand("x")];
-            var configuration = new CliConfiguration(rootCommand);
-            var subsystem = new DiagramSubsystem();
-            var args = CliParser.SplitCommandLine(input).ToList().AsReadOnly();
-
-            Subsystem.Initialize(subsystem, configuration, args);
-            var parseResult = CliParser.Parse(rootCommand, input, configuration);
-            var isActive = Subsystem.GetIsActivated(subsystem, parseResult);
-
-            isActive.Should().Be(expectedIsActive);
-        }
+        isActive.Should().Be(expectedIsActive);
     }
 }
