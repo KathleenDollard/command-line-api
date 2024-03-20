@@ -57,15 +57,6 @@ namespace System.CommandLine
         public bool EnablePosixBundling { get; set; } = true;
 
         /// <summary>
-        /// If a preprocessor or Initialize method of a subsystem (directives) handles an arg, mark it. Also, mark the exe if it is a separate arg
-        /// </summary>
-        // TODO: This might is used for preprocessing, prior to call or during initialization. Try to locate closer to args as it is not inherent to the parser.
-        public void MarkArgAsHandled(int argPos, string handledBy)
-        {
-
-        }
-
-        /// <summary>
         /// Indicates whether the first argument of the passed string is the exe name
         /// </summary>
         /// <param name="args">The args of a command line, such as those passed to Main(string[] args)</param>
@@ -73,7 +64,7 @@ namespace System.CommandLine
         // TODO: If this is the right model, tuck this away because it should only be used by subsystems.
         public bool FirstArgumentIsRootCommand(IReadOnlyList<string> args)
         {
-            // PowderHouse: This logic was previously that rawInput was null. Seems more sensible to look for an empty args array.From private static ParseResult Parse(CliCommand ,IReadOnlyList< string > ,string? ,CliConfiguration? )
+            // TODO: This logic was previously that rawInput was null. Seems more sensible to look for an empty args array.From private static ParseResult Parse(CliCommand ,IReadOnlyList< string > ,string? ,CliConfiguration? ). CHeck logic and ensure test coverage
             return args.Any()
                 ? FirstArgLooksLikeRoot(args.First(), RootCommand)
                 : false;

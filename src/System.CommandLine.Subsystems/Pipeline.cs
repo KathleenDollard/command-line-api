@@ -20,7 +20,7 @@ public class Pipeline
 
     public ParseResult Parse(CliConfiguration configuration, IReadOnlyList<string> args)
     {
-        InitializeSubsystems(new InitializationContext( configuration, args));
+        InitializeSubsystems(new InitializationContext(configuration, args));
         var parseResult = CliParser.Parse(configuration.RootCommand, args, configuration);
         return parseResult;
     }
