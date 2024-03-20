@@ -218,7 +218,7 @@ namespace System.CommandLine.Parsing
                                     List<CliToken> tokenList)
             {
                 int tokensBefore = tokenList.Count;
-                // TODO: Determine if these pointers are helping us enough for complexity
+                // TODO: Determine if these pointers are helping us enough for complexity. I do not see how it works, but changing it broke it.
                 string candidate = new('-', 2); // mutable string used to avoid allocations
                 unsafe
                 {
