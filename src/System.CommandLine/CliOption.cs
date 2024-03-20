@@ -19,8 +19,6 @@ namespace System.CommandLine
 
         */
 
-        protected internal string ClosedBy { get; protected set; }
-
         private protected CliOption(string name, string[] aliases) : base(name)
         {
             if (aliases is { Length: > 0 }) 
