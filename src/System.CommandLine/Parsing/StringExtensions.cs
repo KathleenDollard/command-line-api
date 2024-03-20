@@ -173,9 +173,6 @@ namespace System.CommandLine.Parsing
 
                             if (rest is not null)
                             {
-                                rest = option.ClosedBy is not null
-                                    ? rest.Substring(0, rest.Length - option.ClosedBy.Length)
-                                    : rest;
                                 tokens.Add(Argument(rest, Location.FromOuterLocation(rest, i, location, first.Length + 1)));
                             }
                         }
