@@ -7,5 +7,4 @@ public class InitializationContext(CliConfiguration configuration, IReadOnlyList
 {
     public CliConfiguration Configuration { get; } = configuration;
     public IReadOnlyList<string> Args { get; } = args;
-    public IEnumerable<HandledInfo > HandleInfo { get; } = new HandledInfo[args.Count];   
 }

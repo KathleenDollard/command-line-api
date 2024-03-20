@@ -14,7 +14,7 @@ public class VersionSubsystemTests
     {
         var rootCommand = new CliRootCommand
                              {
-                                 new CliOption<bool>("-x")
+                                 new CliOption<bool>("-x") // add option that is expected for the test data used here
                              };
         var configuration = new CliConfiguration(rootCommand);
         var pipeline = new Pipeline
@@ -36,7 +36,7 @@ public class VersionSubsystemTests
     [ClassData(typeof(TestData.Version))]
     public void Version_is_activated_only_when_requested(string input, bool result)
     {
-        CliRootCommand rootCommand = [new CliOption<bool>("-x")];
+        CliRootCommand rootCommand = [new CliOption<bool>("-x")]; // add random option as empty CLIs are rare
         var configuration = new CliConfiguration(rootCommand);
         var versionSubsystem = new VersionSubsystem();
         var args = CliParser.SplitCommandLine(input).ToList().AsReadOnly();
