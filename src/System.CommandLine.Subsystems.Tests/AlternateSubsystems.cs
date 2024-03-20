@@ -68,11 +68,11 @@ namespace System.CommandLine.Subsystems.Tests
         }
 
         internal class StringDirectiveSubsystem(IAnnotationProvider? annotationProvider = null)
-           : DirectiveSubsystem<string>("other",SubsystemKind.Diagram, annotationProvider)
+           : DirectiveSubsystem("other",SubsystemKind.Diagram, annotationProvider)
         { }
 
         internal class BooleanDirectiveSubsystem(IAnnotationProvider? annotationProvider = null)
-           : DirectiveSubsystem<bool>("diagram", SubsystemKind.Diagram,  annotationProvider)
+           : DirectiveSubsystem("diagram", SubsystemKind.Diagram,  annotationProvider)
         { }
 
     }

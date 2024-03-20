@@ -22,7 +22,7 @@ namespace System.CommandLine.Tests
             IReadOnlyList<string> args = ["--hello", "world"];
             List<CliToken> tokens = null;
             List<string> errors = null;
-            Tokenizer.Tokenize(args, command, new CliConfiguration(command), false, true, out tokens, out errors);
+            Tokenizer.Tokenize(args, command, new CliConfiguration(command), true, out tokens, out errors);
 
             tokens
                 .Skip(1)
@@ -41,23 +41,49 @@ namespace System.CommandLine.Tests
             IReadOnlyList<string> args = ["--hello", "world"];
             List<CliToken> tokens = null;
             List<string> errors = null;
+
             Tokenizer.Tokenize(args,
                                command,
                                new CliConfiguration(command),
-                               false,
                                true,
                                out tokens,
                                out errors);
+
             var locations = tokens
                             .Skip(1)
                             .Select(t => t.Location.ToString())
                             .ToList();
-
             errors.Should().BeNull();
-            tokens.Count.Should().Be(3);
+            tokens.Count.Should().Be(3); 
             locations.Count.Should().Be(2);
             locations[0].Should().Be("User [-1, 8, 0]; User [0, 7, 0]");
             locations[1].Should().Be("User [-1, 8, 0]; User [1, 5, 0]");
+        }
+
+        [Fact]
+        public void Directives_are_skipped()
+        {
+            var option = new CliOption<string>("--hello");
+            var command = new CliRootCommand { option };
+            var configuration = new CliConfiguration(command);
+            configuration.AddPreprocessedLocation(new Location("[diagram]", Location.User, 0, null));
+            IReadOnlyList<string> args = ["[diagram] --hello", "world"];
+
+            List<CliToken> tokens = null;
+            List<string> errors = null;
+
+            Tokenizer.Tokenize(args,
+                               command,
+                               new CliConfiguration(command),
+                               true,
+                               out tokens,
+                               out errors);
+
+            var hasDiagram = tokens
+                            .Any(t => t.Value == "[diagram]");
+            errors.Should().BeNull();
+            tokens.Count.Should().Be(3); // root is a token
+            hasDiagram .Should().BeFalse();
         }
     }
 }

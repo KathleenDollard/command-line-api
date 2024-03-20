@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.CommandLine.Subsystems.Annotations;
 using System.CommandLine.Subsystems;
 using System.Text;
 using System.CommandLine.Parsing;
@@ -9,18 +8,23 @@ using System.CommandLine.Parsing;
 namespace System.CommandLine.Directives;
 
 public class DiagramSubsystem( IAnnotationProvider? annotationProvider = null)
-    : DirectiveSubsystem<bool>("diagram", SubsystemKind.Diagram, annotationProvider)
+    : DirectiveSubsystem("diagram", SubsystemKind.Diagram, annotationProvider)
 {
     //protected internal override bool GetIsActivated(ParseResult? parseResult)
     //   => parseResult is not null && option is not null && parseResult.GetValue(option);
 
     protected internal override CliExit Execute(PipelineContext pipelineContext)
     {
-        // TODO: Match testable output pattern
+        // Gather locations
+        //var locations = pipelineContext.ParseResult.LocationMap
+        //                   .Concat(Map(pipelineContext.ParseResult.Configuration.PreProcessedLocations));
+
         pipelineContext.ConsoleHack.WriteLine("Output diagram");
         return CliExit.SuccessfullyHandled(pipelineContext.ParseResult);
     }
 
+
+    // TODO: Capture logic in previous diagramming, shown below
     /// <summary>
     /// Formats a string explaining a parse result.
     /// </summary>
