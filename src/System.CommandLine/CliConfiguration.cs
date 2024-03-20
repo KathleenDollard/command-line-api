@@ -55,8 +55,6 @@ namespace System.CommandLine
         ///
         /// </remarks>
         public bool EnablePosixBundling { get; set; } = true;
-        // TODO: Review whether to have a dial for this. The expectations is that these are sometimes essential, but generally just a useless push to possible gen 2 GC because local strings are passed out of the parser.
-        public bool IncludeTextInLocation {  get; set; } = false; 
 
         /// <summary>
         /// Indicates whether the first argument of the passed string is the exe name
@@ -66,7 +64,7 @@ namespace System.CommandLine
         // TODO: If this is the right model, tuck this away because it should only be used by subsystems.
         public bool FirstArgumentIsRootCommand(IReadOnlyList<string> args)
         {
-            // PowderHouse: This logic was previously that rawInput was null. Seems more sensible to look for an empty args array.From private static ParseResult Parse(CliCommand ,IReadOnlyList< string > ,string? ,CliConfiguration? )
+            // TODO: This logic was previously that rawInput was null. Seems more sensible to look for an empty args array.From private static ParseResult Parse(CliCommand ,IReadOnlyList< string > ,string? ,CliConfiguration? ). CHeck logic and ensure test coverage
             return args.Any()
                 ? FirstArgLooksLikeRoot(args.First(), RootCommand)
                 : false;

@@ -14,6 +14,7 @@ internal class TestData
 
     internal class Version : IEnumerable<object[]>
     {
+        // This data only works if the CLI has a --version with a -v alias and also has a -x option
         private readonly List<object[]> _data =
         [
             ["--version", true],
@@ -32,6 +33,7 @@ internal class TestData
 
     internal class Diagram : IEnumerable<object[]>
     {
+        // The tests define an x command, but -o and -v are just random values
         private readonly List<object[]> _data =
         [
             ["[diagram]", true],
