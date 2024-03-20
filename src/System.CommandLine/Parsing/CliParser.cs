@@ -154,7 +154,6 @@ namespace System.CommandLine.Parsing
                 rootCommand,
                 configuration,
                 inferRootCommand: rawInput is not null,
-                configuration.EnablePosixBundling,
                 out List<CliToken> tokens,
                 out List<string>? tokenizationErrors);
 
