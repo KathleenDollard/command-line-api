@@ -83,10 +83,16 @@ namespace System.CommandLine
             }
         }
 
-        private List<Location> preprocessedLocations = new List<Location>();
+        private List<Location>? preprocessedLocations = null;
         public IEnumerable<Location>? PreProcessedLocations => preprocessedLocations;
         public void AddPreprocessedLocation(Location location)
-            => preprocessedLocations.Add(location);
+        {
+            if (preprocessedLocations is null)
+            {
+                preprocessedLocations = new List<Location>();
+            }
+            preprocessedLocations.Add(location);
+        }
 
         /*
         /// <summary>
@@ -109,8 +115,8 @@ namespace System.CommandLine
         /// <remarks>
         /// When enabled, any token prefixed with <code>@</code> can be replaced with zero or more other tokens. This is mostly commonly used to expand tokens from response files and interpolate them into a command line prior to parsing.
         /// </remarks>
-        public Func<string, (List<string>? tokens, List<string>? errors)>? ResponseFileTokenReplacer { get; set; } 
-   
+        public Func<string, (List<string>? tokens, List<string>? errors)>? ResponseFileTokenReplacer { get; set; }
+
         /// <summary>
         /// Gets the root command.
         /// </summary>

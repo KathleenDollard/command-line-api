@@ -74,9 +74,16 @@ namespace System.CommandLine.Parsing
                 tokens.Add(Command(rootCommand.Name, rootCommand, rootLocation));
             }
 
+            var maxSkippedPositions = configuration.PreProcessedLocations is null
+                                    || !configuration.PreProcessedLocations.Any()
+                                        ? 0
+                                        : configuration.PreProcessedLocations.Max(x => x.Start);
+
+
             var knownTokens = GetValidTokens(rootCommand);
             var newErrors = MapTokens(args,
                       rootLocation,
+                      maxSkippedPositions,
                       rootCommand,
                       knownTokens,
                       configuration,
@@ -87,6 +94,7 @@ namespace System.CommandLine.Parsing
 
             static List<string>? MapTokens(IReadOnlyList<string> args,
                                            Location location,
+                                           int maxSkippedPositions,
                                            CliCommand currentCommand,
                                            Dictionary<string, CliToken> knownTokens,
                                            CliConfiguration configuration,
@@ -99,6 +107,13 @@ namespace System.CommandLine.Parsing
                 for (var i = 0; i < args.Count; i++)
                 {
                     var arg = args[i];
+
+                    if (i <= maxSkippedPositions
+                        && configuration.PreProcessedLocations is not null
+                        && configuration.PreProcessedLocations.Any(x => x.Start == i))
+                    {
+                        continue;
+                    }
 
                     if (foundDoubleDash)
                     {
@@ -124,7 +139,7 @@ namespace System.CommandLine.Parsing
                         if (insertArgs is not null && insertArgs.Any())
                         {
                             var innerLocation = Location.CreateResponse(responseName, i, location);
-                            var newErrors = MapTokens(insertArgs, innerLocation, currentCommand,
+                            var newErrors = MapTokens(insertArgs, innerLocation, 0, currentCommand,
                                 knownTokens, configuration, foundDoubleDash, tokens);
                         }
                         continue;
@@ -231,7 +246,7 @@ namespace System.CommandLine.Parsing
                                 }
 
                                 string value = alias.Slice(index).ToString();
-                                tokenList.Add(Argument(value, Location.FromOuterLocation(value,outerLocation.Start, outerLocation, index)));
+                                tokenList.Add(Argument(value, Location.FromOuterLocation(value, outerLocation.Start, outerLocation, index)));
                                 return true;
                             }
                         }
@@ -353,70 +368,70 @@ namespace System.CommandLine.Parsing
         }
 
         // TODO: Move to response file subsystem and ensure these checks are done there
-       /* internal static bool TryReadResponseFile(
-            string filePath,
-            out IReadOnlyList<string>? newTokens,
-            out string? error)
-        {
-            try
-            {
-                newTokens = ExpandResponseFile(filePath).ToArray();
-                error = null;
-                return true;
-            }
-            catch (FileNotFoundException)
-            {
-                error = LocalizationResources.ResponseFileNotFound(filePath);
-            }
-            catch (IOException e)
-            {
-                error = LocalizationResources.ErrorReadingResponseFile(filePath, e);
-            }
+        /* internal static bool TryReadResponseFile(
+             string filePath,
+             out IReadOnlyList<string>? newTokens,
+             out string? error)
+         {
+             try
+             {
+                 newTokens = ExpandResponseFile(filePath).ToArray();
+                 error = null;
+                 return true;
+             }
+             catch (FileNotFoundException)
+             {
+                 error = LocalizationResources.ResponseFileNotFound(filePath);
+             }
+             catch (IOException e)
+             {
+                 error = LocalizationResources.ErrorReadingResponseFile(filePath, e);
+             }
 
-            newTokens = null;
-            return false;
+             newTokens = null;
+             return false;
 
-            static IEnumerable<string> ExpandResponseFile(string filePath)
-            {
-                var lines = File.ReadAllLines(filePath);
+             static IEnumerable<string> ExpandResponseFile(string filePath)
+             {
+                 var lines = File.ReadAllLines(filePath);
 
-                for (var i = 0; i < lines.Length; i++)
-                {
-                    var line = lines[i];
+                 for (var i = 0; i < lines.Length; i++)
+                 {
+                     var line = lines[i];
 
-                    foreach (var p in SplitLine(line))
-                    {
-                        if (GetReplaceableTokenValue(p) is { } path)
-                        {
-                            foreach (var q in ExpandResponseFile(path))
-                            {
-                                yield return q;
-                            }
-                        }
-                        else
-                        {
-                            yield return p;
-                        }
-                    }
-                }
-            }
+                     foreach (var p in SplitLine(line))
+                     {
+                         if (GetReplaceableTokenValue(p) is { } path)
+                         {
+                             foreach (var q in ExpandResponseFile(path))
+                             {
+                                 yield return q;
+                             }
+                         }
+                         else
+                         {
+                             yield return p;
+                         }
+                     }
+                 }
+             }
 
-            static IEnumerable<string> SplitLine(string line)
-            {
-                var arg = line.Trim();
+             static IEnumerable<string> SplitLine(string line)
+             {
+                 var arg = line.Trim();
 
-                if (arg.Length == 0 || arg[0] == '#')
-                {
-                    yield break;
-                }
+                 if (arg.Length == 0 || arg[0] == '#')
+                 {
+                     yield break;
+                 }
 
-                foreach (var word in CliParser.SplitCommandLine(arg))
-                {
-                    yield return word;
-                }
-            }
-        }
-       */
+                 foreach (var word in CliParser.SplitCommandLine(arg))
+                 {
+                     yield return word;
+                 }
+             }
+         }
+        */
 
         private static Dictionary<string, CliToken> GetValidTokens(CliCommand command)
         {
