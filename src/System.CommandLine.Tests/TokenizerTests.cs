@@ -22,7 +22,7 @@ namespace System.CommandLine.Tests
             IReadOnlyList<string> args = ["--hello", "world"];
             List<CliToken> tokens = null;
             List<string> errors = null;
-            Tokenizer.Tokenize(args, command, new CliConfiguration(command), false, true, out tokens, out errors);
+            Tokenizer.Tokenize(args, command, new CliConfiguration(command), true, out tokens, out errors);
 
             tokens
                 .Skip(1)
@@ -44,7 +44,6 @@ namespace System.CommandLine.Tests
             Tokenizer.Tokenize(args,
                                command,
                                new CliConfiguration(command),
-                               false,
                                true,
                                out tokens,
                                out errors);

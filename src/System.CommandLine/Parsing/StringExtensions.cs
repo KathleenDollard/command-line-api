@@ -61,7 +61,6 @@ namespace System.CommandLine.Parsing
             CliCommand rootCommand,
             CliConfiguration configuration,
             bool inferRootCommand,
-            bool enablePosixBundling,
             out List<CliToken> tokens,
             out List<string>? errors)
         {
@@ -81,7 +80,6 @@ namespace System.CommandLine.Parsing
                       rootCommand,
                       knownTokens,
                       configuration,
-                      enablePosixBundling,
                       false,
                       tokens);
 
@@ -92,7 +90,6 @@ namespace System.CommandLine.Parsing
                                            CliCommand currentCommand,
                                            Dictionary<string, CliToken> knownTokens,
                                            CliConfiguration configuration,
-                                           bool enablePosixBundling,
                                            bool foundDoubleDash,
                                            List<CliToken> tokens)
             {
@@ -128,7 +125,7 @@ namespace System.CommandLine.Parsing
                         {
                             var innerLocation = Location.CreateResponse(responseName, i, location);
                             var newErrors = MapTokens(insertArgs, innerLocation, currentCommand,
-                                knownTokens, configuration, enablePosixBundling, foundDoubleDash, tokens);
+                                knownTokens, configuration, foundDoubleDash, tokens);
                         }
                         continue;
                     }
@@ -166,7 +163,7 @@ namespace System.CommandLine.Parsing
                                 tokens.Add(Argument(rest, Location.FromOuterLocation(rest, i, location, first.Length + 1)));
                             }
                         }
-                        else if (!enablePosixBundling ||
+                        else if (!configuration.EnablePosixBundling ||
                                  !CanBeUnbundled(arg, tokens) ||
                                  !TryUnbundle(arg.AsSpan(1), Location.FromOuterLocation(arg, i, location), knownTokens, tokens))
                         {
