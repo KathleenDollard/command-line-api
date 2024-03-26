@@ -13,6 +13,10 @@ namespace System.CommandLine.Parsing
 /*
         internal List<CliToken>? UnmatchedTokens;
 */
+        
+        // TODO: Looks like this is a SymboNode/linked list because a symbol may appear multiple
+        // places in the tree and multiple symbols will have the same short name. The question is 
+        // whether creating the multiple node instances is faster than just using lists. Could well be.
         private Dictionary<string, SymbolNode>? _symbolsByName;
         internal SymbolResultTree(
             CliCommand rootCommand, 
@@ -46,8 +50,10 @@ namespace System.CommandLine.Parsing
         internal DirectiveResult? GetResult(CliDirective directive)
             => TryGetValue(directive, out SymbolResult? result) ? (DirectiveResult)result : default;
 */
+        // TODO: Determine how this is used. It appears to be O^n in the size of the tree and so if it is called multiple times, we should reconsider to avoid O^(N*M)
         internal IEnumerable<SymbolResult> GetChildren(SymbolResult parent)
         {
+            // Argument can't have children
             if (parent is not ArgumentResult)
             {
                 foreach (KeyValuePair<CliSymbol, SymbolResult> pair in this)
@@ -86,6 +92,7 @@ namespace System.CommandLine.Parsing
             if (_symbolsByName is null)
             {
                 _symbolsByName = new();  
+                // TODO: See if we can avoid populating the entire tree and just populate the portion/cone we need
                 PopulateSymbolsByName(_rootCommand);
             }
           
@@ -112,6 +119,7 @@ namespace System.CommandLine.Parsing
 // so we could avoid using their value factories and adding them to the dictionary
 // could we sort by name allowing us to do a binary search instead of allocating a dictionary?
 // could we add codepaths that query for specific kinds of symbols so they don't have to search all symbols?
+// Additional Note: Couldn't commands know their children, and thus this involves querying the active command, and possibly the parents
         private void PopulateSymbolsByName(CliCommand command)
         {
             if (command.HasArguments)
@@ -140,6 +148,7 @@ namespace System.CommandLine.Parsing
                 }
             }
 
+            // TODO: Explore removing closure here
             void AddToSymbolsByName(CliSymbol symbol)
             {
                 if (_symbolsByName!.TryGetValue(symbol.Name, out var node))

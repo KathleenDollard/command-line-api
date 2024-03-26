@@ -22,12 +22,38 @@ namespace System.CommandLine.Parsing
             Argument = argument ?? throw new ArgumentNullException(nameof(argument));
         }
 
+        private ValueResult? _valueResult;
+        public ValueResult ValueResult
+        {
+            get
+            {
+                if (_valueResult is null)
+                {
+                    // This is not lazy on the assumption that almost everything the user enters will be used, and ArgumentResult is no longer used for defaults
+                    // TODO: Make sure errors are added
+                    var conversionValue = _conversionResult?.Value;
+                    //TODO: Remove this wrapper later
+                    _valueResult = new ValueResult(Argument, conversionValue, null, GetValueResultOutcome(_conversionResult?.Result)); // null is temporary here
+                }
+                return _valueResult;
+            }
+        }
+
+        private static ValueResultOutcome GetValueResultOutcome(ArgumentConversionResultType? resultType)
+            => resultType switch
+            {
+                ArgumentConversionResultType.NoArgument => ValueResultOutcome.NoArgument,
+                ArgumentConversionResultType.Successful => ValueResultOutcome.Success,
+                _ => ValueResultOutcome.HasErrors
+            };
+
         /// <summary>
         /// The argument to which the result applies.
         /// </summary>
         public CliArgument Argument { get; }
 
         internal bool ArgumentLimitReached => Argument.Arity.MaximumNumberOfValues == (_tokens?.Count ?? 0);
+
 
         internal ArgumentConversionResult GetArgumentConversionResult() =>
             _conversionResult ??= ValidateAndConvert(useValidators: true);
@@ -120,7 +146,7 @@ namespace System.CommandLine.Parsing
         public override string ToString() => $"{nameof(ArgumentResult)} {Argument.Name}: {string.Join(" ", Tokens.Select(t => $"<{t.Value}>"))}";
 
         /// <inheritdoc/>
-        internal override void AddError(string errorMessage)
+        public override void AddError(string errorMessage)
         {
             SymbolResultTree.AddError(new ParseError(errorMessage, AppliesToPublicSymbolResult));
             _conversionResult = ArgumentConversionResult.Failure(this, errorMessage, ArgumentConversionResultType.Failed);
@@ -132,26 +158,29 @@ namespace System.CommandLine.Parsing
             {
                 return ReportErrorIfNeeded(arityFailure);
             }
-// TODO: validators
-/*
-            // There is nothing that stops user-defined Validator from calling ArgumentResult.GetValueOrDefault.
-            // In such cases, we can't call the validators again, as it would create infinite recursion.
-            // GetArgumentConversionResult => ValidateAndConvert => Validator
-            //        => GetValueOrDefault => ValidateAndConvert (again)
-            if (useValidators && Argument.HasValidators)
-            {
-                for (var i = 0; i < Argument.Validators.Count; i++)
-                {
-                    Argument.Validators[i](this);
-                }
+            // TODO: validators
+            /*
+                        // There is nothing that stops user-defined Validator from calling ArgumentResult.GetValueOrDefault.
+                        // In such cases, we can't call the validators again, as it would create infinite recursion.
+                        // GetArgumentConversionResult => ValidateAndConvert => Validator
+                        //        => GetValueOrDefault => ValidateAndConvert (again)
+                        if (useValidators && Argument.HasValidators)
+                        {
+                            for (var i = 0; i < Argument.Validators.Count; i++)
+                            {
+                                Argument.Validators[i](this);
+                            }
 
-                // validator provided by the user might report an error, which sets _conversionResult
-                if (_conversionResult is not null)
-                {
-                    return _conversionResult;
-                }
-            }
-*/
+                            // validator provided by the user might report an error, which sets _conversionResult
+                            if (_conversionResult is not null)
+                            {
+                                return _conversionResult;
+                            }
+                        }
+            */
+
+            // TODO: defaults
+            /* 
             if (Parent!.UseDefaultValueFor(this))
             {
                 var defaultValue = Argument.GetDefaultValue(this);
@@ -159,6 +188,7 @@ namespace System.CommandLine.Parsing
                 // default value factory provided by the user might report an error, which sets _conversionResult
                 return _conversionResult ?? ArgumentConversionResult.Success(this, defaultValue);
             }
+            */
 
             if (Argument.ConvertArguments is null)
             {
@@ -192,7 +222,7 @@ namespace System.CommandLine.Parsing
                 ArgumentConversionResult.ArgumentConversionCannotParse(
                     this,
                     Argument.ValueType,
-                    Tokens.Count > 0 
+                    Tokens.Count > 0
                         ? Tokens[0].Value
                         : ""));
 
@@ -210,7 +240,7 @@ namespace System.CommandLine.Parsing
         /// <summary>
         /// Since Option.Argument is an internal implementation detail, this ArgumentResult applies to the OptionResult in public API if the parent is an OptionResult.
         /// </summary>
-        private SymbolResult AppliesToPublicSymbolResult => 
+        private SymbolResult AppliesToPublicSymbolResult =>
             Parent is OptionResult optionResult ? optionResult : this;
     }
 }

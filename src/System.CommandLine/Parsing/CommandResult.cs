@@ -38,6 +38,16 @@ namespace System.CommandLine.Parsing
         /// </summary>
         public IEnumerable<SymbolResult> Children => SymbolResultTree.GetChildren(this);
 
+        public IReadOnlyList<ValueResult> ValueResults => Children.Select(GetValueResults).OfType<ValueResult>().ToList();
+
+        private ValueResult? GetValueResults(SymbolResult symbolResult)
+            => symbolResult switch
+            {
+                ArgumentResult argumentResult => argumentResult.ValueResult,
+                OptionResult optionResult => null!,
+                _ => null!
+            };
+
         /// <inheritdoc/>
         public override string ToString() => $"{nameof(CommandResult)}: {IdentifierToken.Value} {string.Join(" ", Tokens.Select(t => t.Value))}";
 
@@ -75,6 +85,8 @@ namespace System.CommandLine.Parsing
 */
             }
 
+            // TODO: Validation
+            /*
             if (Command.HasOptions)
             {
                 ValidateOptions(completeValidation);
@@ -84,6 +96,7 @@ namespace System.CommandLine.Parsing
             {
                 ValidateArguments(completeValidation);
             }
+            */
         }
 
         private void ValidateOptions(bool completeValidation)
@@ -155,10 +168,15 @@ namespace System.CommandLine.Parsing
                 }
 */
 
+                // TODO: Ensure all argument conversions are run for entered values
+                /*
                 _ = argumentResult.GetArgumentConversionResult();
+                */
             }
         }
 
+        // TODO: Validation
+        /*
         private void ValidateArguments(bool completeValidation)
         {
             var arguments = Command.Arguments;
@@ -195,5 +213,6 @@ namespace System.CommandLine.Parsing
                 _ = argumentResult.GetArgumentConversionResult();
             }
         }
+        */
     }
 }

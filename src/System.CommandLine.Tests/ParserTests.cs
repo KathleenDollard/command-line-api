@@ -851,6 +851,8 @@ namespace System.CommandLine.Tests
                   .OnlyContain(a => a.Value == @"c:\temp\the file.txt\");
         }
 
+        // TODO: Defaults
+        /*
         [Fact]
         public void Commands_can_have_default_argument_values()
         {
@@ -969,6 +971,8 @@ namespace System.CommandLine.Tests
                   .Should()
                   .Be("the-directory");
         }
+        */
+
 
         [Fact]
         public void Unmatched_tokens_that_look_like_options_are_not_split_into_smaller_tokens()
