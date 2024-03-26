@@ -35,8 +35,9 @@ namespace System.CommandLine.Parsing
                     // This is not lazy on the assumption that almost everything the user enters will be used, and ArgumentResult is no longer used for defaults
                     // TODO: Make sure errors are added
                     var conversionValue = ArgumentConversionResult.Value;
+                    var locations = Tokens.Select(token => token.Location).ToArray();
                     //TODO: Remove this wrapper later
-                    _valueResult = new ValueResult(Option, conversionValue, null, ValueResultExtensions.GetValueResultOutcome(ArgumentConversionResult?.Result)); // null is temporary here
+                    _valueResult = new ValueResult(Option, conversionValue, locations, ValueResultExtensions.GetValueResultOutcome(ArgumentConversionResult?.Result)); // null is temporary here
                 }
                 return _valueResult;
             }

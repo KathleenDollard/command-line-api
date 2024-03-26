@@ -1,6 +1,8 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
+
 namespace System.CommandLine.Parsing;
 
 public class ValueResult
@@ -8,14 +10,14 @@ public class ValueResult
     internal ValueResult(
         CliSymbol valueSymbol,
         object? value,
-        Location location,
+        IEnumerable<Location> locations,
         ValueResultOutcome outcome,
         // TODO: Error should be an Enumerable<Error> and perhaps should not be here at all, only on ParseResult
         string? error = null)
     {
         ValueSymbol = valueSymbol;
         Value = value;
-        Location = location;
+        Locations = locations;
         Outcome = outcome;
         Error = error;
     }
@@ -26,7 +28,9 @@ public class ValueResult
     public T? GetValue<T>()
         => (T?)Value;
 
-    public Location Location { get; }
+    // This needs to be a collection because collection types have multiple tokens and they will not be simple offsets when response files are used
+    // TODO: Consider more efficient ways to do this in the case where there is a single location
+    public IEnumerable<Location> Locations { get; }
 
     public ValueResultOutcome Outcome { get; }
 
@@ -36,7 +40,7 @@ public class ValueResult
         => $"{nameof(ValueResult)} ({FormatOutcomeMessage()}) {ValueSymbol?.Name}";
 
     // TODO: This definitely feels like the wrong place for this, (Some completion stuff was stripped out. This was a private method in ArgumentConversionResult
-    private string FormatOutcomeMessage() 
+    private string FormatOutcomeMessage()
         => ValueSymbol switch
         {
             CliOption option

@@ -34,7 +34,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Location_stack_is_correct()
+        public void Location_stack_ToString_is_correct()
         {
             var option = new CliOption<string>("--hello");
             var command = new CliRootCommand { option };
@@ -56,8 +56,8 @@ namespace System.CommandLine.Tests
             errors.Should().BeNull();
             tokens.Count.Should().Be(3); 
             locations.Count.Should().Be(2);
-            locations[0].Should().Be("User [-1, 8, 0]; User [0, 7, 0]");
-            locations[1].Should().Be("User [-1, 8, 0]; User [1, 5, 0]");
+            locations[0].Should().Be("testhost from User[-1, 8, 0]; --hello from User[0, 7, 0]");
+            locations[1].Should().Be("testhost from User[-1, 8, 0]; world from User[1, 5, 0]");
         }
 
         [Fact]
