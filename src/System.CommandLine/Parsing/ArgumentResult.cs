@@ -31,21 +31,13 @@ namespace System.CommandLine.Parsing
                 {
                     // This is not lazy on the assumption that almost everything the user enters will be used, and ArgumentResult is no longer used for defaults
                     // TODO: Make sure errors are added
-                    var conversionValue = _conversionResult?.Value;
+                    var conversionValue = GetArgumentConversionResult().Value;
                     //TODO: Remove this wrapper later
-                    _valueResult = new ValueResult(Argument, conversionValue, null, GetValueResultOutcome(_conversionResult?.Result)); // null is temporary here
+                    _valueResult = new ValueResult(Argument, conversionValue, null, ValueResultExtensions.GetValueResultOutcome(GetArgumentConversionResult()?.Result)); // null is temporary here
                 }
                 return _valueResult;
             }
         }
-
-        private static ValueResultOutcome GetValueResultOutcome(ArgumentConversionResultType? resultType)
-            => resultType switch
-            {
-                ArgumentConversionResultType.NoArgument => ValueResultOutcome.NoArgument,
-                ArgumentConversionResultType.Successful => ValueResultOutcome.Success,
-                _ => ValueResultOutcome.HasErrors
-            };
 
         /// <summary>
         /// The argument to which the result applies.
@@ -146,7 +138,7 @@ namespace System.CommandLine.Parsing
         public override string ToString() => $"{nameof(ArgumentResult)} {Argument.Name}: {string.Join(" ", Tokens.Select(t => $"<{t.Value}>"))}";
 
         /// <inheritdoc/>
-        public override void AddError(string errorMessage)
+        internal override void AddError(string errorMessage)
         {
             SymbolResultTree.AddError(new ParseError(errorMessage, AppliesToPublicSymbolResult));
             _conversionResult = ArgumentConversionResult.Failure(this, errorMessage, ArgumentConversionResultType.Failed);

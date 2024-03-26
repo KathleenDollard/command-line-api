@@ -44,7 +44,7 @@ namespace System.CommandLine.Parsing
             => symbolResult switch
             {
                 ArgumentResult argumentResult => argumentResult.ValueResult,
-                OptionResult optionResult => null!,
+                OptionResult optionResult => optionResult.ValueResult,
                 _ => null!
             };
 
@@ -86,7 +86,6 @@ namespace System.CommandLine.Parsing
             }
 
             // TODO: Validation
-            /*
             if (Command.HasOptions)
             {
                 ValidateOptions(completeValidation);
@@ -96,7 +95,6 @@ namespace System.CommandLine.Parsing
             {
                 ValidateArguments(completeValidation);
             }
-            */
         }
 
         private void ValidateOptions(bool completeValidation)
@@ -176,8 +174,7 @@ namespace System.CommandLine.Parsing
         }
 
         // TODO: Validation
-        /*
-        private void ValidateArguments(bool completeValidation)
+         private void ValidateArguments(bool completeValidation)
         {
             var arguments = Command.Arguments;
             for (var i = 0; i < arguments.Count; i++)
@@ -213,6 +210,5 @@ namespace System.CommandLine.Parsing
                 _ = argumentResult.GetArgumentConversionResult();
             }
         }
-        */
     }
 }

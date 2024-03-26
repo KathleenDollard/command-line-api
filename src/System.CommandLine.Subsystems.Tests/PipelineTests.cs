@@ -173,7 +173,6 @@ public class PipelineTests
         pipeline.Completion.Should().BeNull();
     }
 
-
     [Fact]
     public void Subsystems_can_access_each_others_data()
     {

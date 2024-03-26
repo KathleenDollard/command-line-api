@@ -21,7 +21,10 @@ public class ValueResult
     }
 
     public CliSymbol ValueSymbol { get; }
-    public object? Value { get; }
+    internal object? Value { get; }
+
+    public T? GetValue<T>()
+        => (T?)Value;
 
     public Location Location { get; }
 

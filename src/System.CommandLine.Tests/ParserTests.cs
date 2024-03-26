@@ -1679,7 +1679,62 @@ namespace System.CommandLine.Tests
 
             GetValue(result, option).Should().BeEmpty();
         }
-        /*
-                */
+
+        [Fact]
+        public void CommandResult_contains_argument_ValueResults()
+        {
+            var argument1 = new CliArgument<string>("arg1");
+            var argument2 = new CliArgument<string>("arg2");
+
+            var command = new CliCommand("subcommand")
+                    {
+                        argument1,
+                        argument2
+                    };
+
+            var rootCommand = new CliRootCommand
+                    {
+                        command
+                    };
+
+            var parseResult = CliParser.Parse(rootCommand, "subcommand Kirk Spock");
+
+
+            var commandResult = parseResult.CommandResult;
+            commandResult.ValueResults.Should().HaveCount(2);
+            var result1 = commandResult.ValueResults[0];
+            result1.GetValue<string>().Should().Be("Kirk");
+            var result2 = commandResult.ValueResults[1];
+            result2.GetValue<string>().Should().Be("Spock");
+        }
+
+
+        [Fact]
+        public void CommandResult_contains_option_ValueResults()
+        {
+            var argument1 = new CliOption<string>("--opt1");
+            var argument2 = new CliOption<string>("--opt2");
+
+            var command = new CliCommand("subcommand")
+                    {
+                        argument1,
+                        argument2
+                    };
+
+            var rootCommand = new CliRootCommand
+                    {
+                        command
+                    };
+
+            var parseResult = CliParser.Parse(rootCommand, "subcommand --opt1 Kirk --opt2 Spock");
+
+
+            var commandResult = parseResult.CommandResult;
+            commandResult.ValueResults.Should().HaveCount(2);
+            var result1 = commandResult.ValueResults[0];
+            result1.GetValue<string>().Should().Be("Kirk");
+            var result2 = commandResult.ValueResults[1];
+            result2.GetValue<string>().Should().Be("Spock");
+        }
     }
 }
