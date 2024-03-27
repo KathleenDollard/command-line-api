@@ -8,6 +8,7 @@ using System.IO;
 using FluentAssertions;
 using System.Linq;
 using Xunit;
+using System.CommandLine.Directives;
 
 namespace System.CommandLine.Tests
 {
@@ -40,11 +41,16 @@ namespace System.CommandLine.Tests
             return responseFile.FullName;
         }
 
+        // Powderhouse: Changed test since then now need to explicitly add the response file handler
         [Fact]
         public void When_response_file_specified_it_loads_options_from_response_file()
         {
             var option = new CliOption<bool>("--flag");
             var rootCommand = new CliRootCommand { option };
+            var confifuration = new CliConfiguration(rootCommand)
+            {
+                ResponseFileTokenReplacer = ResponseSubsystem.DefaultTokenReplacer
+            };
             var result = CliParser.Parse(rootCommand, $"@{CreateResponseFile("--flag")}");
 
             result.GetResult(option).Should().NotBeNull();
