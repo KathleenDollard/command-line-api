@@ -38,9 +38,9 @@ namespace System.CommandLine.Parsing
         /// </summary>
         public IEnumerable<SymbolResult> Children => SymbolResultTree.GetChildren(this);
 
-        public IReadOnlyList<ValueResult> ValueResults => Children.Select(GetValueResults).OfType<ValueResult>().ToList();
+        public IReadOnlyList<ValueResult> ValueResults => Children.Select(GetValueResult).OfType<ValueResult>().ToList();
 
-        private ValueResult? GetValueResults(SymbolResult symbolResult)
+        private ValueResult? GetValueResult(SymbolResult symbolResult)
             => symbolResult switch
             {
                 ArgumentResult argumentResult => argumentResult.ValueResult,
