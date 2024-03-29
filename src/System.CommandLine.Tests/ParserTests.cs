@@ -1682,6 +1682,7 @@ namespace System.CommandLine.Tests
             GetValue(result, option).Should().BeEmpty();
         }
 
+        // TODO: Tests below are from Powderhouse. Consider whether this the right location considering how large the file is
         [Fact]
         public void CommandResult_contains_argument_ValueResults()
         {
@@ -1876,6 +1877,64 @@ namespace System.CommandLine.Tests
             var result2 = commandResult.ValueResults[1];
             result1.Locations.Single().Should().Be(expectedLocation1);
             result2.Locations.Single().Should().Be(expectedLocation2);
+        }
+
+        [Fact]
+        public void ParseResult_contains_argument_ValueResults()
+        {
+            var argument1 = new CliArgument<string>("arg1");
+            var argument2 = new CliArgument<string>("arg2");
+
+            var command = new CliCommand("subcommand")
+                    {
+                        argument1,
+                        argument2
+                    };
+
+            var rootCommand = new CliRootCommand
+                    {
+                        command
+                    };
+
+            var parseResult = CliParser.Parse(rootCommand, "subcommand Kirk Spock");
+
+
+            var result1 = parseResult.GetValueResult(argument1);
+            var result2 = parseResult.GetValueResult(argument2);
+            result1.GetValue<string>().Should().Be("Kirk");
+            result2.GetValue<string>().Should().Be("Spock");
+        }
+
+        [Fact]
+        public void ParseResult_contains_option_ValueResults()
+        {
+            var option1 = new CliOption<string>("--opt1");
+            var option2 = new CliOption<string>("--opt2");
+
+            var command = new CliCommand("subcommand")
+                    {
+                        option1,
+                        option2
+                    };
+
+            var rootCommand = new CliRootCommand
+                    {
+                        command
+                    };
+
+            var parseResult = CliParser.Parse(rootCommand, "subcommand arg1 --opt1 Kirk --opt2 Spock");
+
+
+            var result1 = parseResult.GetValueResult(option1);
+            var result2 = parseResult.GetValueResult(option2);
+            result1.GetValue<string>().Should().Be("Kirk");
+            result2.GetValue<string>().Should().Be("Spock");
+        }
+
+        [Fact]
+        public void Value_result_returned_in_simple_case()
+        {
+
         }
     }
 }
