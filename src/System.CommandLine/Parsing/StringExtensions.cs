@@ -136,8 +136,12 @@ namespace System.CommandLine.Parsing
                     {
                         var responseName = arg.Substring(1);
                         var (insertArgs, insertErrors) = configuration.ResponseFileTokenReplacer(responseName);
-                        // TODO: Handle errors
-                        if (insertArgs is not null && insertArgs.Any())
+                        if (insertErrors is not null && insertErrors.Any())
+                        {
+                            errors = errors ?? new();
+                            errors.AddRange(insertErrors);
+                        }
+                        else if (insertArgs is not null && insertArgs.Any())
                         {
                             var innerLocation = Location.CreateResponse(responseName, i, location);
                             var newErrors = MapTokens(insertArgs, innerLocation, 0, currentCommand,

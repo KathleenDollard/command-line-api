@@ -47,11 +47,12 @@ namespace System.CommandLine.Tests
         {
             var option = new CliOption<bool>("--flag");
             var rootCommand = new CliRootCommand { option };
-            var confifuration = new CliConfiguration(rootCommand)
+            var configuration = new CliConfiguration(rootCommand)
             {
                 ResponseFileTokenReplacer = ResponseSubsystem.DefaultTokenReplacer
             };
-            var result = CliParser.Parse(rootCommand, $"@{CreateResponseFile("--flag")}");
+
+            var result = CliParser.Parse(rootCommand, $"@{CreateResponseFile("--flag")}", configuration);
 
             result.GetResult(option).Should().NotBeNull();
         }
@@ -72,7 +73,12 @@ namespace System.CommandLine.Tests
                              optionOne,
                              optionTwo
                          };
-            var result = CliParser.Parse(rootCommand, $"@{responseFile}");
+            var configuration = new CliConfiguration(rootCommand)
+            {
+                ResponseFileTokenReplacer = ResponseSubsystem.DefaultTokenReplacer
+            };
+
+            var result = CliParser.Parse(rootCommand, $"@{responseFile}", configuration);
 
             result.GetResult(optionOne).Should().NotBeNull();
             result.GetValue(optionTwo).Should().Be(123);
@@ -91,11 +97,15 @@ namespace System.CommandLine.Tests
             {
                 new CliArgument<string[]>("arg")
             };
-            var result = CliParser.Parse(rootCommand, $"@{responseFile}");
+            var configuration = new CliConfiguration(rootCommand)
+            {
+                ResponseFileTokenReplacer = ResponseSubsystem.DefaultTokenReplacer
+            };
+
+            var result = CliParser.Parse(rootCommand, $"@{responseFile}", configuration);
 
             result.CommandResult
-                  .Tokens
-                  .Select(t => t.Value)
+                  .GetStringTokens()
                   .Should()
                   .BeEquivalentSequenceTo("one", "two", "three");
         }
@@ -115,11 +125,15 @@ namespace System.CommandLine.Tests
                                  new CliArgument<string[]>("arg")
                              }
                          };
-            var result = CliParser.Parse(rootCommand, $"subcommand @{responseFile}");
+            var configuration = new CliConfiguration(rootCommand)
+            {
+                ResponseFileTokenReplacer = ResponseSubsystem.DefaultTokenReplacer
+            };
+
+            var result = CliParser.Parse(rootCommand, $"subcommand @{responseFile}", configuration);
 
             result.CommandResult
-                  .Tokens
-                  .Select(t => t.Value)
+                  .GetStringTokens()
                   .Should()
                   .BeEquivalentSequenceTo("one", "two", "three");
         }
@@ -136,11 +150,15 @@ namespace System.CommandLine.Tests
                                  new CliArgument<string[]>("arg")
                              }
                          };
-            var result = CliParser.Parse(rootCommand, $"@{responseFile} one two three");
+            var configuration = new CliConfiguration(rootCommand)
+            {
+                ResponseFileTokenReplacer = ResponseSubsystem.DefaultTokenReplacer
+            };
+
+            var result = CliParser.Parse(rootCommand, $"@{responseFile} one two three", configuration);
 
             result.CommandResult
-                  .Tokens
-                  .Select(t => t.Value)
+                  .GetStringTokens()
                   .Should()
                   .BeEquivalentSequenceTo("one", "two", "three");
         }
@@ -160,11 +178,15 @@ namespace System.CommandLine.Tests
                                  new CliArgument<string[]>("arg")
                              }
                          };
-            var result = CliParser.Parse(rootCommand, $"subcommand @{responseFile}");
+            var configuration = new CliConfiguration(rootCommand)
+            {
+                ResponseFileTokenReplacer = ResponseSubsystem.DefaultTokenReplacer
+            };
+
+            var result = CliParser.Parse(rootCommand, $"subcommand @{responseFile}", configuration);
 
             result.CommandResult
-                  .Tokens
-                  .Select(t => t.Value)
+                  .GetStringTokens()
                   .Should()
                   .BeEquivalentSequenceTo("one", "two", "three");
         }
@@ -183,7 +205,12 @@ namespace System.CommandLine.Tests
                 {
                     option
                 };
-            var result = CliParser.Parse(rootCommand, $"@{responseFile}");
+            var configuration = new CliConfiguration(rootCommand)
+            {
+                ResponseFileTokenReplacer = ResponseSubsystem.DefaultTokenReplacer
+            };
+
+            var result = CliParser.Parse(rootCommand, $"@{responseFile}", configuration);
 
             result.GetValue(option).Should().Be(123);
             result.Errors.Should().BeEmpty();
@@ -208,7 +235,12 @@ namespace System.CommandLine.Tests
                 optionOne,
                 optionTwo
             };
-            var result = CliParser.Parse(rootCommand,$"@{responseFile}");
+            var configuration = new CliConfiguration(rootCommand)
+            {
+                ResponseFileTokenReplacer = ResponseSubsystem.DefaultTokenReplacer
+            };
+
+            var result = CliParser.Parse(rootCommand,$"@{responseFile}", configuration);
 
             result.GetResult(optionOne).Should().NotBeNull();
             result.GetResult(optionTwo).Should().NotBeNull();
@@ -226,7 +258,12 @@ namespace System.CommandLine.Tests
                              optionOne,
                              optionTwo
                          };
-            var result = CliParser.Parse(rootCommand, "@nonexistent.rsp");
+            var configuration = new CliConfiguration(rootCommand)
+            {
+                ResponseFileTokenReplacer = ResponseSubsystem.DefaultTokenReplacer
+            };
+
+            var result = CliParser.Parse(rootCommand, "@nonexistent.rsp", configuration);
 
             result.GetResult(optionOne).Should().BeNull();
             result.GetResult(optionTwo).Should().BeNull();
@@ -245,6 +282,11 @@ namespace System.CommandLine.Tests
                              optionOne,
                              optionTwo
                          };
+            var configuration = new CliConfiguration(rootCommand)
+            {
+                ResponseFileTokenReplacer = ResponseSubsystem.DefaultTokenReplacer
+            };
+
             var result = CliParser.Parse(rootCommand, "@");
 
             result.GetResult(optionOne).Should().BeNull();
@@ -271,7 +313,12 @@ namespace System.CommandLine.Tests
                                  optionOne,
                                  optionTwo
                              };
-                var result = CliParser.Parse(rootCommand, $"@{nonexistent}");
+                var configuration = new CliConfiguration(rootCommand)
+                {
+                    ResponseFileTokenReplacer = ResponseSubsystem.DefaultTokenReplacer
+                };
+
+                var result = CliParser.Parse(rootCommand, $"@{nonexistent}", configuration);
 
                 result.GetResult(optionOne).Should().BeNull();
                 result.GetResult(optionTwo).Should().BeNull();
@@ -296,9 +343,12 @@ namespace System.CommandLine.Tests
                 optionOne,
                 optionTwo
             };
-            CliConfiguration config = new (rootCommand);
+            var configuration = new CliConfiguration(rootCommand)
+            {
+                ResponseFileTokenReplacer = ResponseSubsystem.DefaultTokenReplacer
+            };
 
-            var result = CliParser.Parse(rootCommand, $"@{responseFile}", config);
+            var result = CliParser.Parse(rootCommand, $"@{responseFile}", configuration);
 
             result.GetValue(optionOne).Should().Be("first value");
             result.GetValue(optionTwo).Should().Be(123);
@@ -307,6 +357,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_response_file_processing_is_disabled_then_it_returns_response_file_name_as_argument()
         {
+            
             CliRootCommand command = new ()
             {
                 new CliArgument<List<string>>("arg")
@@ -317,11 +368,23 @@ namespace System.CommandLine.Tests
             };
 
             var result = CliParser.Parse(command, "@file.rsp", configuration);
+            var commandResult = result.CommandResult;
 
-            result.Tokens
-                  .Should()
-                  .Contain(t => t.Value == "@file.rsp" && 
-                                t.Type == CliTokenType.Argument);
+            commandResult
+                .GetStringTokens()
+                .Should()
+                .Contain("@file.rsp");
+
+            ValueResult valueResult = commandResult.ValueResults
+                            .Single();
+            valueResult
+                .ValueSymbol
+                .Should()
+                .BeOfType<CliArgument<List<string>>>();
+            valueResult
+                .GetValue<List<string>>()
+                .Should()
+                .Contain("@file.rsp");
             result.Errors.Should().HaveCount(0);
         }
 
@@ -336,14 +399,18 @@ namespace System.CommandLine.Tests
             var option2 = new CliOption<int>("--two");
             var option3 = new CliOption<int>("--three");
 
-            var command = new CliRootCommand
+            var rootCommand = new CliRootCommand
                           {
                               option1,
                               option2,
                               option3
                           };
+            var configuration = new CliConfiguration(rootCommand)
+            {
+                ResponseFileTokenReplacer = ResponseSubsystem.DefaultTokenReplacer
+            };
 
-            var result = CliParser.Parse(command, $"@{file1}");
+            var result = CliParser.Parse(rootCommand, $"@{file1}", configuration);
 
             result.GetValue(option1).Should().Be(1);
             result.GetValue(option1).Should().Be(1);
@@ -361,7 +428,12 @@ namespace System.CommandLine.Tests
             var option2 = new CliOption<int>("--option2");
 
             var rootCommand = new CliRootCommand { option1, option2 };
-            var result = CliParser.Parse(rootCommand, $"@{responseFile}");
+            var configuration = new CliConfiguration(rootCommand)
+            {
+                ResponseFileTokenReplacer = ResponseSubsystem.DefaultTokenReplacer
+            };
+
+            var result = CliParser.Parse(rootCommand, $"@{responseFile}", configuration);
 
             result.GetValue(option1).Should().Be("value1");
             result.GetValue(option2).Should().Be(2);
@@ -376,7 +448,13 @@ namespace System.CommandLine.Tests
             var option2 = new CliOption<int>("--option2");
 
             var rootCommand = new CliRootCommand { option1, option2 };
-            var result = CliParser.Parse(rootCommand, $"@{responseFile}");
+            var configuration = new CliConfiguration(rootCommand)
+            {
+                ResponseFileTokenReplacer = ResponseSubsystem.DefaultTokenReplacer
+            };
+
+            var result = CliParser.Parse(rootCommand, $"@{responseFile}", configuration);
+
             result.GetValue(option1).Should().Be("value1");
             result.GetValue(option2).Should().Be(2);
             result.Errors.Should().BeEmpty();
@@ -391,7 +469,12 @@ namespace System.CommandLine.Tests
             var option2 = new CliOption<int>("--option2");
 
             var rootCommand = new CliRootCommand { option1, option2 };
-            var result = CliParser.Parse(rootCommand, $"@{responseFile}");
+            var configuration = new CliConfiguration(rootCommand)
+            {
+                ResponseFileTokenReplacer = ResponseSubsystem.DefaultTokenReplacer
+            };
+
+            var result = CliParser.Parse(rootCommand, $"@{responseFile}", configuration);
 
             result.GetValue(option1).Should().Be("value1");
             result.GetValue(option2).Should().Be(2);

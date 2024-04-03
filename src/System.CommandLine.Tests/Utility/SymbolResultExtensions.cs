@@ -3,15 +3,13 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Parsing;
+using System.Linq;
 
 namespace System.CommandLine.Tests.Utility;
 
 public static class SymbolResultExtensions
 {
-    public IEnumerable<string> GetStringTokens(this SymbolResult result)
-    {
-        result
-                  .Tokens
-                  .Select(t => t.Value)
-    }
+    public static IEnumerable<string> GetStringTokens(this CommandResult result) 
+        => result.ValueResults
+            .SelectMany(x => x.Locations.Select(y => y.Text));
 }
