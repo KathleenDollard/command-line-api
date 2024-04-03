@@ -11,7 +11,7 @@ using Xunit;
 
 namespace System.CommandLine.Tests
 {
-    public class ResponseFileTests : IDisposable
+    public class ResponseFileFunctionalTests : IDisposable
     {
         private readonly List<FileInfo> _responseFiles = new();
 
