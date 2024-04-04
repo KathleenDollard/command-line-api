@@ -11,22 +11,22 @@ public class ResponseSubsystem()
 {
     protected internal override CliConfiguration Initialize(InitializationContext context)
     {
-        context.Configuration.ResponseFileTokenReplacer = Replacer;
+        context.Configuration.ResponseFileTokenReplacer = DefaultTokenReplacer;
         return context.Configuration;
     }
 
-    public static (List<string>? tokens, List<string>? errors) Replacer(string responseSourceName)
+    public static (List<string>? tokens, List<string>? errors) DefaultTokenReplacer(string responseSourceName)
     {
         try
         {
-            // TODO: Include checks from previous system.
-            var contents = File.ReadAllText(responseSourceName);
-            return (CliParser.SplitCommandLine(contents).ToList(), null);
+            return TryReadResponseFile(responseSourceName, out var newTokens, out var errors)
+                ? (newTokens, null)
+                : (null, errors);
         }
         catch
         {
             // TODO: Switch to proper errors
-            return (null, 
+            return (null,
                     errors:
                     [
                         $"Failed to open response file {responseSourceName}"
@@ -34,70 +34,75 @@ public class ResponseSubsystem()
         }
     }
 
-    // TODO: File handling from previous system - ensure these checks are done (note: no tests caught these oversights
-    /* internal static bool TryReadResponseFile(
+    internal static bool TryReadResponseFile(
          string filePath,
-         out IReadOnlyList<string>? newTokens,
-         out string? error)
-     {
-         try
-         {
-             newTokens = ExpandResponseFile(filePath).ToArray();
-             error = null;
-             return true;
-         }
-         catch (FileNotFoundException)
-         {
-             error = LocalizationResources.ResponseFileNotFound(filePath);
-         }
-         catch (IOException e)
-         {
-             error = LocalizationResources.ErrorReadingResponseFile(filePath, e);
-         }
+         out List<string>? newTokens,
+         out List<string>? errors)
+    {
+        try
+        {
+            newTokens = ExpandResponseFile(filePath).ToList();
+            errors = null;
+            return true;
+        }
+        catch (FileNotFoundException)
+        {
 
-         newTokens = null;
-         return false;
+            errors = new() { LocalizationResources.ResponseFileNotFound(filePath) };
 
-         static IEnumerable<string> ExpandResponseFile(string filePath)
-         {
-             var lines = File.ReadAllLines(filePath);
+        }
+        catch (IOException e)
+        {
+            errors = new() { LocalizationResources.ErrorReadingResponseFile(filePath, e) };
+        }
 
-             for (var i = 0; i < lines.Length; i++)
-             {
-                 var line = lines[i];
+        newTokens = null;
+        return false;
+    }
+    private static IEnumerable<string> ExpandResponseFile(string filePath)
+    {
+        var lines = File.ReadAllLines(filePath);
 
-                 foreach (var p in SplitLine(line))
-                 {
-                     if (GetReplaceableTokenValue(p) is { } path)
-                     {
-                         foreach (var q in ExpandResponseFile(path))
-                         {
-                             yield return q;
-                         }
-                     }
-                     else
-                     {
-                         yield return p;
-                     }
-                 }
-             }
-         }
+        for (var i = 0; i < lines.Length; i++)
+        {
+            var line = lines[i];
 
-         static IEnumerable<string> SplitLine(string line)
-         {
-             var arg = line.Trim();
+            foreach (var p in SplitLine(line))
+            {
+                if (GetReplaceableTokenValue(p) is { } path)
+                {
+                    foreach (var q in ExpandResponseFile(path))
+                    {
+                        yield return q;
+                    }
+                }
+                else
+                {
+                    yield return p;
+                }
+            }
+        }
+    }
 
-             if (arg.Length == 0 || arg[0] == '#')
-             {
-                 yield break;
-             }
+    private static IEnumerable<string> SplitLine(string line)
+    {
+        var arg = line.Trim();
 
-             foreach (var word in CliParser.SplitCommandLine(arg))
-             {
-                 yield return word;
-             }
-         }
-     }
-    */
+        if (arg.Length == 0 || arg[0] == '#')
+        {
+            yield break;
+        }
+
+        foreach (var word in CliParser.SplitCommandLine(arg))
+        {
+            yield return word;
+        }
+    }
+
+    private static string? GetReplaceableTokenValue(string arg) =>
+    arg.Length > 1 && arg[0] == '@'
+        ? arg.Substring(1)
+        : null;
+
 
 }
