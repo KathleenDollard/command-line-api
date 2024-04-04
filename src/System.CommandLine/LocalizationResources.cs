@@ -16,45 +16,50 @@ namespace System.CommandLine
         /// <summary>
         ///   Interpolates values into a localized string similar to Command &apos;{0}&apos; expects a single argument but {1} were provided.
         /// </summary>
-        internal static string ExpectsOneArgument(OptionResult optionResult)
-            => GetResourceString(Properties.Resources.OptionExpectsOneArgument, GetOptionName(optionResult), optionResult.Tokens.Count);
-/*
-        /// <summary>
-        ///   Interpolates values into a localized string similar to Directory does not exist: {0}.
-        /// </summary>
-        internal static string DirectoryDoesNotExist(string path) =>
-            GetResourceString(Properties.Resources.DirectoryDoesNotExist, path);
+        internal static string ExpectsOneArgument(OptionResult optionResult) 
+            => GetResourceString(Properties.Resources.OptionExpectsOneArgument,
+                                 GetOptionName(optionResult),
+                                 optionResult.ValueResult.Locations is null
+                                     ? 0
+                                     : optionResult.ValueResult.Locations.Count());
 
-        /// <summary>
-        ///   Interpolates values into a localized string similar to File does not exist: {0}.
-        /// </summary>
-        internal static string FileDoesNotExist(string filePath) =>
-            GetResourceString(Properties.Resources.FileDoesNotExist, filePath);
+        /*
+       /// <summary>
+       ///   Interpolates values into a localized string similar to Directory does not exist: {0}.
+       /// </summary>
+       internal static string DirectoryDoesNotExist(string path) =>
+           GetResourceString(Properties.Resources.DirectoryDoesNotExist, path);
 
-        /// <summary>
-        ///   Interpolates values into a localized string similar to File or directory does not exist: {0}.
-        /// </summary>
-        internal static string FileOrDirectoryDoesNotExist(string path) =>
-            GetResourceString(Properties.Resources.FileOrDirectoryDoesNotExist, path);
+       /// <summary>
+       ///   Interpolates values into a localized string similar to File does not exist: {0}.
+       /// </summary>
+       internal static string FileDoesNotExist(string filePath) =>
+           GetResourceString(Properties.Resources.FileDoesNotExist, filePath);
 
-        /// <summary>
-        ///   Interpolates values into a localized string similar to Character not allowed in a path: {0}.
-        /// </summary>
-        internal static string InvalidCharactersInPath(char invalidChar) =>
-            GetResourceString(Properties.Resources.InvalidCharactersInPath, invalidChar);
+       /// <summary>
+       ///   Interpolates values into a localized string similar to File or directory does not exist: {0}.
+       /// </summary>
+       internal static string FileOrDirectoryDoesNotExist(string path) =>
+           GetResourceString(Properties.Resources.FileOrDirectoryDoesNotExist, path);
 
-        /// <summary>
-        ///   Interpolates values into a localized string similar to Character not allowed in a file name: {0}.
-        /// </summary>
-        internal static string InvalidCharactersInFileName(char invalidChar) =>
-            GetResourceString(Properties.Resources.InvalidCharactersInFileName, invalidChar);
+       /// <summary>
+       ///   Interpolates values into a localized string similar to Character not allowed in a path: {0}.
+       /// </summary>
+       internal static string InvalidCharactersInPath(char invalidChar) =>
+           GetResourceString(Properties.Resources.InvalidCharactersInPath, invalidChar);
+
+       /// <summary>
+       ///   Interpolates values into a localized string similar to Character not allowed in a file name: {0}.
+       /// </summary>
+       internal static string InvalidCharactersInFileName(char invalidChar) =>
+           GetResourceString(Properties.Resources.InvalidCharactersInFileName, invalidChar);
 */
         /// <summary>
         ///   Interpolates values into a localized string similar to Required argument missing for command: {0}.
         /// </summary>
         internal static string RequiredArgumentMissing(ArgumentResult argumentResult) =>
             argumentResult.Parent is CommandResult commandResult
-                ? GetResourceString(Properties.Resources.CommandRequiredArgumentMissing, commandResult.IdentifierToken.Value)
+                ? GetResourceString(Properties.Resources.CommandRequiredArgumentMissing, commandResult.ValueResult.Location.Text)
                 : RequiredArgumentMissing((OptionResult)argumentResult.Parent!);
 
         /// <summary>
@@ -252,6 +257,6 @@ namespace System.CommandLine
             return resourceString;
         }
 
-        private static string GetOptionName(OptionResult optionResult) => optionResult.IdentifierToken?.Value ?? optionResult.Option.Name;
+        private static string GetOptionName(OptionResult optionResult) => optionResult.ValueResult.IdentifierLocation?.Text ?? optionResult.Option.Name;
     }
 }

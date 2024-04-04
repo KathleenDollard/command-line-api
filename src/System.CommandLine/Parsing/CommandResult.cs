@@ -38,6 +38,7 @@ namespace System.CommandLine.Parsing
         /// </summary>
         public IEnumerable<SymbolResult> Children => SymbolResultTree.GetChildren(this);
 
+        public CommandValueResult ValueResult => new(this, IdentifierToken.Location);
         public IReadOnlyList<ValueResult> ValueResults => Children.Select(GetValueResult).OfType<ValueResult>().ToList();
 
         private ValueResult? GetValueResult(SymbolResult symbolResult)

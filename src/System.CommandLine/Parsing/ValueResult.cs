@@ -12,6 +12,7 @@ public class ValueResult
         object? value,
         IEnumerable<Location> locations,
         ValueResultOutcome outcome,
+        Location? identifireLocation = null,
         // TODO: Error should be an Enumerable<Error> and perhaps should not be here at all, only on ParseResult
         string? error = null)
     {
@@ -19,6 +20,7 @@ public class ValueResult
         Value = value;
         Locations = locations;
         Outcome = outcome;
+        IdentifierLocation = identifireLocation;
         Error = error;
     }
 
@@ -31,9 +33,8 @@ public class ValueResult
     // This needs to be a collection because collection types have multiple tokens and they will not be simple offsets when response files are used
     // TODO: Consider more efficient ways to do this in the case where there is a single location
     public IEnumerable<Location> Locations { get; }
-
+    public Location? IdentifierLocation { get; }
     public ValueResultOutcome Outcome { get; }
-
     public string? Error { get; }
 
     public override string ToString()
