@@ -10,7 +10,7 @@ namespace System.CommandLine.Parsing
     {
         // TODO: add position
         // TODO: reevaluate whether we should be exposing a SymbolResult here
-        public ParseError(
+        internal ParseError(
             string message, 
             SymbolResult? symbolResult = null)
         {

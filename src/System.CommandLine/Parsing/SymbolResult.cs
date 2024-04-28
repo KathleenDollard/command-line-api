@@ -106,6 +106,7 @@ namespace System.CommandLine.Parsing
         public SymbolResult? GetResult(string name) => 
             SymbolResultTree.GetResult(name);
 
+        /* Not used
         /// <inheritdoc cref="ParseResult.GetValue{T}(CliArgument{T})"/>
         public T? GetValue<T>(CliArgument<T> argument)
         {
@@ -129,6 +130,7 @@ namespace System.CommandLine.Parsing
 
             return CliArgument<T>.CreateDefaultValue();
         }
+        */
 
         /// <summary>
         /// Gets the value for a symbol having the specified name anywhere in the parse tree.
