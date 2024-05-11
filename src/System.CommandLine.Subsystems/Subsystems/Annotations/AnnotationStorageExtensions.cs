@@ -68,7 +68,7 @@ public static partial class AnnotationStorageExtensions
         var storage = symbolToAnnotationStorage.GetValue(symbol, static (CliSymbol _) => new AnnotationStorage());
         storage.Set(symbol, annotationId, value);
     }
-    
+
     /// <summary>
     /// Sets the value for the annotation <paramref name="id"/> associated with the <paramref name="symbol"/> in the internal annotation storage,
     /// and returns the <paramref name="symbol"> to enable fluent construction of symbols with annotations.
@@ -98,10 +98,6 @@ public static partial class AnnotationStorageExtensions
     /// The identifier for the annotation. For example, the annotation identifier for the help description is <see cref="HelpAnnotations.Description">.
     /// </param>
     /// <param name="value">The annotation value, if successful, otherwise <c>default</c></param>
-    /// <param name="provider">
-    /// An optional annotation provider that may implement custom or lazy construction of annotation values. Annotation returned by an annotation
-    /// provider take precedence over those stored in internal annotation storage.
-    /// </param>
     /// <returns>True if successful</returns>
     /// <remarks>
     /// This is intended to be called by specialized ID-specific accessors for CLI authors such as <see cref="HelpAnnotationExtensions.GetDescription{TSymbol}(TSymbol)"/>.
@@ -131,10 +127,6 @@ public static partial class AnnotationStorageExtensions
     /// <param name="symbol">The symbol that is annotated</param>
     /// <param name="annotationId">
     /// The identifier for the annotation. For example, the annotation identifier for the help description is <see cref="HelpAnnotations.Description">.
-    /// </param>
-    /// <param name="provider">
-    /// An optional annotation provider that may implement custom or lazy construction of annotation values. Annotation returned by an annotation
-    /// provider take precedence over those stored in internal annotation storage.
     /// </param>
     /// <returns>The annotation value, if successful, otherwise <c>default</c></returns>
     /// <remarks>
