@@ -12,7 +12,7 @@ public class VersionSubsystem : CliSubsystem
     private string? specificVersion = null;
 
     public VersionSubsystem(IAnnotationProvider? annotationProvider = null)
-        : base(VersionAnnotations.Prefix, SubsystemKind.Version, annotationProvider)
+        : base(VersionAnnotations.Prefix, SubsystemKind.Version, SubsystemPhase.EarlyReturn, annotationProvider)
     {
     }
 
@@ -29,7 +29,7 @@ public class VersionSubsystem : CliSubsystem
         set => specificVersion = value;
     }
 
-    public static string? AssemblyVersion(Assembly assembly) 
+    public static string? AssemblyVersion(Assembly assembly)
         => assembly
             ?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
             ?.InformationalVersion;
