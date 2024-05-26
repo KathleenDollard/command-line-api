@@ -265,6 +265,7 @@ public partial class Pipeline
                 }
             }
         }
+        TearDownSubsystems(pipelineResult);
         return pipelineResult;
     }
 
