@@ -7,7 +7,7 @@ using System.CommandLine.Subsystems.Annotations;
 namespace System.CommandLine;
 
 public class ValueSubsystem(IAnnotationProvider? annotationProvider = null)
-    : CliSubsystem(ValueAnnotations.Prefix, SubsystemKind.Value, SubsystemPhase.None, annotationProvider)
+    : CliSubsystem(ValueAnnotations.Prefix, SubsystemKind.Value, annotationProvider)
 {
     private Dictionary<CliSymbol, object?> cachedValues = [];
     private ParseResult? parseResult = null;

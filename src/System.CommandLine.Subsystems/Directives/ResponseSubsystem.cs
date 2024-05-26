@@ -7,7 +7,7 @@ using System.CommandLine.Subsystems;
 namespace System.CommandLine.Directives;
 
 public class ResponseSubsystem()
-    : CliSubsystem("Response", SubsystemKind.Response, SubsystemPhase.None, null)
+    : CliSubsystem("Response", SubsystemKind.Response, null)
 {
     protected internal override void Initialize(InitializationContext context)
         => context.Configuration.ResponseFileTokenReplacer = Replacer;

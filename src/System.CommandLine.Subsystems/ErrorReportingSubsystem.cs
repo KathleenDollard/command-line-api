@@ -16,7 +16,7 @@ namespace System.CommandLine;
 public class ErrorReportingSubsystem : CliSubsystem
 {
     public ErrorReportingSubsystem(IAnnotationProvider? annotationProvider = null)
-        : base(ErrorReportingAnnotations.Prefix, SubsystemKind.ErrorReporting, SubsystemPhase.Finish, annotationProvider)
+        : base(ErrorReportingAnnotations.Prefix, SubsystemKind.ErrorReporting, annotationProvider)
     { }
 
     protected internal override bool GetIsActivated(ParseResult? parseResult)

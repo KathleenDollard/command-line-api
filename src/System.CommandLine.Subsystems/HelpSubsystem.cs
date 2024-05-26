@@ -16,7 +16,7 @@ namespace System.CommandLine;
 //          .With(help.Description, "Greet the user");
 //
 public class HelpSubsystem(IAnnotationProvider? annotationProvider = null)
-    : CliSubsystem(HelpAnnotations.Prefix, SubsystemKind.Help, SubsystemPhase.EarlyReturn, annotationProvider)
+    : CliSubsystem(HelpAnnotations.Prefix, SubsystemKind.Help, annotationProvider)
 {
     public CliOption<bool> HelpOption { get; } = new CliOption<bool>("--help", ["-h"])
     {
