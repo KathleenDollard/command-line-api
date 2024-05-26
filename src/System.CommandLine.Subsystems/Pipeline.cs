@@ -214,6 +214,44 @@ public partial class Pipeline
         }
     }
 
+    /// <summary>
+    /// Sets or gets the validation subsystem
+    /// </summary>
+    public ValidationSubsystem? Validation
+    {
+        get
+            => validationPhase.Subsystem switch
+            {
+                null => null,
+                ValidationSubsystem validationSubsystem => validationSubsystem,
+                _ => throw new InvalidOperationException("Version subsystem is not of the correct type")
+            };
+        set
+        {
+            validationPhase.Subsystem = value;
+        }
+    }
+
+
+    /// <summary>
+    /// Sets or gets the invocation subsystem
+    /// </summary>
+    public InvocationSubsystem? Invocation
+    {
+        get
+            => invocationPhase.Subsystem switch
+            {
+                null => null,
+                InvocationSubsystem invocationSubsystem => invocationSubsystem,
+                _ => throw new InvalidOperationException("Version subsystem is not of the correct type")
+            };
+        set
+        {
+            invocationPhase.Subsystem = value;
+        }
+    }
+
+
     // TODO: Are there use cases to replace this? Do we want new default values to require a new ValueSubsystem, which would block getting response providers from two sources.
     /// <summary>
     /// Sets or gets the value subsystem which manages entered and default values.
@@ -221,19 +259,9 @@ public partial class Pipeline
     public ValueSubsystem Value { get; }
 
     /// <summary>
-    /// Sets or gets the validation subsystem
-    /// </summary>
-    public ValidationSubsystem Validation { get; }
-
-    /// <summary>
-    /// Sets or gets the invocation subsystem
-    /// </summary>
-    public InvocationSubsystem Invocation { get; }
-
-    /// <summary>
     /// Sets or gets the response file subsystem
     /// </summary>
-    public ResponseSubsystem Response { get; set; }
+    public ResponseSubsystem Response { get; }
 
     public ParseResult Parse(CliConfiguration configuration, string rawInput)
         => Parse(configuration, CliParser.SplitCommandLine(rawInput).ToArray());
