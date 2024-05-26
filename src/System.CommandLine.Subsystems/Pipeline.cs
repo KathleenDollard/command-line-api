@@ -10,15 +10,15 @@ namespace System.CommandLine;
 public partial class Pipeline
 {
     // TODO: Consider more phases that have obvious meanings, like first and last
-    private PipelinePhase diagramPhase = new();
-    private PipelinePhase completionPhase = new();
-    private PipelinePhase helpPhase = new();
-    private PipelinePhase versionPhase = new();
-    private PipelinePhase validationPhase = new();
-    private PipelinePhase invocationPhase = new();
-    private PipelinePhase errorReportingPhase = new();
+    private PipelinePhase diagramPhase = new(SubsystemKind.Diagram);
+    private PipelinePhase completionPhase = new(SubsystemKind.Completion);
+    private PipelinePhase helpPhase = new(SubsystemKind.Help);
+    private PipelinePhase versionPhase = new(SubsystemKind.Version);
+    private PipelinePhase validationPhase = new(SubsystemKind.Validation);
+    private PipelinePhase invocationPhase = new(SubsystemKind.Invocation);
+    private PipelinePhase errorReportingPhase = new(SubsystemKind.ErrorReporting);
     // TODO: Consider this naming as it sounds like it is a finishing phase
-    private IEnumerable<PipelinePhase> phases = [];
+    private readonly IEnumerable<PipelinePhase> phases = [];
 
     /// <summary>
     /// Creates an instance of the pipeline using standard features.
@@ -46,14 +46,7 @@ public partial class Pipeline
             Diagram = diagram ?? new DiagramSubsystem(),
             ErrorReporting = errorReporting ?? new ErrorReportingSubsystem(),
         };
-        // This order is based on: if the user entered both, which should they get?
-        // * It is reasonable to diagram help and completion. More reasonable than getting help on Diagram or Completion
-        // * A future version of Help and Version may take arguments/options. In that case, help on version is reasonable.
-        pipeline.phases =
-        [
-            pipeline.diagramPhase, pipeline.completionPhase, pipeline.helpPhase, pipeline.versionPhase,
-            pipeline.validationPhase, pipeline.invocationPhase, pipeline.errorReportingPhase
-        ];
+
 
         return pipeline;
     }
@@ -74,6 +67,15 @@ public partial class Pipeline
         Response = new ResponseSubsystem();
         Invocation = new InvocationSubsystem();
         Validation = new ValidationSubsystem();
+
+        // This order is based on: if the user entered both, which should they get?
+        // * It is reasonable to diagram help and completion. More reasonable than getting help on Diagram or Completion
+        // * A future version of Help and Version may take arguments/options. In that case, help on version is reasonable.
+        phases =
+        [
+            diagramPhase, completionPhase, helpPhase, versionPhase,
+            validationPhase, invocationPhase, errorReportingPhase
+        ];
     }
 
     /// <summary>
@@ -125,14 +127,15 @@ public partial class Pipeline
     /// <summary>
     /// Sets or gets the diagramming subsystem.
     /// </summary>
-    public DiagramSubsystem Diagram
+    public DiagramSubsystem? Diagram
     {
         get
-        {
-            return diagramPhase.Subsystem is not DiagramSubsystem diagramSubsystem
-                ? throw new InvalidOperationException("Diagram subsystem is not of the correct type")
-                : diagramSubsystem;
-        }
+            => diagramPhase.Subsystem switch
+            {
+                null => null,
+                DiagramSubsystem diagramSubsystem => diagramSubsystem,
+                _ => throw new InvalidOperationException("Version subsystem is not of the correct type")
+            };
         set
         {
             diagramPhase.Subsystem = value;
@@ -142,14 +145,15 @@ public partial class Pipeline
     /// <summary>
     /// Sets or gets the completion subsystem.
     /// </summary>
-    public CompletionSubsystem Completion
+    public CompletionSubsystem? Completion
     {
         get
-        {
-            return completionPhase.Subsystem is not CompletionSubsystem completionSubsystem
-                ? throw new InvalidOperationException("Completion subsystem is not of the correct type")
-                : completionSubsystem;
-        }
+            => completionPhase.Subsystem switch
+            {
+                null => null,
+                CompletionSubsystem completionSubsystem => completionSubsystem,
+                _ => throw new InvalidOperationException("Version subsystem is not of the correct type")
+            };
         set
         {
             completionPhase.Subsystem = value;
@@ -159,14 +163,15 @@ public partial class Pipeline
     /// <summary>
     /// Sets or gets the help subsystem.
     /// </summary>
-    public HelpSubsystem Help
+    public HelpSubsystem? Help
     {
         get
-        {
-            return helpPhase.Subsystem is not HelpSubsystem helpSubsystem
-                ? throw new InvalidOperationException("Help subsystem is not of the correct type")
-                : helpSubsystem;
-        }
+            => helpPhase.Subsystem switch
+            {
+                null => null,
+                HelpSubsystem helpSubsystem => helpSubsystem,
+                _ => throw new InvalidOperationException("Version subsystem is not of the correct type")
+            };
         set
         {
             helpPhase.Subsystem = value;
@@ -176,14 +181,15 @@ public partial class Pipeline
     /// <summary>
     /// Sets or gets the version subsystem.
     /// </summary>
-    public VersionSubsystem Version
+    public VersionSubsystem? Version
     {
         get
-        {
-            return versionPhase.Subsystem is not VersionSubsystem versionSubsystem
-                ? throw new InvalidOperationException("Version subsystem is not of the correct type")
-                : versionSubsystem;
-        }
+            => versionPhase.Subsystem switch
+            {
+                null => null,
+                VersionSubsystem versionSubsystem => versionSubsystem,
+                _ => throw new InvalidOperationException("Version subsystem is not of the correct type")
+            };
         set
         {
             versionPhase.Subsystem = value;
@@ -193,14 +199,15 @@ public partial class Pipeline
     /// <summary>
     /// Sets or gets the error reporting subsystem.
     /// </summary>
-    public ErrorReportingSubsystem ErrorReporting
+    public ErrorReportingSubsystem? ErrorReporting
     {
         get
-        {
-            return errorReportingPhase.Subsystem is not ErrorReportingSubsystem errorReportingSubsystem
-                ? throw new InvalidOperationException("ErrorReporting subsystem is not of the correct type")
-                : errorReportingSubsystem;
-        }
+            => errorReportingPhase.Subsystem switch
+            {
+                null => null,
+                ErrorReportingSubsystem errorReportingSubsystem => errorReportingSubsystem,
+                _ => throw new InvalidOperationException("Version subsystem is not of the correct type")
+            };
         set
         {
             errorReportingPhase.Subsystem = value;
