@@ -3,10 +3,10 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Parsing;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Threading;
 using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace System.CommandLine
 {
@@ -15,8 +15,8 @@ namespace System.CommandLine
     /// </summary>
     public class CliConfiguration
     {
-        /*
         private TextWriter? _output, _error;
+        /*
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CliConfiguration"/> class.
@@ -133,6 +133,7 @@ namespace System.CommandLine
             get => _output ??= Console.Out;
             set => _output = value ?? throw new ArgumentNullException(nameof(value), "Use TextWriter.Null to disable the output");
         }
+        */
 
         /// <summary>
         /// The standard error. Used for printing error information like parse errors.
@@ -144,6 +145,7 @@ namespace System.CommandLine
             get => _error ??= Console.Error;
             set => _error = value ?? throw new ArgumentNullException(nameof(value), "Use TextWriter.Null to disable the output");
         }
+        /*
 
         /// <summary>
         /// Parses an array strings using the configured <see cref="RootCommand"/>.
@@ -177,6 +179,7 @@ namespace System.CommandLine
         public int Invoke(string[] args)
             => RootCommand.Parse(args, this).Invoke();
 
+        */
         /// <summary>
         /// Parses a command line string value and invokes the handler for the indicated command.
         /// </summary>
@@ -190,8 +193,9 @@ namespace System.CommandLine
         /// </summary>
         /// <returns>The exit code for the invocation.</returns>
         public Task<int> InvokeAsync(string[] args, CancellationToken cancellationToken = default)
-            => RootCommand.Parse(args, this).InvokeAsync(cancellationToken);
+            => RootCommand.Parse(args, this).
 
+        /*
         /// <summary>
         /// Throws an exception if the parser configuration is ambiguous or otherwise not valid.
         /// </summary>

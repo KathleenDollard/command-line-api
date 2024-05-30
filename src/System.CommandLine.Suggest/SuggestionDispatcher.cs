@@ -1,10 +1,6 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 //using System.CommandLine.Completions;
 
@@ -98,9 +94,9 @@ namespace System.CommandLine.Suggest
         };
 
         private CliCommand RegisterCommand { get; }
-
+        */
         public CliConfiguration Configuration { get; }
-
+        /*
         public TimeSpan Timeout { get; set; } = TimeSpan.FromMilliseconds(5000);
 
         public Task<int> InvokeAsync(string[] args) => Configuration.InvokeAsync(args);

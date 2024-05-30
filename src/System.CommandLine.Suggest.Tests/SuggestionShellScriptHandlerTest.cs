@@ -10,7 +10,6 @@ namespace System.CommandLine.Suggest.Tests
 {
     public class SuggestionShellScriptHandlerTest
     {
-        /*
         private readonly CliConfiguration _configuration;
 
         public SuggestionShellScriptHandlerTest()
@@ -30,6 +29,7 @@ namespace System.CommandLine.Suggest.Tests
                     .Should()
                     .Contain("Shell '123' is not supported.");
         }
+        /*
 
         [Fact]
         public async Task It_should_print_bash_shell_script()
