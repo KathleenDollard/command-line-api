@@ -3,7 +3,6 @@
 
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace System.CommandLine.Suggest
 {
@@ -11,17 +10,16 @@ namespace System.CommandLine.Suggest
     {
         internal static string DOTNET_SUGGEST_LOGGING = nameof(DOTNET_SUGGEST_LOGGING);
 
-        public static async Task<int> Main(string[] args)
+        public static int Main(string[] args)
         {
 #if DEBUG
             LogDebug(new[] { "dotnet-suggest received: " }.Concat(args).ToArray());
 #endif
-
             var provider = new CombineSuggestionRegistration(
                 new GlobalToolsSuggestionRegistration(),
                 new FileSuggestionRegistration());
             var dispatcher = new SuggestionDispatcher(provider);
-            return await dispatcher.InvokeAsync(args);
+            return dispatcher.Invoke(args);
         }
 
 #if DEBUG

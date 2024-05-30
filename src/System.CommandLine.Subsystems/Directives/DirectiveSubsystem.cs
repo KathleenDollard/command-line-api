@@ -39,7 +39,7 @@ public abstract class DirectiveSubsystem : CliSubsystem
                         {
                             Value = arg[(start + Id.Length + 2)..(end - 1)];
                         }
-                        Location = new Location(arg.Substring(start, end - start), Location.User, i, null, start);
+                        Location = new Location(arg[start..end], Location.User, i, null, start);
                         context.Configuration.AddPreprocessedLocation(Location);
                         break;
                     }

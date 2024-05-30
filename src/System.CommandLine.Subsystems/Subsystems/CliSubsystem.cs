@@ -58,7 +58,7 @@ public abstract class CliSubsystem
     }
 
     /// <summary>
-    /// The subystem executes, even if another subsystem has handled the operation. This is expected to be used in things like error reporting.
+    /// The subsystem executes, even if another subsystem has handled the operation. This is expected to be used in things like error reporting.
     /// </summary>
     protected internal virtual bool RunsEvenIfAlreadyHandled { get; protected set; }
 
@@ -106,7 +106,7 @@ public abstract class CliSubsystem
     /// <param name="configuration">The CLI configuration, which contains the RootCommand for customization</param>
     /// <returns>True if parsing should continue</returns> // there might be a better design that supports a message
     // TODO: Because of this and similar usage, consider combining CLI declaration and config. ArgParse calls this the parser, which I like
-    // TODO: Why does Intitialize return a configuration?
+    // TODO: Why does Initialize return a configuration?
     protected internal virtual CliConfiguration Initialize(InitializationContext context)
         => context.Configuration;
 

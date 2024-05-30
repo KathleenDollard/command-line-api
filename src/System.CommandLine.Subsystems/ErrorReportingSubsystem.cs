@@ -11,7 +11,7 @@ namespace System.CommandLine;
 /// Subsystem for reporting errors
 /// </summary>
 /// <remarks>
-/// This class, including interface, is likey to change as powderhouse continues
+/// This class, including interface, is likely to change as powderhouse continues
 /// </remarks>
 public class ErrorReportingSubsystem : CliSubsystem
 {

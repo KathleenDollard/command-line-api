@@ -35,23 +35,17 @@ namespace System.CommandLine.Suggest
                                            RedirectStandardOutput = true
                                        };
 
-                using (var process = new Process
-                                     {
-                                         StartInfo = processStartInfo
-                                     })
+                using var process = Process.Start(processStartInfo);
+
+                Task<string> readToEndTask = process.StandardOutput.ReadToEndAsync();
+
+                if (readToEndTask.Wait(timeout))
                 {
-                    process.Start();
-
-                    Task<string> readToEndTask = process.StandardOutput.ReadToEndAsync();
-
-                    if (readToEndTask.Wait(timeout))
-                    {
-                        result = readToEndTask.Result;
-                    }
-                    else
-                    {
-                        process.Kill();
-                    }
+                    result = readToEndTask.Result;
+                }
+                else
+                {
+                    process.Kill();
                 }
             }
             catch (Win32Exception exception)
