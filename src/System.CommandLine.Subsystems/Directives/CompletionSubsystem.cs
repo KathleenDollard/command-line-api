@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.CommandLine.Directives.Completions;
 using System.CommandLine.Parsing;
 using System.CommandLine.Subsystems;
 
@@ -41,7 +42,7 @@ public class CompletionSubsystem(IAnnotationProvider? annotationProvider = null)
     public IEnumerable<CompletionItem> GetCompletions(ParseResult parseResult,
         int? position = null)
     {
-        SymbolResult currentSymbolResult = SymbolToComplete(position);
+        SymbolResult currentSymbolResult = SymbolToComplete(parseResult, position);
 
         CliSymbol currentSymbol = currentSymbolResult switch
         {
@@ -78,5 +79,69 @@ public class CompletionSubsystem(IAnnotationProvider? annotationProvider = null)
                 .Select(o => o.Option)
                 .SelectMany(c => new[] { c.Name }.Concat(c.Aliases))
                 .ToArray();
+    }
+
+    private SymbolResult SymbolToComplete(ParseResult parseResult, int? position = null)
+    {
+        var commandResult = parseResult.CommandResult;
+
+        var allSymbolResultsForCompletion = AllSymbolResultsForCompletion();
+
+        var currentSymbol = allSymbolResultsForCompletion.Last();
+
+        return currentSymbol;
+
+        IEnumerable<SymbolResult> AllSymbolResultsForCompletion()
+        {
+            foreach (var item in commandResult.AllSymbolResults())
+            {
+                if (item is CommandResult command)
+                {
+                    yield return command;
+                }
+                else if (item is OptionResult option)
+                {
+                    if (WillAcceptAnArgument(this, position, option))
+                    {
+                        yield return option;
+                    }
+                }
+            }
+        }
+
+        static bool WillAcceptAnArgument(
+            ParseResult parseResult,
+            int? position,
+            OptionResult optionResult)
+        {
+            if (optionResult.Implicit)
+            {
+                return false;
+            }
+
+            if (!optionResult.IsArgumentLimitReached)
+            {
+                return true;
+            }
+
+            var completionContext = parseResult.GetCompletionContext();
+
+            if (completionContext is TextCompletionContext textCompletionContext)
+            {
+                if (position.HasValue)
+                {
+                    textCompletionContext = textCompletionContext.AtCursorPosition(position.Value);
+                }
+
+                if (textCompletionContext.WordToComplete.Length > 0)
+                {
+                    var tokenToComplete = parseResult.Tokens.Last(t => t.Value == textCompletionContext.WordToComplete);
+
+                    return optionResult.Tokens.Contains(tokenToComplete);
+                }
+            }
+
+            return !optionResult.IsArgumentLimitReached;
+        }
     }
 }
