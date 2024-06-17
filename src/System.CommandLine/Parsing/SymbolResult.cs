@@ -105,7 +105,7 @@ namespace System.CommandLine.Parsing
         /// <returns>An argument result if the argument was matched by the parser or has a default value; otherwise, <c>null</c>.</returns>
         public SymbolResult? GetResult(string name) => 
             SymbolResultTree.GetResult(name);
-
+        */
         /* Not used
         /// <inheritdoc cref="ParseResult.GetValue{T}(CliArgument{T})"/>
         public T? GetValue<T>(CliArgument<T> argument)
@@ -132,6 +132,7 @@ namespace System.CommandLine.Parsing
         }
         */
 
+        /*
         /// <summary>
         /// Gets the value for a symbol having the specified name anywhere in the parse tree.
         /// </summary>

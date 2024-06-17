@@ -46,18 +46,4 @@ public class ErrorReportingSubsystem : CliSubsystem
 
         ConsoleHelpers.ResetTerminalForegroundColor();
     }
-
-    public void Report(ConsoleHack consoleHack, IReadOnlyList<ParseError> errors)
-    {
-        ConsoleHelpers.ResetTerminalForegroundColor();
-        ConsoleHelpers.SetTerminalForegroundRed();
-
-        foreach (var error in errors)
-        {
-            consoleHack.WriteLine(error.Message);
-        }
-        consoleHack.WriteLine();
-
-        ConsoleHelpers.ResetTerminalForegroundColor();
-    }
 }

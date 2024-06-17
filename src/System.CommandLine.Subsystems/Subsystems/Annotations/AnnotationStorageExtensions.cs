@@ -106,11 +106,8 @@ public static partial class AnnotationStorageExtensions
     /// <see cref="HelpSubsystem.TryGetDescription(CliSymbol, out string?)"/>.
     /// </remarks>
     public static bool TryGetAnnotation<TValue>(this CliSymbol symbol, AnnotationId<TValue> annotationId, [NotNullWhen(true)] out TValue? value)
-        {
-            return true;
-        }
-
-        if (symbolToAnnotationStorage.TryGetValue(symbol, out var storage) && storage.TryGet (symbol, annotationId, out value))
+    {
+        if (symbolToAnnotationStorage.TryGetValue(symbol, out var storage) && storage.TryGet(symbol, annotationId, out value))
         {
             return true;
         }
