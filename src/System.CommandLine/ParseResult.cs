@@ -3,9 +3,6 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Parsing;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Threading;
 
 namespace System.CommandLine
 {
@@ -37,10 +34,10 @@ namespace System.CommandLine
             */
             // TODO: unmatched tokens
             // List<CliToken>? unmatchedTokens,
-            List<ParseError>? errors,
+            List<CliDiagnostic>? errors,
             // TODO: commandLineText should be string array
             string? commandLineText = null //,
-            // TODO: invocation
+                                           // TODO: invocation
             /*
             CliAction? action = null,
             List<CliAction>? preActions = null)
@@ -78,7 +75,7 @@ namespace System.CommandLine
             // TODO: unmatched tokens
             // _unmatchedTokens = unmatchedTokens is null ? Array.Empty<CliToken>() : unmatchedTokens;
 
-            Errors = errors is not null ? errors : Array.Empty<ParseError>();
+            Errors = errors is not null ? errors : Array.Empty<CliDiagnostic>();
         }
 
         public CliSymbol? GetSymbolByName(string name, bool valuesOnly = false)

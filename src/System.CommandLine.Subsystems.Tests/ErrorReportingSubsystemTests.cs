@@ -12,8 +12,8 @@ public class ErrorReportingSubsystemTests
     [Fact]
     public void Report_when_single_error_writes_to_console_hack()
     {
-        var error = new ParseError("a sweet error message");
-        var errors = new List<ParseError> { error };
+        var error = new CliDiagnostic("a sweet error message");
+        var errors = new List<CliDiagnostic> { error };
         var errorSubsystem = new ErrorReportingSubsystem();
         var consoleHack = new ConsoleHack().RedirectToBuffer(true);
 
@@ -25,9 +25,9 @@ public class ErrorReportingSubsystemTests
     [Fact]
     public void Report_when_multiple_error_writes_to_console_hack()
     {
-        var error = new ParseError("a sweet error message");
-        var anotherError = new ParseError("another sweet error message");
-        var errors = new List<ParseError> { error, anotherError };
+        var error = new CliDiagnostic("a sweet error message");
+        var anotherError = new CliDiagnostic("another sweet error message");
+        var errors = new List<CliDiagnostic> { error, anotherError };
         var errorSubsystem = new ErrorReportingSubsystem();
         var consoleHack = new ConsoleHack().RedirectToBuffer(true);
 
@@ -39,7 +39,7 @@ public class ErrorReportingSubsystemTests
     [Fact]
     public void Report_when_no_errors_writes_nothing_to_console_hack()
     {
-        var errors = new List<ParseError> { };
+        var errors = new List<CliDiagnostic> { };
         var errorSubsystem = new ErrorReportingSubsystem();
         var consoleHack = new ConsoleHack().RedirectToBuffer(true);
 

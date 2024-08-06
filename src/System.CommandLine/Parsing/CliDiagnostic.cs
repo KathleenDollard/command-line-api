@@ -65,19 +65,37 @@ public sealed class CliDiagnostic
     /// <param name="descriptor">Contains information about the error.</param>
     /// <param name="messageArgs">The arguments to be passed to the <see cref="CliDiagnosticDescriptor.MessageFormat"/> in the <paramref name="descriptor"/>.</param>
     /// <param name="properties">Properties to be associated with the diagnostic.</param>
-    /// <param name="symbolResult">The symbol result detailing the symbol that failed to parse and the tokens involved.</param>
+    /// <param name="valueResult">Contains the data for a single option or argument.</param>
     /// <param name="location">The location of the error.</param>
     public CliDiagnostic(
         CliDiagnosticDescriptor descriptor,
         object?[]? messageArgs,
         ImmutableDictionary<string, object>? properties = null,
-        SymbolResult? symbolResult = null,
+        ValueResult? valueResult = null,
         Location? location = null)
     {
         Descriptor = descriptor;
         MessageArgs = messageArgs;
         Properties = properties;
-        SymbolResult = symbolResult;
+    }
+    /// <summary>
+    /// Initializes a new instance of the <see cref="CliDiagnostic"/> class.
+    /// </summary>
+    /// <param name="descriptor">Contains information about the error.</param>
+    /// <param name="messageArgs">The arguments to be passed to the <see cref="CliDiagnosticDescriptor.MessageFormat"/> in the <paramref name="descriptor"/>.</param>
+    /// <param name="properties">Properties to be associated with the diagnostic.</param>
+    /// <param name="commandValueResult">Contains information about a single value entered.</param>
+    /// <param name="location">The location of the error.</param>
+    public CliDiagnostic(
+        CliDiagnosticDescriptor descriptor,
+        object?[]? messageArgs,
+        ImmutableDictionary<string, object>? properties = null,
+        CommandValueResult? commandValueResult = null,
+        Location? location = null)
+    {
+        Descriptor = descriptor;
+        MessageArgs = messageArgs;
+        Properties = properties;
     }
 
     /// <summary>
@@ -101,10 +119,9 @@ public sealed class CliDiagnostic
 
     public object?[]? MessageArgs { get; }
 
-    /// <summary>
-    /// Gets the symbol result detailing the symbol that failed to parse and the tokens involved.
-    /// </summary>
-    public SymbolResult? SymbolResult { get; }
+    public CommandValueResult? CommandValueResult { get; }
+
+    public ValueResult? ValueResult { get; }
 
     /// <inheritdoc />
     public override string ToString() => Message;
